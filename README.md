@@ -10,7 +10,7 @@ The first full pass contains approximately 7,250 words of notes and examples. At
 
 ## Install on a phone
 
-Open the published HTTPS site in your mobile browser. For an owner-private deployment, sign in with the account that owns the site. On iOS, use Safari’s Share menu and choose **Add to Home Screen**. On Android, use **Install app** from the site navigation or Chrome menu. After **Install app** reports that lessons and quizzes are ready offline, the production app can reload without a connection.
+Open [Stack Garden on GitHub Pages](https://zerosicx.github.io/system-design-speedrun/) in your mobile browser. On iOS, use Safari’s Share menu and choose **Add to Home Screen**. On Android, use **Install app** from the site navigation or Chrome menu. After **Install app** reports that lessons and quizzes are ready offline, the production app can reload without a connection.
 
 Reading progress, bookmarks, quiz accuracy, missed questions and preferences are stored in the current browser’s local storage. Clearing site data removes this history. Sounds are opt-in, and vibration depends on browser and device support.
 
@@ -31,7 +31,7 @@ npm run build
 npm run preview
 ```
 
-Serve the contents of `dist/` at the root of an HTTPS origin. The build writes a versioned service worker that precaches the complete app, including the curriculum, local fonts and illustrations. Hash-based routes support direct links without a server rewrite.
+Pushes to `main` run the curriculum check, build the app, and publish `dist/` to GitHub Pages. Relative asset paths also support other HTTPS hosts and project subdirectories. The build writes a versioned service worker that precaches the complete app, including the curriculum, local fonts and illustrations. Hash-based routes support direct links without a server rewrite.
 
 ## Curriculum and artwork
 
