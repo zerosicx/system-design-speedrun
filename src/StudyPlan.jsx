@@ -37,9 +37,10 @@ export function StudyPlan({ p, start }) {
         <h2>Read the field guide</h2>
         <p>
           {unread.length} lessons left. At 150–200 words per minute, the
-          remaining lessons, examples, and key terms take about{" "}
+          remaining core notes, examples, and key terms take about{" "}
           {Math.ceil(words / 200)}–{Math.ceil(words / 150)} minutes of reading.
-          Allow extra time for breaks and questions.
+          Allow extra time for cloud walkthroughs, comparison tables, breaks,
+          and questions.
         </p>
         <p>
           Try a ten-minute reading block. Bookmark anything you couldn’t explain

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "RPC",
+    "lesson": "systems-rpc",
+    "model": "Call a named operation. This example uses JSON-RPC 2.0.",
+    "request": "{\"jsonrpc\":\"2.0\",\"method\":\"getOrder\",\"params\":{\"id\":\"42\"},\"id\":1}",
+    "benefit": "A small internal tool can call getOrder with a familiar method name and correlate the reply with request ID 1. The wire format is easy to inspect.",
+    "tradeoff": "The method name, arguments, and result shape form a contract you must evolve. Retrying a command such as placeOrder after a timeout can repeat its effect unless you design for retries.",
+    "source": {
+      "title": "JSON-RPC 2.0 specification",
+      "url": "https://www.jsonrpc.org/specification"
+    }
+  },
+  {
+    "name": "gRPC",
+    "lesson": "systems-grpc",
+    "model": "Define a typed method in a service contract and call a generated client. Shown here is the method signature.",
+    "request": "rpc GetOrder(GetOrderRequest) returns (Order);",
+    "benefit": "Checkout and fulfillment can share a Protobuf contract across languages. The same framework supports streaming for a separate live order-tracking method.",
+    "tradeoff": "Teams must maintain compatible schemas and generated clients. A browser client typically needs gRPC-Web support at the server or proxy.",
+    "source": {
+      "title": "gRPC core concepts",
+      "url": "https://grpc.io/docs/what-is-grpc/core-concepts/"
+    }
+  },
+  {
+    "name": "REST",
+    "lesson": "systems-rest",
+    "model": "Read an order resource through HTTP’s uniform interface. The server chooses the representation.",
+    "request": "GET /orders/42 HTTP/1.1",
+    "benefit": "A client can revalidate a previously fetched order with an ETag. The server can return 304 when the representation is unchanged, saving a response body.",
+    "tradeoff": "A mobile page that also needs shipment details may need another request or a richer representation. Personalized order data needs appropriate cache controls.",
+    "source": {
+      "title": "HTTP semantics and conditional requests",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html#name-conditional-requests"
+    }
+  },
+  {
+    "name": "GraphQL",
+    "lesson": "systems-graphql",
+    "model": "Select fields from a typed schema. The server resolves those fields into the requested shape.",
+    "request": "query { order(id: \"42\") { status shipment { eta } } }",
+    "benefit": "A phone can request just the status, while a support screen can request the shipment ETA in the same operation. Both use the same schema.",
+    "tradeoff": "One client request can trigger many backend calls. If a list of orders resolves each shipment separately, batching loads by shipment ID can prevent one extra query per order.",
+    "source": {
+      "title": "GraphQL performance guide",
+      "url": "https://graphql.org/learn/performance/"
+    }
+  }
+]

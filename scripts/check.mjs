@@ -12,6 +12,7 @@ const sections = new Set([
   "Cloud patterns",
   "Security",
 ]);
+const lessonIds = new Set();
 let count = 0;
 for (const group of ["core", "systems", "patterns"]) {
   const cards = JSON.parse(
@@ -46,7 +47,51 @@ for (const group of ["core", "systems", "patterns"]) {
       .replace(/-$/, "");
     assert.ok(!ids.has(id), "Duplicate ID in " + group + ": " + id);
     ids.add(id);
+    lessonIds.add(group + "-" + id);
   }
   count += cards.length;
 }
 console.log(count + " valid lessons and quizzes");
+
+const readData = async (name) =>
+  JSON.parse(
+    await readFile(new URL("../src/data/" + name + ".json", import.meta.url)),
+  );
+const assigned = new Set();
+for (const item of await readData("cloud-examples")) {
+  assert.ok(item.title && item.tradeoff && item.lessons.length);
+  for (const id of item.lessons) {
+    assert.ok(
+      lessonIds.has(id) && !assigned.has(id),
+      "Invalid cloud example mapping: " + id,
+    );
+    assigned.add(id);
+  }
+  for (const provider of [item.aws, item.azure]) {
+    assert.ok(
+      provider.path.length >= 2 &&
+        provider.path.every(Boolean) &&
+        provider.explanation,
+    );
+    assert.ok(
+      provider.source.title &&
+        new URL(provider.source.url).protocol === "https:",
+    );
+  }
+}
+const comparisons = await readData("api-comparison");
+assert.deepEqual(
+  comparisons.map((row) => row.name),
+  ["RPC", "gRPC", "REST", "GraphQL"],
+);
+for (const row of comparisons) {
+  assert.ok(lessonIds.has(row.lesson));
+  assert.ok(
+    row.request && row.model && row.benefit && row.tradeoff && row.source.title,
+  );
+  assert.equal(new URL(row.source.url).protocol, "https:");
+}
+console.log(
+  assigned.size +
+    " cloud example lesson mappings and four API approaches verified",
+);

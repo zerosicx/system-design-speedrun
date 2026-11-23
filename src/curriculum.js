@@ -2,6 +2,19 @@ import core from "./data/core.json";
 import systems from "./data/systems.json";
 import patterns from "./data/patterns.json";
 
+import cloudExamples from "./data/cloud-examples.json";
+import apiComparison from "./data/api-comparison.json";
+
+const exampleByLesson = new Map(
+  cloudExamples.flatMap((scenario) =>
+    scenario.lessons.map((id) => [id, scenario]),
+  ),
+);
+const comparisonLessons = new Set([
+  "systems-communication",
+  ...apiComparison.map((row) => row.lesson),
+]);
+
 export const slug = (name) =>
   name
     .toLowerCase()
@@ -67,12 +80,43 @@ export const concepts = chapters.flatMap((chapter) =>
   [core, systems, patterns].flatMap((group, index) =>
     group
       .filter((item) => item.section === chapter.name)
-      .map((item) => ({
-        ...item,
-        title: item.title.trim(),
-        id: ["core", "systems", "patterns"][index] + "-" + slug(item.title),
-        chapter: chapter.id,
-      })),
+      .map((item) => {
+        const id =
+          ["core", "systems", "patterns"][index] + "-" + slug(item.title);
+        const cloudExample = exampleByLesson.get(id);
+        const hasComparison = comparisonLessons.has(id);
+        const searchText = [
+          item.title,
+          item.section,
+          item.lesson,
+          item.detail,
+          item.example,
+          ...item.terms.flatMap((t) => [t.term, t.definition]),
+          ...(cloudExample
+            ? [
+                cloudExample.title,
+                "AWS Azure",
+                ...cloudExample.aws.path,
+                cloudExample.aws.explanation,
+                ...cloudExample.azure.path,
+                cloudExample.azure.explanation,
+                cloudExample.tradeoff,
+              ]
+            : []),
+          ...(hasComparison ? apiComparison.map((row) => row.name) : []),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return {
+          ...item,
+          id,
+          title: item.title.trim(),
+          chapter: chapter.id,
+          cloudExample,
+          hasComparison,
+          searchText,
+        };
+      }),
   ),
 );
 export const byId = Object.fromEntries(concepts.map((c) => [c.id, c]));

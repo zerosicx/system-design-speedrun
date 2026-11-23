@@ -1,0 +1,409 @@
+[
+  {
+    "title": "Release an illustrated field guide to readers worldwide",
+    "lessons": [
+      "core-domain-name-system",
+      "core-content-delivery-networks",
+      "core-pull-cdns"
+    ],
+    "aws": {
+      "path": ["Browser", "CloudFront edge", "S3 origin on a miss"],
+      "explanation": "A Route 53 alias for the guide’s asset hostname points readers to CloudFront. Readers requesting the same map can receive a cached copy at the edge. When CloudFront lacks a usable copy across its cache layers, it fetches the file from S3.",
+      "source": {
+        "title": "How CloudFront delivers content",
+        "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html"
+      }
+    },
+    "azure": {
+      "path": ["Browser", "Azure Front Door", "Blob Storage on a miss"],
+      "explanation": "Point the asset subdomain at Front Door and enable caching on the map route. On a miss, Front Door retrieves the blob and can cache it for later readers. Uploading a replacement blob under the same name can leave earlier copies at the edge until expiry or purge.",
+      "source": {
+        "title": "Connect Blob Storage to Front Door",
+        "url": "https://learn.microsoft.com/en-us/azure/frontdoor/integrate-storage-account"
+      }
+    },
+    "tradeoff": "Give each map edition a versioned URL and keep the small page linking to it short-lived. Long cache lifetimes then save trips to storage while a new edition can be released immediately."
+  },
+  {
+    "title": "Give search and checkout one HTTPS hostname",
+    "lessons": [
+      "core-layer-7-load-balancing",
+      "core-lb-vs-reverse-proxy",
+      "core-load-balancers"
+    ],
+    "aws": {
+      "path": [
+        "Shopper",
+        "Application Load Balancer",
+        "Search or checkout targets"
+      ],
+      "explanation": "Terminate the shopper’s HTTPS connection at an Application Load Balancer. Configure path rules for /search/* and /checkout/* that forward to separate target groups, so a surge of product searches can use its own fleet.",
+      "source": {
+        "title": "Application Load Balancer path conditions",
+        "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/rule-condition-types.html"
+      }
+    },
+    "azure": {
+      "path": ["Shopper", "Application Gateway v2", "Search or checkout pool"],
+      "explanation": "Attach a path-based routing rule to the HTTPS listener. Configure a search backend pool, a checkout pool and an explicit default for unmatched paths. The selected backend normally receives the full path, so its handlers must recognize that path.",
+      "source": {
+        "title": "Application Gateway path routing",
+        "url": "https://learn.microsoft.com/en-us/azure/application-gateway/url-route-overview"
+      }
+    },
+    "tradeoff": "Separating compute pools protects checkout from search CPU demand. If both still share a database connection limit, a search spike can exhaust that limit and slow both services."
+  },
+  {
+    "title": "Keep a sensor’s encrypted TCP stream on one collector",
+    "lessons": [
+      "core-layer-4-load-balancing",
+      "core-load-balancing-algorithms"
+    ],
+    "aws": {
+      "path": ["Sensor", "Network Load Balancer", "EC2 collector"],
+      "explanation": "Use a TCP listener and a TCP target group so the collector handles the sensor’s TLS session. The Network Load Balancer picks a target for a new flow and keeps the connection on that target for its lifetime.",
+      "source": {
+        "title": "How Network Load Balancers route flows",
+        "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html"
+      }
+    },
+    "azure": {
+      "path": ["Sensor", "Standard Load Balancer", "Collector VM"],
+      "explanation": "Use a TCP rule with the default distribution mode. Azure hashes the addresses, ports and protocol to select a healthy backend for the connection. A new connection from the same sensor can select a different collector.",
+      "source": {
+        "title": "Azure Load Balancer distribution modes",
+        "url": "https://learn.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts"
+      }
+    },
+    "tradeoff": "Adding collectors helps new connections first. If a collector dies, sensors must reconnect and resume from an acknowledged sequence number to recover readings that were in flight."
+  },
+  {
+    "title": "Scale recipe search for the dinner rush",
+    "lessons": [
+      "core-horizontal-scaling",
+      "core-application-layer",
+      "core-performance-vs-scalability"
+    ],
+    "aws": {
+      "path": ["Browser", "Application Load Balancer", "ECS tasks on Fargate"],
+      "explanation": "Run the stateless recipe search API as an ECS service. A target-tracking policy can add tasks when average CPU rises during expensive filtering, and the load balancer can send queries to ready tasks. Keep saved searches outside the task so any instance can serve the next request.",
+      "source": {
+        "title": "Scaling an Amazon ECS service",
+        "url": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html"
+      }
+    },
+    "azure": {
+      "path": ["Browser", "Container Apps ingress", "Search replicas"],
+      "explanation": "Deploy the same API in Azure Container Apps and configure an HTTP scaling rule with minimum and maximum replica counts. Ingress handles incoming queries while the platform adjusts the number of replicas according to incoming HTTP demand.",
+      "source": {
+        "title": "HTTP scaling in Azure Container Apps",
+        "url": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app#http"
+      }
+    },
+    "tradeoff": "CPU works as a signal when filtering uses compute. If queries instead stall on a shared database, increasing replica count can add database connections and deepen the slowdown. Watch query latency at the database as well as the API."
+  },
+  {
+    "title": "Find the pricing service during a rolling deployment",
+    "lessons": ["core-service-discovery", "core-microservices"],
+    "aws": {
+      "path": ["Checkout task", "Cloud Map DNS lookup", "Pricing task"],
+      "explanation": "Configure the ECS pricing service to register task IPs in a private Cloud Map DNS namespace. Checkout resolves the pricing name, chooses a returned address and connects directly to that task. During a rollout, membership changes as tasks start and stop.",
+      "source": {
+        "title": "ECS service discovery with DNS",
+        "url": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html"
+      }
+    },
+    "azure": {
+      "path": [
+        "Checkout app",
+        "Container Apps internal ingress",
+        "Pricing replica"
+      ],
+      "explanation": "Enable internal ingress on the pricing app inside the same Container Apps environment. Checkout calls the pricing app by name. Built-in DNS resolves to the environment’s proxy, which uses the host to route the request to the configured revision and a replica.",
+      "source": {
+        "title": "Calls between Azure container apps",
+        "url": "https://learn.microsoft.com/en-us/azure/container-apps/connect-apps"
+      }
+    },
+    "tradeoff": "Direct discovery lets a client choose a task, but its cached address can outlive that task. Proxy routing keeps replica selection out of the caller, while adding a routing layer whose readiness and timeout behavior still affect checkout."
+  },
+  {
+    "title": "Reserve the last concert seat",
+    "lessons": ["systems-databases", "systems-rdbms", "systems-sql-vs-nosql"],
+    "aws": {
+      "path": [
+        "Booking API",
+        "Aurora PostgreSQL writer",
+        "Bookings and tickets"
+      ],
+      "explanation": "On the Aurora PostgreSQL writer, insert the seat claim and its ticket in one transaction. A unique constraint on show ID and seat ID settles simultaneous attempts. If either insert fails, roll back the transaction and tell the caller whether the seat was taken.",
+      "source": {
+        "title": "AWS guide to Aurora PostgreSQL",
+        "url": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html"
+      }
+    },
+    "azure": {
+      "path": ["Booking API", "Azure SQL Database", "Bookings and tickets"],
+      "explanation": "In Azure SQL Database, begin an explicit transaction and insert the booking and ticket before committing. Enforce the show-and-seat pair as a unique key and roll back on error, so a competing request cannot leave behind a ticket without a booking.",
+      "source": {
+        "title": "Microsoft guide to explicit transactions",
+        "url": "https://learn.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=azuresqldb-current"
+      }
+    },
+    "tradeoff": "Competing buyers may wait or receive a conflict on a popular seat. Keep external payment calls outside the short database transaction and reconcile payment separately."
+  },
+  {
+    "title": "Read one sensor’s hourly history",
+    "lessons": [
+      "systems-sharding",
+      "systems-nosql",
+      "systems-key-value-store",
+      "systems-document-store",
+      "patterns-sharding"
+    ],
+    "aws": {
+      "path": ["History API", "DynamoDB Query", "Device-day items"],
+      "explanation": "Build the DynamoDB partition key from the device ID and UTC date, and the sort key from a fixed-width UTC timestamp plus a reading ID. Query one partition key with a sort-key time range to retrieve the hour. Split a request crossing midnight into two day queries.",
+      "source": {
+        "title": "AWS guide to DynamoDB sort keys",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-sort-keys.html"
+      }
+    },
+    "azure": {
+      "path": ["History API", "Cosmos DB for NoSQL", "Device-day documents"],
+      "explanation": "Store a deviceDay property on each reading and select /deviceDay as the container partition key. Supply that value on the query and filter the indexed timestamp for the hour. Give each reading a distinct item ID within that logical partition.",
+      "source": {
+        "title": "Microsoft guide to Cosmos DB partitioning",
+        "url": "https://learn.microsoft.com/en-us/azure/cosmos-db/partitioning"
+      }
+    },
+    "tradeoff": "A device-day bounds historical growth per key, but one unusually busy device can still concentrate writes. Splitting a day across more keys spreads those writes and makes history reads collect more results."
+  },
+  {
+    "title": "Keep sales reports off checkout",
+    "lessons": [
+      "systems-replication",
+      "core-replication",
+      "core-master-slave",
+      "core-eventual-consistency"
+    ],
+    "aws": {
+      "path": [
+        "Checkout writes",
+        "RDS for PostgreSQL primary",
+        "Reporting read replica"
+      ],
+      "explanation": "Send purchases to the primary and connect the sales dashboard to an RDS for PostgreSQL read replica. RDS propagates changes asynchronously, so load the immediate purchase confirmation from the primary if the buyer needs to see their completed order.",
+      "source": {
+        "title": "AWS guide to RDS read replicas",
+        "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html"
+      }
+    },
+    "azure": {
+      "path": [
+        "Checkout writes",
+        "Azure PostgreSQL primary",
+        "Reporting read replica"
+      ],
+      "explanation": "Attach a read replica to Azure Database for PostgreSQL flexible server and use its endpoint for report queries. The replica applies the primary’s change stream asynchronously. Monitor replay lag and display the report’s data cutoff when ingestion falls behind.",
+      "source": {
+        "title": "Microsoft guide to PostgreSQL read replicas",
+        "url": "https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas"
+      }
+    },
+    "tradeoff": "A replica gives expensive reports separate read capacity for the price of another database instance and a freshness delay. It cannot take over the primary’s ordinary checkout writes while it remains read-only."
+  },
+  {
+    "title": "Cache a popular trail guide",
+    "lessons": [
+      "systems-caching",
+      "systems-cache-aside",
+      "patterns-cache-aside",
+      "systems-application-caching",
+      "systems-no-caching"
+    ],
+    "aws": {
+      "path": ["Guide API", "ElastiCache for Memcached", "RDS on miss"],
+      "explanation": "Look up the guide ID and language in ElastiCache for Memcached. On a miss, the API reads the guide from RDS, returns it, and stores that result under the same cache key with an expiry. After editing the guide, invalidate its affected entries.",
+      "source": {
+        "title": "AWS guide to lazy loading in ElastiCache",
+        "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Strategies.html"
+      }
+    },
+    "azure": {
+      "path": ["Guide API", "Azure Managed Redis", "Azure PostgreSQL on miss"],
+      "explanation": "Check Azure Managed Redis for the requested guide and language before querying Azure Database for PostgreSQL. Fill the cache after a miss and evict the affected keys after an edit commits. The database remains the recovery source if the cache empties.",
+      "source": {
+        "title": "Microsoft’s Redis and PostgreSQL cache-aside architecture",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/databases/architecture/cache-aside-azure-managed-redis-postgresql"
+      }
+    },
+    "tradeoff": "Longer expiry reduces repeated reads but can expose older descriptions after an invalidation failure. When a popular key expires, coalesce simultaneous rebuilds to protect the database."
+  },
+  {
+    "title": "Publish downloadable trail maps",
+    "lessons": [
+      "patterns-static-content-hosting",
+      "systems-monolithic-persistence",
+      "systems-client-caching"
+    ],
+    "aws": {
+      "path": ["Map publisher", "Amazon S3 bucket", "Map download"],
+      "explanation": "Upload each PDF to an S3 bucket under a key that includes the map’s content hash. After the upload succeeds, update the trail catalog to refer to that key. Readers can keep a cached copy of the immutable file while a correction gets a different key.",
+      "source": {
+        "title": "AWS guide to S3 objects and keys",
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingObjects.html"
+      }
+    },
+    "azure": {
+      "path": ["Map publisher", "Azure Blob container", "Map download"],
+      "explanation": "Write the PDF as a block blob with a content-hashed name in an Azure Storage container, then update the trail’s catalog entry. The file and catalog have separate lifecycles, so retain the prior blob while old catalog responses still refer to its URL.",
+      "source": {
+        "title": "Microsoft guide to Azure Blob Storage",
+        "url": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction"
+      }
+    },
+    "tradeoff": "Object storage serves large immutable files without loading relational rows full of binary data. Uploading the file and updating the catalog are separate operations, so publish the file first and clean up orphaned versions later."
+  },
+  {
+    "title": "Drain a rush of yearbook exports",
+    "lessons": [
+      "core-background-jobs",
+      "systems-task-queues",
+      "patterns-queue-based-load-leveling",
+      "patterns-competing-consumers"
+    ],
+    "aws": {
+      "path": ["Export API", "Amazon SQS", "PDF workers"],
+      "explanation": "The API enqueues a job ID for each class yearbook. A worker receives the message, writes the PDF to a stable output location and deletes the message after saving the result. If the worker crashes, another consumer can receive the job after its visibility timeout.",
+      "source": {
+        "title": "How SQS visibility timeouts work",
+        "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+      }
+    },
+    "azure": {
+      "path": ["Export API", "Service Bus queue", "PDF workers"],
+      "explanation": "Workers receive export jobs in PeekLock mode and complete each message after the PDF is saved. A worker can renew its lock during a long render. If it loses the lock, a replacement worker checks the job ID for an existing output before rendering again.",
+      "source": {
+        "title": "Service Bus locks and settlement",
+        "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-transfers-locks-settlement"
+      }
+    },
+    "tradeoff": "Set the worker limit to protect the renderer and accept that a burst will make some students wait. Show the age of the oldest waiting export so the team can see when that wait becomes unacceptable."
+  },
+  {
+    "title": "Tell two teams about one ticket sale",
+    "lessons": [
+      "core-event-driven",
+      "systems-message-queues",
+      "patterns-messaging",
+      "patterns-publisher-subscriber",
+      "patterns-choreography"
+    ],
+    "aws": {
+      "path": ["Ticket sale", "Amazon SNS topic", "Two SQS queues"],
+      "explanation": "Publish TicketSold once to an SNS topic with an SQS queue subscribed for admission and another for royalties. Each team processes its own queue. Royalties can pause during maintenance while admission continues issuing digital passes.",
+      "source": {
+        "title": "Fan out SNS notifications to SQS queues",
+        "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-sqs-as-subscriber.html"
+      }
+    },
+    "azure": {
+      "path": ["Ticket sale", "Service Bus topic", "Two subscriptions"],
+      "explanation": "Publish TicketSold to a Service Bus topic. Admission and royalties each have a durable subscription with its own pending deliveries, so completing a delivery for admission leaves the royalties copy available to its worker.",
+      "source": {
+        "title": "Service Bus queues, topics and subscriptions",
+        "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions"
+      }
+    },
+    "tradeoff": "Both teams can deploy and catch up independently. Give the sale a stable ID so redelivery cannot issue a second pass or record the same royalty twice."
+  },
+  {
+    "title": "Find the slow call in checkout",
+    "lessons": [
+      "systems-monitoring",
+      "systems-performance-monitoring",
+      "systems-instrumentation",
+      "systems-visualization-alerts"
+    ],
+    "aws": {
+      "path": [
+        "Checkout & payment",
+        "OpenTelemetry",
+        "CloudWatch Transaction Search"
+      ],
+      "explanation": "Instrument checkout and its payment client with spans and propagate trace context between services. Send spans to the X-Ray OpenTelemetry endpoint with CloudWatch Transaction Search enabled, then inspect a slow checkout trace to see how much time the payment call consumed.",
+      "source": {
+        "title": "CloudWatch Transaction Search",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Transaction-Search.html"
+      }
+    },
+    "azure": {
+      "path": ["Checkout & payment", "OpenTelemetry", "Application Insights"],
+      "explanation": "Instrument both services with Azure Monitor OpenTelemetry and send their telemetry to Application Insights. From the Performance view, open a slow checkout in transaction diagnostics and compare the payment dependency duration with the entire request.",
+      "source": {
+        "title": "Investigate transactions with Application Insights",
+        "url": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/transaction-search-and-diagnostics"
+      }
+    },
+    "tradeoff": "Sampling fewer traces reduces telemetry volume but may miss a rare slowdown. Keep aggregate latency measurements alongside traces so one unusual checkout can be compared with the wider workload."
+  },
+  {
+    "title": "Upload one recording from a phone",
+    "lessons": [
+      "patterns-valet-key",
+      "patterns-security",
+      "patterns-claim-check"
+    ],
+    "aws": {
+      "path": ["Upload grant API", "Presigned PUT URL", "Amazon S3"],
+      "explanation": "After checking the musician can add a recording, the API signs a short-lived PUT URL for a new object key. The phone uploads the audio directly to S3. The processing job receives the object reference after upload, keeping the recording out of its message.",
+      "source": {
+        "title": "Upload objects with S3 presigned URLs",
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html"
+      }
+    },
+    "azure": {
+      "path": ["Upload grant API", "User delegation SAS", "Azure Blob Storage"],
+      "explanation": "The API uses its Microsoft Entra identity to obtain a user delegation key and issues a short-lived shared access signature scoped to the intended blob and upload permission. The phone sends the recording to Blob Storage, then the processing job receives the blob reference.",
+      "source": {
+        "title": "Create a user delegation SAS for a blob",
+        "url": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-user-delegation-sas-create-dotnet"
+      }
+    },
+    "tradeoff": "The audio bytes bypass the API, reducing the bandwidth it must handle. The upload URL grants access while valid, so keep its lifetime short and validate the uploaded media before exposing it to listeners."
+  },
+  {
+    "title": "Wait overnight for an editor’s approval",
+    "lessons": [
+      "patterns-scheduler-agent-supervisor",
+      "patterns-async-request-reply",
+      "core-returning-results"
+    ],
+    "aws": {
+      "path": [
+        "Draft submission",
+        "Step Functions Standard",
+        "Approval callback"
+      ],
+      "explanation": "A Standard workflow sends an approval request with a task token to a trusted approval service, then waits. After an authenticated editor decides, the service calls back with the token and decision. The workflow can publish or return the draft for edits.",
+      "source": {
+        "title": "Step Functions callback integration patterns",
+        "url": "https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html"
+      }
+    },
+    "azure": {
+      "path": [
+        "Draft submission",
+        "Durable Functions",
+        "External approval event"
+      ],
+      "explanation": "An orchestrator waits for an EditorDecision event for this draft’s orchestration instance. The approval service checks who is allowed to review the draft and raises that event with the decision. The orchestrator resumes and schedules the appropriate follow-up activity.",
+      "source": {
+        "title": "External events in durable orchestrations",
+        "url": "https://learn.microsoft.com/en-us/azure/durable-task/common/durable-task-external-events"
+      }
+    },
+    "tradeoff": "Waiting for a signal avoids polling an editor all night. Define an expiry path and a rule for late or duplicate decisions so an abandoned draft can reach a clear final state."
+  }
+]

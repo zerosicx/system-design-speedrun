@@ -1377,3 +1377,120 @@ footer a {
   outline: 3px solid #b98930;
   outline-offset: 2px;
 }
+
+.lesson-enrichment {
+  max-width: 900px;
+  margin-top: 16px;
+}
+.lesson-enrichment h2 {
+  margin: 8px 0 13px;
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+}
+.cloud-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.cloud-switch button {
+  min-height: 40px;
+  min-width: 72px;
+  border-radius: 7px;
+}
+.cloud-switch button[aria-pressed="true"] {
+  background: var(--green);
+  color: white;
+  font-weight: 700;
+}
+.component-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0;
+  list-style: none;
+  margin: 16px 0 12px;
+}
+.component-path li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.88rem;
+}
+.component-path li span {
+  background: #ebf1e3;
+  padding: 5px 9px;
+  border-radius: 6px;
+}
+.example-source {
+  display: inline-flex;
+  gap: 5px;
+  align-items: baseline;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+.example-source svg {
+  flex-shrink: 0;
+}
+.design-choice {
+  padding-top: 14px;
+  margin-top: 15px;
+  border-top: 1px solid var(--line);
+}
+.design-choice strong,
+.api-decision strong {
+  display: block;
+}
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 24px;
+  text-align: left;
+}
+.api-table caption {
+  text-align: left;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+.api-table th,
+.api-table td {
+  padding: 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+.api-table th:first-child {
+  width: clamp(67px, 18%, 120px);
+}
+.api-table thead {
+  background: #eef3e6;
+  font-size: 0.88rem;
+}
+.api-table code {
+  display: block;
+  font: 0.82rem/1.6 var(--mono);
+  overflow-wrap: anywhere;
+  margin-bottom: 5px;
+}
+.api-table tbody th {
+  font-size: 0.9rem;
+}
+.api-decision {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+@media (max-width: 720px) {
+  .api-decision {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .api-table td,
+  .api-table th {
+    padding: 9px 5px;
+  }
+}

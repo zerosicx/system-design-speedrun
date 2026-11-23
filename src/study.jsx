@@ -16,6 +16,8 @@ import {
 import { chapters, concepts, inChapter } from "./curriculum";
 import { href, go, Empty } from "./ui";
 import { Question } from "./quiz";
+import { ApiComparison, CloudExample } from "./LessonExamples";
+
 const chapterFor = (id) => chapters.find((c) => c.id === id);
 
 export function ListPage({ kind, chapter, p, bookmark, startQuiz }) {
@@ -30,16 +32,7 @@ export function ListPage({ kind, chapter, p, bookmark, startQuiz }) {
   const shown = pool.filter(
     (c) =>
       (section === "all" || c.chapter === section) &&
-      [
-        c.title,
-        c.section,
-        c.lesson,
-        c.detail,
-        ...c.terms.flatMap(({ term, definition }) => [term, definition]),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(query.trim().toLowerCase()),
+      c.searchText.includes(query.trim().toLowerCase()),
   );
   const title =
     kind === "chapter"
@@ -205,6 +198,8 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
           </dl>
         </section>
       </article>
+      {c.cloudExample && <CloudExample key={c.id} scenario={c.cloudExample} />}
+      {c.hasComparison && <ApiComparison />}
       <section className="panel recall">
         <div className="eyebrow mono">
           <Zap size={16} /> QUICK CHECK

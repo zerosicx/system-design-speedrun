@@ -6,7 +6,9 @@ A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.
 
 Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. **Concept index** searches the entire guide. Use **Shuffle topic** to change subjects, or bookmark a lesson to revisit. The quiz room lets you choose 5, 10, or 20 questions for mixed, bookmarked, and missed-question rounds. Smaller pools use every available card once.
 
-The first full pass contains approximately 19,500 words of lessons, examples, and definitions. At 150–200 words per minute that is roughly 98–130 minutes of reading, plus time for questions, breaks and reflection.
+Fifteen worked scenarios cover AWS and Azure implementations across the stack. Each includes a component flow, a design trade-off, and official documentation. The communication lessons compare RPC, gRPC, REST, and GraphQL through an order lookup. Both the walkthroughs and tables are available offline.
+
+The core reading pass contains approximately 19,500 words of lessons, examples, and definitions. At 150–200 words per minute that is roughly 98–130 minutes of reading, plus time for questions, breaks and reflection.
 
 ## Install on a phone
 
