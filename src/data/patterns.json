@@ -1,0 +1,626 @@
+[
+  {
+    "title": "Cloud Design Patterns",
+    "section": "Cloud patterns",
+    "lesson": "A pattern pairs a recurring problem with a design and the costs that come with it. Start with the constraint you can measure, such as a slow dependency or a burst of writes.",
+    "example": "An image service can buffer a morning rush with a queue if people can wait for their thumbnails.",
+    "question": "A team wants to add a queue to checkout. What should it establish first?",
+    "answers": [
+      "Which work can finish after the customer gets a response",
+      "Which queue offers the longest retention",
+      "How many regions the broker supports"
+    ],
+    "why": "Moving work into a queue changes when users see the result. The team needs to know whether that delay fits the product."
+  },
+  {
+    "title": "Messaging",
+    "section": "Messaging",
+    "lesson": "A producer sends a message through a broker so a receiver can act later. Decide how long messages live, how delivery is acknowledged and what happens after a failure.",
+    "example": "A receipt worker acknowledges an email job after sending it. If the worker crashes before acknowledging, another worker may get the same job.",
+    "question": "A worker receives a job twice after a restart. Which design handles this safely?",
+    "answers": [
+      "Record a stable job ID and guard the side effect against duplicates",
+      "Increase how long the broker retains each message",
+      "Add another worker to the same subscription"
+    ],
+    "why": "Redelivery can occur after a crash. A durable identity lets the handler recognize work it already performed."
+  },
+  {
+    "title": "Sequential Convoy",
+    "section": "Messaging",
+    "lesson": "Route messages for the same entity into an ordered group and process that group serially. Independent groups can run at the same time.",
+    "example": "A parcel's delivery scan must follow its dispatch scan. Grouping by parcel keeps this order, though one very busy parcel can hold up its own group.",
+    "question": "Orders arrive for thousands of customers. Each customer's updates must keep their original order. How should workers divide work?",
+    "answers": [
+      "Keep each customer's ordered stream on one active consumer at a time",
+      "Sort all updates by the time a worker finishes them",
+      "Prioritize the smallest update from every customer's stream"
+    ],
+    "why": "The customer key defines the boundary for ordering. Different customers can progress independently."
+  },
+  {
+    "title": "Scheduler Agent Supervisor",
+    "section": "Messaging",
+    "lesson": "A scheduler records the workflow and its current step. Agents perform the remote work, and a supervisor checks deadlines and recovers stalled steps.",
+    "example": "A media pipeline records when it starts a transcription job. When the deadline passes, the supervisor checks the provider before submitting a duplicate job.",
+    "question": "A workflow remains marked as running after its worker disappears. Which component should detect the missed deadline?",
+    "answers": [
+      "A supervisor scanning durable step state",
+      "A gateway combining the results for the UI",
+      "A router selecting the closest worker"
+    ],
+    "why": "The supervisor can compare recorded progress with deadlines even after the original worker exits."
+  },
+  {
+    "title": "Queue-Based Load Leveling",
+    "section": "Messaging",
+    "lesson": "Put a queue between bursty arrivals and a resource with a fixed safe processing rate. The backlog stores time as well as work, so watch the age of the oldest job.",
+    "example": "A print shop accepts 600 files at opening and prints 30 per minute. Later arrivals wait behind earlier orders unless the shop changes its scheduling policy.",
+    "question": "A downstream API permits 20 calls per second. A batch of 1,000 jobs arrives. Which design absorbs the burst?",
+    "answers": [
+      "Buffer jobs and cap the workers' combined call rate",
+      "Start a separate worker for every queued job",
+      "Retry every refused call immediately"
+    ],
+    "why": "The queue holds the spike while the shared rate cap protects the downstream API. Sustained arrivals above capacity still grow the backlog."
+  },
+  {
+    "title": "Publisher/Subscriber",
+    "section": "Messaging",
+    "lesson": "A publisher announces an event to a topic. Each interested subscription receives its own delivery, and each subscriber controls how it processes that event.",
+    "example": "When a book sells, inventory and analytics each consume the sale. An analytics outage can leave that subscription several minutes behind.",
+    "question": "Billing and analytics must each see every order event. How should they subscribe?",
+    "answers": [
+      "Give each service a separate subscription to the topic",
+      "Have both services compete for jobs on one queue",
+      "Route odd order IDs to billing and even IDs to analytics"
+    ],
+    "why": "Separate subscriptions fan out the same event and track each service's progress independently."
+  },
+  {
+    "title": "Priority Queue",
+    "section": "Messaging",
+    "lesson": "Label jobs by urgency and let the dispatcher prefer higher-priority work. Reserve some capacity for lower priorities if they also have deadlines.",
+    "example": "A photo service processes live previews ahead of archive exports. A steady flood of previews can otherwise prevent an export from ever starting.",
+    "question": "High-priority alerts arrive continuously and ordinary alerts never run. What change preserves urgency and makes progress on both?",
+    "answers": [
+      "Give ordinary alerts a guaranteed share of service",
+      "Assign a higher priority to every alert",
+      "Increase the retention time of ordinary alerts"
+    ],
+    "why": "A reserved share or an aging policy bounds starvation while still favoring urgent work."
+  },
+  {
+    "title": "Pipes and Filters",
+    "section": "Messaging",
+    "lesson": "Split processing into stages with explicit input and output contracts. Connect stages with channels so each stage can change or scale independently.",
+    "example": "A transcription pipeline decodes audio, transcribes speech and adds timestamps. Separate queues allow more transcription workers but add delivery and tracing overhead.",
+    "question": "The transcription stage is overloaded while decoding is idle. What advantage does a staged pipeline provide?",
+    "answers": [
+      "Scale the transcription stage independently",
+      "Remove the need to track failed audio files",
+      "Guarantee every stage processes each file exactly once"
+    ],
+    "why": "Each stage has its own capacity. Queued boundaries let one stage absorb work without scaling every other stage."
+  },
+  {
+    "title": "Competing Consumers",
+    "section": "Messaging",
+    "lesson": "Several workers pull from one queue and share the work. A broker normally leases or assigns a delivery to one worker, and can redeliver it after failure.",
+    "example": "More thumbnail workers can drain a backlog faster until storage bandwidth becomes the bottleneck.",
+    "question": "Ten identical workers should divide a batch of invoices. Which arrangement fits?",
+    "answers": [
+      "Use one work queue with all ten workers consuming from it",
+      "Give each worker a separate subscription to every invoice",
+      "Broadcast each invoice to every worker and merge their outputs"
+    ],
+    "why": "Consumers on the same queue divide deliveries. Redelivery still calls for duplicate-safe processing."
+  },
+  {
+    "title": "Choreography",
+    "section": "Messaging",
+    "lesson": "Services react to domain events and publish the next event as work progresses. The workflow spans several services, so tracing needs a shared business identifier.",
+    "example": "A reservation event triggers payment. A failed payment event releases the room, but tracing the whole booking now requires correlating multiple events.",
+    "question": "Booking, payment and inventory react to one another's events. What most helps explain where a booking stopped?",
+    "answers": [
+      "Carry the booking ID through events and record transitions",
+      "Give each message an unrelated request ID with no parent",
+      "Track only total messages published across all bookings"
+    ],
+    "why": "A shared identifier connects independent transitions into the history of a single booking."
+  },
+  {
+    "title": "Claim Check",
+    "section": "Messaging",
+    "lesson": "Store a large payload separately and put a small reference in the message. Receivers use the reference to retrieve the data, so its permissions and lifetime matter.",
+    "example": "A podcast editor queues a pointer to an audio file. Deleting the file before a delayed worker retries would make that message unusable.",
+    "question": "A broker accepts 1 MB per message and a video is 500 MB. What should a processing message contain?",
+    "answers": [
+      "A controlled reference to the stored video and its version",
+      "The first megabyte of the video and its total length",
+      "A longer message retention time and the original video"
+    ],
+    "why": "The broker carries a small claim while the object store handles the large bytes. The reference must remain valid through processing."
+  },
+  {
+    "title": "Async Request Reply",
+    "section": "Messaging",
+    "lesson": "Acknowledge a long operation quickly and return a way to look up its status. Persist job state so the client can reconnect and retrieve the eventual result.",
+    "example": "A report request returns HTTP 202 and a job URL. Polling too frequently adds traffic, so the client waits between checks.",
+    "question": "An export takes five minutes and the mobile connection often drops. Which response helps the client resume?",
+    "answers": [
+      "Accept the job and return a durable status URL",
+      "Hold the original connection open until the export finishes",
+      "Return a success receipt indicating the report is already complete"
+    ],
+    "why": "The status resource survives a lost connection and distinguishes acceptance from successful completion."
+  },
+  {
+    "title": "Data Management",
+    "section": "Data systems",
+    "lesson": "Choose how records are owned, partitioned, queried and updated. The best shape for writing an event can differ from the shape a screen needs for reading.",
+    "example": "A shop writes individual sales but serves a precomputed daily total. The dashboard saves query time and can lag behind the most recent sale.",
+    "question": "A dashboard is expensive because it sums all sales on every visit. Which requirement determines whether a precomputed total fits?",
+    "answers": [
+      "How stale the displayed total may be",
+      "How often engineers deploy the web frontend",
+      "Which color represents today's sales"
+    ],
+    "why": "A precomputed result trades freshness and maintenance work for cheaper reads."
+  },
+  {
+    "title": "Static Content Hosting",
+    "section": "Data systems",
+    "lesson": "Serve prebuilt files directly from object storage or an edge service. Versioned asset names allow long cache lifetimes while a small entry document points to the current release.",
+    "example": "A puzzle app ships its illustrations as immutable files. Updating an illustration creates a new filename so cached copies of the old one remain safe to use.",
+    "question": "A release must replace a cached illustration immediately for new visitors. Which approach works with long-lived asset caching?",
+    "answers": [
+      "Publish a versioned file and update the entry document to reference it",
+      "Overwrite the file and assume every edge refreshes at once",
+      "Set a year-long cache lifetime on the entry document as well"
+    ],
+    "why": "A new URL selects the new representation. A fresh entry document tells clients which asset version to request."
+  },
+  {
+    "title": "Sharding",
+    "section": "Data systems",
+    "lesson": "Split rows across independent partitions using a shard key. Design for both balanced load and the queries that should stay within one partition.",
+    "example": "A workspace ID keeps most team queries local. One unusually large workspace can still turn a single shard into a bottleneck.",
+    "question": "A dataset is evenly sized across shards but one customer dominates traffic. Which measurement reveals the issue?",
+    "answers": [
+      "Request rate and latency per shard",
+      "Average record size across the whole database",
+      "Number of columns in the shared schema"
+    ],
+    "why": "A balanced row count can hide a hot shard. The key must distribute the workload as well as the data."
+  },
+  {
+    "title": "Materialized View",
+    "section": "Data systems",
+    "lesson": "Store the result of a query in a form ready to serve. Update it as source data changes or rebuild it on a schedule, and account for the gap between updates.",
+    "example": "A music app precomputes the top songs for each city every hour. Reading a chart is fast, but a new hit may take an hour to appear.",
+    "question": "A chart tolerates an hour of lag and takes a minute to compute. Which design gives users fast reads?",
+    "answers": [
+      "Refresh a stored chart periodically and serve that result",
+      "Run the full aggregation on every chart view",
+      "Store only an index of city names"
+    ],
+    "why": "The expensive computation moves out of the read path. The refresh interval establishes the expected freshness."
+  },
+  {
+    "title": "Index Table",
+    "section": "Data systems",
+    "lesson": "Maintain a separate lookup keyed by a field the main store cannot search efficiently. It maps a lookup value to the primary record or its location.",
+    "example": "Support can look up a ticket by email even though tickets are stored by ID. Changing an email requires keeping the secondary mapping in sync.",
+    "question": "A key-value database fetches users by ID. Staff need exact email lookups without scanning. What should you add?",
+    "answers": [
+      "A maintained mapping from email to user ID",
+      "A separate random shard key for each lookup",
+      "A daily count of users grouped by email domain"
+    ],
+    "why": "A secondary mapping turns the email into the key the primary store already understands."
+  },
+  {
+    "title": "Event Sourcing",
+    "section": "Data systems",
+    "lesson": "Represent changes as an ordered history of domain events. Replaying that history reconstructs state, and snapshots can reduce replay time.",
+    "example": "A points account records earned, spent and expired points. Historical audits become straightforward, but a changed event format must still work during replay.",
+    "question": "An audit must explain exactly how an account reached its current balance. What should its source of truth preserve?",
+    "answers": [
+      "The ordered business events that changed the balance",
+      "Only the latest computed balance",
+      "A cache of the last balance displayed to each user"
+    ],
+    "why": "Event history preserves the reason and sequence of changes. A projection can derive the current balance."
+  },
+  {
+    "title": "CQRS",
+    "section": "Data systems",
+    "lesson": "Command Query Responsibility Segregation gives writes and reads separate models or interfaces. They can share storage, or use specialized stores with asynchronous updates.",
+    "example": "A ticket sale checks inventory in the command model. A fast seat map can be slightly behind, so final availability is checked during purchase.",
+    "question": "A seat map reads from an eventually updated projection. Which component should confirm a seat can be sold?",
+    "answers": [
+      "The command handler enforcing the inventory rule",
+      "The browser's last rendered seat map",
+      "The asynchronously refreshed popularity ranking"
+    ],
+    "why": "The command side owns the invariant. A fast read projection may still show a seat another buyer just claimed."
+  },
+  {
+    "title": "Cache-Aside",
+    "section": "Data systems",
+    "lesson": "The application looks in a cache first. On a miss it reads the source, fills the cache and returns the data, then uses expiry or invalidation to manage stale copies.",
+    "example": "A catalog caches popular product descriptions. A description edit can briefly leave an older copy in the cache.",
+    "question": "A cached product description changes in the database. What should participate in the update strategy?",
+    "answers": [
+      "Invalidating or refreshing the affected cache entry",
+      "Increasing the cache lifetime for every product",
+      "Writing the new text only into a browser's memory"
+    ],
+    "why": "A cache fill captures one version of the data. Later writes need an explicit freshness strategy."
+  },
+  {
+    "title": "Design & Implementation",
+    "section": "Cloud patterns",
+    "lesson": "Choose service boundaries, integration contracts and rollout steps around concrete workloads. Small reversible changes make it easier to measure the effect of a design decision.",
+    "example": "A team extracts invoice downloads behind an existing URL and can route traffic back during rollout. The proxy adds another component to operate.",
+    "question": "You must replace one feature of a live monolith while keeping clients working. What is the most useful first boundary?",
+    "answers": [
+      "An existing feature contract whose traffic can be switched independently",
+      "A split based only on which files are longest",
+      "A new endpoint requiring every client to upgrade simultaneously"
+    ],
+    "why": "An independently routable contract supports gradual migration and a practical rollback."
+  },
+  {
+    "title": "Strangler Fig",
+    "section": "Cloud patterns",
+    "lesson": "Route selected capabilities from an existing system to their replacements over time. Migrate ownership of state deliberately so old and new paths agree during the transition.",
+    "example": "A library moves its search endpoint first and keeps checkout on the old backend. Both systems must keep catalog changes visible until migration ends.",
+    "question": "A school needs to replace payroll gradually without a single cutover weekend. Which plan fits?",
+    "answers": [
+      "Redirect one capability at a time through a stable facade",
+      "Maintain two independent payroll ledgers with unrestricted writes",
+      "Wait until every feature is rewritten before sending any production traffic"
+    ],
+    "why": "Incremental routing lets the team verify one capability in production and retire the matching legacy piece."
+  },
+  {
+    "title": "Sidecar",
+    "section": "Cloud patterns",
+    "lesson": "Run a helper alongside each application instance, often as a separate container with a shared lifecycle. It can extend the application independently of its language or source code.",
+    "example": "A local telemetry collector batches logs for every service replica. Each replica also pays the collector's memory cost.",
+    "question": "A legacy binary cannot be changed but each replica needs a local log forwarder. Where should it run?",
+    "answers": [
+      "In a companion process deployed with each replica",
+      "Only in the browser that calls the binary",
+      "Inside the source of a shared library the binary must recompile"
+    ],
+    "why": "A sidecar supplies a local capability while leaving the application's implementation independent."
+  },
+  {
+    "title": "Leader Election",
+    "section": "Cloud patterns",
+    "lesson": "Select a single instance to coordinate a task for a group. Leases or consensus can transfer leadership after failure, and fencing tokens help storage reject a stale leader.",
+    "example": "One scheduler closes the daily ledger. A paused former leader might wake up after its lease expires, so the ledger checks the leadership epoch on writes.",
+    "question": "An expired leader resumes and tries to write after a new leader takes over. What protects the resource?",
+    "answers": [
+      "Reject writes carrying an older fencing token",
+      "Assume the previous leader received its shutdown signal",
+      "Use the timestamp displayed on the old leader's UI"
+    ],
+    "why": "The resource enforces leadership order using a monotonic token. A paused process may still believe it holds a valid lease."
+  },
+  {
+    "title": "Gateway Routing",
+    "section": "Cloud patterns",
+    "lesson": "Expose one entry point and route requests to the service responsible for each path, host or version. Keep routing rules observable because a bad rule can affect many clients.",
+    "example": "A store sends /orders to order management and /photos to its media service. Clients keep one host, while the gateway needs redundant capacity.",
+    "question": "Clients need one hostname while two teams independently move their backend services. Which pattern handles this?",
+    "answers": [
+      "Route requests at a gateway using stable public paths",
+      "Send every request to every service and merge the replies",
+      "Have every client query both deployment inventories"
+    ],
+    "why": "Routing hides backend addresses behind a durable contract and selects the responsible service per request."
+  },
+  {
+    "title": "Gateway Offloading",
+    "section": "Cloud patterns",
+    "lesson": "Move common perimeter work such as TLS termination or rate limits into a gateway. Backends still enforce rules that require their own business context.",
+    "example": "A gateway checks token signatures for five APIs. An order service still verifies that the authenticated buyer owns the requested order.",
+    "question": "All APIs duplicate TLS setup and token validation. Which change reduces that duplication?",
+    "answers": [
+      "Handle shared edge concerns in a trusted gateway",
+      "Place every service's business rules in the mobile app",
+      "Combine unrelated API databases into a single schema"
+    ],
+    "why": "The gateway can apply common controls consistently while services retain domain-specific authorization."
+  },
+  {
+    "title": "Gateway Aggregation",
+    "section": "Cloud patterns",
+    "lesson": "Accept one client request, fetch data from several backends and combine their results. Set deadlines and decide what a partial response looks like when one dependency is slow.",
+    "example": "A home screen loads a profile, recent orders and recommendations together. It can show core information while recommendations time out.",
+    "question": "A phone needs three backend responses for one screen over a high-latency connection. What reduces client round trips?",
+    "answers": [
+      "Offer one endpoint that gathers and combines the responses",
+      "Send three sequential requests through the same public hostname",
+      "Increase image cache lifetimes for all clients"
+    ],
+    "why": "Aggregation moves coordination behind the gateway, reducing repeated trips across the mobile network."
+  },
+  {
+    "title": "External Config Store",
+    "section": "Cloud patterns",
+    "lesson": "Keep deploy-time or runtime settings in a separate configuration service. Version settings and define what an instance should do if it cannot fetch an update.",
+    "example": "A search service changes its ranking weights without a binary release. It can keep the last validated settings through a configuration outage.",
+    "question": "A bad timeout setting spread through the fleet in seconds. Which capability helps recover?",
+    "answers": [
+      "Versioned settings with rollback and staged rollout",
+      "Fetching all settings synchronously on every request",
+      "Storing the only copy in a single worker's memory"
+    ],
+    "why": "Versioning identifies a known-good value. Staged rollout limits how many instances receive a bad update."
+  },
+  {
+    "title": "Compute Resource Consolidation",
+    "section": "Cloud patterns",
+    "lesson": "Place compatible tasks on shared compute so unused capacity does useful work. Measure contention and failure coupling when tasks share the same host.",
+    "example": "A nightly index build shares a machine with a daytime reporting job. If the build overruns, the two can compete for memory.",
+    "question": "Which pair is the best candidate to share a host with limited CPU?",
+    "answers": [
+      "Workers whose measured demand peaks at different times",
+      "Two latency-critical services that peak together",
+      "Jobs that both require all memory continuously"
+    ],
+    "why": "Complementary load profiles can improve utilization. Simultaneous peaks increase contention and latency."
+  },
+  {
+    "title": "Backends for Frontend",
+    "section": "Cloud patterns",
+    "lesson": "Give distinct client experiences tailored backend interfaces. Each backend shapes payloads and calls around its client's needs while shared domain services retain common rules.",
+    "example": "A watch dashboard receives a tiny activity summary while the web UI loads detailed history. Separate adapters add ownership and maintenance work.",
+    "question": "A mobile app needs small offline-friendly payloads and a desktop app needs rich drilldowns. What fits?",
+    "answers": [
+      "Provide client-specific backend adapters over shared services",
+      "Require both clients to download every domain record",
+      "Fork the authoritative business rules into both UIs"
+    ],
+    "why": "Client-specific adapters can evolve payloads independently while central services preserve common business behavior."
+  },
+  {
+    "title": "Anti-Corruption Layer",
+    "section": "Cloud patterns",
+    "lesson": "Translate between systems that use different domain meanings or contracts. Keep the translation at their boundary so one system's historical conventions stay contained.",
+    "example": "An old billing system encodes refunds as negative invoices. A new service translates them into explicit refunds and tests the mapping for partial repayments.",
+    "question": "A legacy field called customer means a household, while a new model uses individual people. What belongs at the boundary?",
+    "answers": [
+      "An adapter with explicit identity and meaning mappings",
+      "A transparent forwarder that only renames the field",
+      "One global customer ID assigned without resolving household membership"
+    ],
+    "why": "The mismatch is semantic. A translation layer must preserve the meaning of the data in each domain."
+  },
+  {
+    "title": "Ambassador",
+    "section": "Cloud patterns",
+    "lesson": "Place a local proxy beside a client to handle calls to remote services. It can centralize connection management, discovery or telemetry for applications using different languages.",
+    "example": "A native worker calls a local proxy that manages remote service connections. The extra hop simplifies the worker but adds a dependency on the proxy.",
+    "question": "Several old applications need a consistent outbound connection policy without code changes. What should they call?",
+    "answers": [
+      "A local ambassador proxy that connects on their behalf",
+      "A separate data warehouse for request history",
+      "A gateway that handles only inbound public requests"
+    ],
+    "why": "An ambassador owns the outbound path and can apply a common policy for heterogeneous clients."
+  },
+  {
+    "title": "Reliability Patterns",
+    "section": "Reliability",
+    "lesson": "Define what successful service means over time, including lost work and recovery time. Identify a likely failure and decide how to contain, tolerate or recover from it.",
+    "example": "A booking service can survive losing a worker if it durably records accepted reservations. Waiting for durable storage adds latency to acknowledgement.",
+    "question": "You promise to preserve every accepted reservation through a worker restart. When should the service acknowledge acceptance?",
+    "answers": [
+      "After durably recording the reservation",
+      "As soon as it enters a worker's in-memory queue",
+      "When the load balancer receives the first byte"
+    ],
+    "why": "The acknowledgement creates a user-visible promise. Durable state makes recovery possible after the worker disappears."
+  },
+  {
+    "title": "Availability",
+    "section": "Reliability",
+    "lesson": "Availability measures whether a service fulfills its contract when needed. Define success from the user's perspective and include a time limit if late answers are unusable.",
+    "example": "A search endpoint can return HTTP 200 after a full minute. For a two-second search objective, that request still missed the target.",
+    "question": "An API reports 100% process uptime but users experience timeouts. Which measure captures their experience?",
+    "answers": [
+      "Fraction of valid requests completed successfully within the deadline",
+      "Count of running processes in the cluster",
+      "Number of deployments without rollback"
+    ],
+    "why": "User-facing success measures the actual operation through its dependencies and time budget."
+  },
+  {
+    "title": "Deployment Stamps",
+    "section": "Reliability",
+    "lesson": "Deploy repeatable, independently operated copies of a service stack. Assign customers or partitions to stamps so a failure or rollout touches a bounded group.",
+    "example": "A school platform puts groups of districts on separate stamps. A small district avoids another stamp's outage, while operating many stacks raises cost.",
+    "question": "One bad release should reach only a small group of tenants initially. Which rollout fits?",
+    "answers": [
+      "Deploy to one independent tenant stamp and observe it",
+      "Update every stamp's shared database schema destructively first",
+      "Switch all tenant traffic to the updated stamp at once"
+    ],
+    "why": "A stamp provides a bounded deployment unit when its critical dependencies are isolated as well."
+  },
+  {
+    "title": "Geodes",
+    "section": "Reliability",
+    "lesson": "Run regional copies of the stack that can serve users from multiple locations. Route requests to a suitable healthy region and plan how data reaches the others.",
+    "example": "A traveler can use a nearby region for low-latency reads. Replicating their writes worldwide introduces either delay or coordination cost.",
+    "question": "A regional app must keep serving travelers after one region fails. What does a geode arrangement require?",
+    "answers": [
+      "Healthy alternate regions with the data and capacity to serve those users",
+      "A DNS alias pointing to another name for the same failed server",
+      "A global dashboard listing every regional process"
+    ],
+    "why": "Traffic redirection works only when the destination can process the request and access the necessary state."
+  },
+  {
+    "title": "Health Endpoint Monitoring",
+    "section": "Reliability",
+    "lesson": "Expose a lightweight signal that probes can check regularly. A readiness check guides routing, while a liveness check can signal that restarting the process might help.",
+    "example": "A new catalog replica stays unready until its local index loads. Using that same check for liveness could restart it repeatedly during startup.",
+    "question": "A process is alive but its index is still loading. What should its readiness probe tell the router?",
+    "answers": [
+      "Keep this replica out of the serving pool for now",
+      "Restart every replica sharing the same index version",
+      "Send it all traffic so the index warms faster"
+    ],
+    "why": "Readiness controls traffic admission. A temporary startup condition can resolve without restarting the process."
+  },
+  {
+    "title": "Throttling",
+    "section": "Reliability",
+    "lesson": "Set limits on how quickly or concurrently clients consume a scarce resource. Signal temporary limits to callers and leave capacity for other tenants.",
+    "example": "A report API caps each tenant's simultaneous exports. A tenant may wait longer, while its neighbors keep their interactive response times.",
+    "question": "One customer's exports consume all database connections. Which targeted control protects other customers?",
+    "answers": [
+      "Apply a per-tenant export concurrency limit",
+      "Offer the customer unlimited immediate retries",
+      "Keep idle export connections open longer"
+    ],
+    "why": "A concurrency limit bounds one tenant's active resource consumption even when individual jobs last a long time."
+  },
+  {
+    "title": "High Availability",
+    "section": "Reliability",
+    "lesson": "Design redundant components and failover paths so a single expected failure need not interrupt service for long. Check shared dependencies and test that standby capacity can really take traffic.",
+    "example": "Two web replicas on one host can survive a process crash. Losing the host takes out both, so a host-level objective requires another failure domain.",
+    "question": "Two redundant servers use the same power circuit. Which change targets a circuit outage?",
+    "answers": [
+      "Place serving capacity in independent power failure domains",
+      "Run a second copy of the application on each server",
+      "Poll the shared circuit twice as often"
+    ],
+    "why": "Redundancy helps against failures that spare at least one usable path. A common power dependency defeats both servers."
+  },
+  {
+    "title": "Bulkhead",
+    "section": "Reliability",
+    "lesson": "Reserve separate resource pools for different workloads or dependencies. Exhaustion in one pool then leaves capacity for the others, at the cost of sometimes leaving capacity idle.",
+    "example": "A slow recommendation provider fills its own connection pool. Checkout still has a separate budget to contact payments.",
+    "question": "Slow image requests consume all worker slots and block account updates. Which design isolates them?",
+    "answers": [
+      "Give image and account work separate bounded worker pools",
+      "Expand the single shared queue without a limit",
+      "Increase the timeout on every image job"
+    ],
+    "why": "A separate pool places a hard boundary on how many slots image work can consume."
+  },
+  {
+    "title": "Circuit Breaker",
+    "section": "Reliability",
+    "lesson": "Track failures for a dependency and temporarily stop sending normal calls when the failure threshold is reached. After a cooldown, allow a small trial to test recovery.",
+    "example": "A map provider times out repeatedly, so the app immediately shows a saved address. While open, the breaker may skip calls that would have succeeded.",
+    "question": "A provider has timed out for several minutes and each attempt ties up a worker. Which action should an open breaker take?",
+    "answers": [
+      "Fail fast or use a fallback while allowing controlled recovery probes later",
+      "Send each new request with several immediate retries",
+      "Hold all workers until the provider recovers"
+    ],
+    "why": "Failing fast releases local resources. Limited probes discover recovery without flooding the dependency."
+  },
+  {
+    "title": "Resiliency",
+    "section": "Reliability",
+    "lesson": "Prepare to recover useful behavior after disruption. Recovery time and recovery point objectives describe how long an interruption may last and how much recent data loss is tolerable.",
+    "example": "A journal app can restore yesterday's backup quickly, yet still lose a day's entries. More frequent durable copies reduce that gap at extra cost.",
+    "question": "Your service recovers in five minutes but loses an hour of accepted edits. Which target measures that loss window?",
+    "answers": [
+      "Recovery point objective",
+      "Recovery time objective",
+      "Median request latency"
+    ],
+    "why": "The recovery point objective measures tolerable data loss in time. Recovery time measures how long restoration takes."
+  },
+  {
+    "title": "Compensating Transaction",
+    "section": "Reliability",
+    "lesson": "When several services commit separate steps, a later failure can require new actions that offset earlier steps. Persist progress and make compensations safe to retry.",
+    "example": "A rail ticket is booked before a hotel rejects a package. Canceling the ticket may incur a fee, so the compensation follows the actual refund policy.",
+    "question": "A package purchase fails after a partner has already issued a ticket. How should the workflow recover?",
+    "answers": [
+      "Record and run the partner's cancellation or refund operation",
+      "Roll back only the local package database and assume the ticket disappears",
+      "Replay the entire purchase with a new booking ID"
+    ],
+    "why": "The partner committed independent state. A compensating business action reconciles that state according to the partner's rules."
+  },
+  {
+    "title": "Retry",
+    "section": "Reliability",
+    "lesson": "Repeat an operation after a temporary failure within a deadline and attempt budget. Backoff and jitter spread attempts over time, and a stable operation key can protect side effects.",
+    "example": "A payment response times out after the bank may have charged the card. Retrying with the same idempotency key lets the provider recognize that payment.",
+    "question": "A charge request times out with an unknown outcome. What makes a retry safer?",
+    "answers": [
+      "Reuse a provider-supported idempotency key for that charge",
+      "Generate a distinct purchase ID on every attempt",
+      "Keep retrying instantly until a response arrives"
+    ],
+    "why": "The same operation identity lets the provider return or complete the original charge without creating another."
+  },
+  {
+    "title": "Security",
+    "section": "Security",
+    "lesson": "Identify who can call a system, which actions each identity can perform and where sensitive data travels. Apply controls at the point where a protected action takes place.",
+    "example": "A notes API verifies a signed-in user and checks ownership before reading a private note. That extra lookup protects against exposing another user's note.",
+    "question": "Two users are signed in. What should the API check before returning a private document by ID?",
+    "answers": [
+      "Whether this user is authorized to read this document",
+      "Whether the document ID has a valid format",
+      "Whether this user signed in within the past day"
+    ],
+    "why": "Authentication identifies the caller. Resource-specific authorization determines whether that caller may read the document."
+  },
+  {
+    "title": "Federated Identity",
+    "section": "Security",
+    "lesson": "Trust an external identity provider to authenticate a user and issue a verifiable assertion or token. Your service validates the token and decides what the identity may access locally.",
+    "example": "A university app accepts campus sign-in. Disabling an account at the provider can take time to affect previously issued tokens, depending on their lifetime.",
+    "question": "A campus login token has a valid signature but names a different application as its audience. What should your app do?",
+    "answers": [
+      "Reject the token because it was issued for another audience",
+      "Accept it because both applications trust the campus provider",
+      "Use the username alone to create a local session"
+    ],
+    "why": "Audience validation binds an assertion to its intended recipient. A valid signature alone does not grant access to every trusting app."
+  },
+  {
+    "title": "Gatekeeper",
+    "section": "Security",
+    "lesson": "Place a controlled entry service in front of a protected backend to check incoming requests. Restrict direct backend access so callers cannot bypass those checks.",
+    "example": "A file-processing API admits validated requests from a gateway over a private network. The gateway needs its own redundancy to avoid becoming a common failure point.",
+    "question": "A gateway validates requests, but a backend also accepts direct public calls. What closes this gap?",
+    "answers": [
+      "Restrict backend ingress to the trusted path and authorized callers",
+      "Add more validation messages to the gateway response",
+      "Increase the cache lifetime of the backend address"
+    ],
+    "why": "The protection applies only when requests pass through the enforced checks. Ingress policy makes that boundary effective."
+  },
+  {
+    "title": "Valet Key",
+    "section": "Security",
+    "lesson": "After checking permission, issue a short-lived credential scoped to one resource and action. The client can then transfer data directly without routing the bytes through your application.",
+    "example": "A photo app signs a five-minute upload URL for one object. Anyone holding a usable URL may exercise its permissions until it expires.",
+    "question": "A user should upload one profile picture directly to storage. Which credential fits?",
+    "answers": [
+      "A short-lived write permission scoped to that user's target object",
+      "A permanent account-wide storage key",
+      "A read-only link to the whole photo bucket"
+    ],
+    "why": "The credential needs just the intended operation, object and time window. Direct transfer keeps the file bytes off the app server."
+  }
+]

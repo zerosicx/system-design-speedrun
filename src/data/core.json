@@ -1,0 +1,527 @@
+[
+  {
+    "title": "Introduction",
+    "section": "Foundations",
+    "lesson": "A design begins with a promise to someone using the system. Trace one action from input to outcome, then identify what could make that promise expensive or impossible to keep.",
+    "example": "A note app can save edits on the phone instantly. Sharing those edits with a collaborator requires a second promise about when they arrive.",
+    "question": "A team hopes to support shared notes. Which question most directly shapes its design?",
+    "answers": [
+      "How quickly must an edit appear on the other person's screen?",
+      "What will the database tables be named?",
+      "Which JSON property should hold the title?"
+    ],
+    "why": "The allowed delay determines whether occasional background sync is enough or whether collaborators need a live connection."
+  },
+  {
+    "title": "What is System Design?",
+    "section": "Foundations",
+    "lesson": "System design connects user requirements to components, data flows and operating constraints. A useful design explains who owns each piece of data and how the system behaves under load or failure.",
+    "example": "For a ticket sale, the booking service owns reservations. Search can show slightly old seat counts because the final reservation checks the authoritative record.",
+    "question": "Which decision most directly prevents two buyers from booking the same seat?",
+    "answers": [
+      "Choose where and how a seat reservation commits atomically.",
+      "Refresh the search results twice as often.",
+      "Add another copy of the seat map to each client."
+    ],
+    "why": "A single authoritative reservation decision lets the system enforce the one-buyer rule even when clients see old seat maps."
+  },
+  {
+    "title": "How to approach System Design?",
+    "section": "Foundations",
+    "lesson": "Clarify the user's actions and the guarantees each needs. Estimate peak load and data size, sketch the simplest working path, then test it against a bottleneck or outage.",
+    "example": "For a photo feed, estimate uploads separately from views. A million daily readers say little about peak upload bandwidth.",
+    "question": "A feed must serve a million users. What information should you seek before choosing its storage layout?",
+    "answers": [
+      "Peak read and write rates, object sizes and access patterns.",
+      "The exact number of replicas a competitor runs.",
+      "The longest possible name for a feed item."
+    ],
+    "why": "How clients read and write data determines which operations must stay cheap and how much capacity they need."
+  },
+  {
+    "title": "Performance vs Scalability",
+    "section": "Foundations",
+    "lesson": "Performance describes what a system achieves at a given load and resource budget. Scalability describes how well it handles more work as resources increase.",
+    "example": "A faster query cuts response time on one server. Adding a second server doubles capacity only if the workload can be shared and the database keeps up.",
+    "question": "Which observation shows that an API scales across servers?",
+    "answers": [
+      "Doubling servers nearly doubles sustainable requests per second at the same latency target.",
+      "One request finishes faster after a query rewrite.",
+      "A faster processor lowers median response time at the original traffic level."
+    ],
+    "why": "Holding the latency target fixed reveals whether extra resources actually support more concurrent work."
+  },
+  {
+    "title": "Latency vs Throughput",
+    "section": "Foundations",
+    "lesson": "Latency is the elapsed time for one operation. Throughput counts completed operations per unit of time. Batching can improve throughput while an individual item waits longer.",
+    "example": "A mail worker sends 100 messages in one network call. Waiting to fill the batch delays the first message even if the worker sends more messages per second.",
+    "question": "A batcher sends more emails per minute but recipients wait longer. Which change did you observe?",
+    "answers": [
+      "Higher throughput and higher latency.",
+      "Higher throughput and lower latency.",
+      "Lower throughput and higher latency."
+    ],
+    "why": "Completions per minute rose while elapsed time per email also rose. The two measurements track different experiences."
+  },
+  {
+    "title": "Availability vs Consistency",
+    "section": "Reliability",
+    "lesson": "When replicas lose contact, a request may reach a node missing the newest write. Some operations can safely return local data. Others must wait or fail until the system can establish a single current value.",
+    "example": "A cafe directory can show yesterday's opening hours during a partition. Selling the last concert seat requires stronger coordination.",
+    "question": "Two disconnected regions both think seat 12 is free. Which choice preserves a single confirmed reservation?",
+    "answers": [
+      "Require an authoritative decision before confirming the seat.",
+      "Confirm locally in both regions and merge the bookings later.",
+      "Shorten the time each region caches the seating chart."
+    ],
+    "why": "Local confirmation can promise the seat twice. Coordination may make booking unavailable in one region but preserves the reservation rule."
+  },
+  {
+    "title": "CAP Theorem",
+    "section": "Reliability",
+    "lesson": "CAP concerns a network partition that prevents replicas from exchanging messages. During that partition a distributed register cannot guarantee both linearizable reads and writes and a successful response to every request at a functioning node.",
+    "example": "After a write in Sydney, an isolated Tokyo replica receives a read. Without new information it must risk a stale answer or withhold a successful response.",
+    "question": "A replica cannot reach the side that just accepted a write. What conflict does CAP expose?",
+    "answers": [
+      "It may have to refuse a read to guarantee the latest value.",
+      "It must discard all previously stored data.",
+      "It can preserve both guarantees by waiting without a time limit for every partition."
+    ],
+    "why": "A partition can last indefinitely. Waiting forever fails the availability requirement, while returning a local value risks violating linearizability."
+  },
+  {
+    "title": "AP - Availability + Partition Tolerance",
+    "section": "Reliability",
+    "lesson": "An AP design keeps accepting operations at reachable replicas during a partition, even if their views diverge. The application needs rules for reconciling updates after communication resumes.",
+    "example": "Two offline editors can add different shopping-list items. A merge can keep both additions, but simultaneous deletion and editing need an explicit rule.",
+    "question": "A shared list accepts edits on both sides of a network split. Which design decision remains essential?",
+    "answers": [
+      "Specify how divergent edits merge after reconnection.",
+      "Require each edit to lock both sides first.",
+      "Treat each local view as globally current."
+    ],
+    "why": "Independent writes can conflict. A merge policy gives those conflicts predictable meaning for the user."
+  },
+  {
+    "title": "CP - Consistency + Partition Tolerance",
+    "section": "Reliability",
+    "lesson": "A CP design preserves a single observable order for operations through a partition. A replica that cannot establish authority can reject or delay an operation.",
+    "example": "With three voting replicas, a majority can elect a leader. A lone isolated replica cannot safely declare itself leader just because its peers are silent.",
+    "question": "A three-voter consensus group splits two against one. Which side can usually commit a new entry after election?",
+    "answers": [
+      "The connected pair with a majority.",
+      "The isolated voter if its local clock is newer.",
+      "Both sides if clients use different endpoints."
+    ],
+    "why": "A majority intersects every other majority. The isolated node cannot collect enough votes to commit a conflicting history."
+  },
+  {
+    "title": "Consistency Patterns",
+    "section": "Reliability",
+    "lesson": "A consistency model states what clients may observe when operations overlap or replicas lag. Specify the promise per workflow, such as reading your own edits, seeing updates in order, or seeing the latest completed write.",
+    "example": "A profile service can route a user's next read to the writer. This gives immediate feedback while other viewers continue using lagging read replicas.",
+    "question": "An author must see their new bio immediately, but other viewers can wait. Which guarantee directly fits?",
+    "answers": [
+      "Read-your-writes for the author.",
+      "A single global order for all profile operations.",
+      "Eventual convergence alone with arbitrary replica reads."
+    ],
+    "why": "Read-your-writes ties the author's later read to their earlier write. Other clients can still use eventually updated copies."
+  },
+  {
+    "title": "Weak Consistency",
+    "section": "Reliability",
+    "lesson": "With weak consistency, a successful write need not become visible on the next read. The term alone gives a client no bound on staleness and promises no particular convergence deadline.",
+    "example": "A live game can use the most recently received position and tolerate skipped updates. A later position quickly matters more than a missing intermediate one.",
+    "question": "Which use can best tolerate occasional missed updates with no immediate catch-up guarantee?",
+    "answers": [
+      "Rendering intermediate cursor positions in a shared sketch.",
+      "Choosing the winner of a final-seat reservation.",
+      "Confirming a withdrawal against the latest balance."
+    ],
+    "why": "A later cursor update can replace an intermediate position. The other workflows depend on a definitive decision about scarce resources."
+  },
+  {
+    "title": "Eventual Consistency",
+    "section": "Reliability",
+    "lesson": "If updates stop and replicas can communicate and repair differences, eventually consistent replicas converge. During propagation two clients can legitimately see different values.",
+    "example": "Like counts can briefly differ across regions. A reconciliation process brings them into agreement once new likes stop arriving.",
+    "question": "Which outcome does eventual consistency promise under healthy communication and no further writes?",
+    "answers": [
+      "Replicas ultimately agree.",
+      "Every read immediately sees the last write.",
+      "Every replica catches up within one second."
+    ],
+    "why": "Convergence is the guarantee. A bound such as one second requires an additional freshness commitment."
+  },
+  {
+    "title": "Strong Consistency",
+    "section": "Reliability",
+    "lesson": "For a linearizable object, each successful operation appears to take effect at one instant between its start and finish. Later reads observe completed writes in that order, while overlapping operations may legally fall in either order.",
+    "example": "A newly revoked invite must fail a later redemption. Checking an arbitrarily lagging replica would weaken that promise.",
+    "question": "A flag write finishes before a second client starts reading it. No other writes occur. What must a linearizable read return?",
+    "answers": [
+      "The newly written value.",
+      "Either value until background sync ends.",
+      "The value previously observed by that client."
+    ],
+    "why": "The two operations do not overlap. Real-time ordering therefore puts the completed write before the read."
+  },
+  {
+    "title": "Availability Patterns",
+    "section": "Reliability",
+    "lesson": "Availability improves when a healthy part of a system can keep doing useful work after a failure. Redundancy helps only when detection, traffic routing, dependencies and spare capacity also work.",
+    "example": "Two API pools in separate zones survive a zone failure only if the remaining pool can handle the shifted traffic and still reach storage.",
+    "question": "A service has two zones but collapses when either zone fails. What should a failover exercise test first?",
+    "answers": [
+      "Whether the surviving zone can serve the entire demand and reach dependencies.",
+      "Whether both zones use the same instance names.",
+      "Whether daily average CPU looks equal across zones."
+    ],
+    "why": "Normal load can hide capacity shortfalls. A realistic exercise exposes what the surviving path needs during failure."
+  },
+  {
+    "title": "Fail-Over",
+    "section": "Reliability",
+    "lesson": "Failover moves responsibility from an unhealthy component to a replacement. Detection, promotion and routing take time, and a writer failover must prevent the old writer from continuing independently.",
+    "example": "A database standby promotes after losing contact with the primary. A fencing token can keep the old primary from writing if it returns.",
+    "question": "A network split leaves an old primary alive after its standby promotes. What prevents two active writers?",
+    "answers": [
+      "Fence the old primary before granting the new writer authority.",
+      "Declare the old host unhealthy in the dashboard.",
+      "Increase the read replica count."
+    ],
+    "why": "A routing change or health label alone cannot stop a client already connected to the old primary from writing."
+  },
+  {
+    "title": "Active - Active",
+    "section": "Reliability",
+    "lesson": "In active-active deployment, multiple sites handle live traffic at once. Routing and spare capacity must support a site failure. Writable data may also need coordination or conflict handling.",
+    "example": "Two regions serve a catalog close to shoppers. If each normally runs at 80% capacity, either region alone cannot absorb both workloads at peak.",
+    "question": "Two equal regions each run at 60% capacity. What happens if all unchanged traffic moves to one?",
+    "answers": [
+      "It needs 120% of one region's capacity.",
+      "It uses 60% because both regions were active.",
+      "It uses 80% because failover halves spare capacity."
+    ],
+    "why": "Each region contributes demand of 0.6 region-equivalents, so the survivor must serve 1.2 region-equivalents."
+  },
+  {
+    "title": "Active - Passive",
+    "section": "Reliability",
+    "lesson": "One deployment serves the workload while another waits to take over. A warm standby reduces recovery time, but keeping it configured, funded and ready takes continuing effort.",
+    "example": "A standby checkout service runs with fewer instances. Its recovery time includes scaling up and loading caches before it can handle the full sale.",
+    "question": "A warm standby responds to health checks. Which test gives stronger evidence of readiness?",
+    "answers": [
+      "Shift representative traffic and measure recovery and correctness.",
+      "Check that standby software versions have similar names.",
+      "Verify that the standby returns an empty homepage."
+    ],
+    "why": "Handling real demand exercises promotion, capacity, configuration and dependencies together."
+  },
+  {
+    "title": "Replication",
+    "section": "Reliability",
+    "lesson": "Replication transfers changes among copies of data. Waiting for confirmation from other copies can improve durability at the cost of write latency or availability. Asynchronous copies can lag.",
+    "example": "A primary acknowledges a new note immediately, then fails before the standby receives it. Promoting the standby can lose the acknowledged note.",
+    "question": "Which risk follows from acknowledging writes before asynchronous replication finishes?",
+    "answers": [
+      "A promoted replica may lack acknowledged writes.",
+      "Reads at the primary always become slower.",
+      "The primary must wait for every replica."
+    ],
+    "why": "An acknowledgment can reach the client while the only copy of the new write is still on the failed primary."
+  },
+  {
+    "title": "Master - Slave",
+    "section": "Reliability",
+    "lesson": "Also called primary-replica or leader-follower replication, this topology sends writes to one leader and copies its changes to followers. Followers can share read load when their freshness is sufficient.",
+    "example": "A user updates a profile through the leader and immediately reads from a lagging follower. Routing that read to the leader can prevent the old profile from reappearing.",
+    "question": "A user sees an old address just after editing it. Which action can guarantee a fresh follow-up read in this topology?",
+    "answers": [
+      "Read from the leader that committed the edit, with no intervening writes.",
+      "Choose a random follower for every read.",
+      "Increase the number of asynchronous followers."
+    ],
+    "why": "A follower may still be replaying earlier writes. The committing leader already holds the new value."
+  },
+  {
+    "title": "Master - Master",
+    "section": "Reliability",
+    "lesson": "Multi-leader replication lets multiple sites accept writes and exchange them. If two sites modify the same item before replication, the system needs an ownership rule or conflict-resolution policy.",
+    "example": "Two regions edit the same display name during a partition. Keeping the latest timestamp is simple but can silently discard a meaningful edit or be misled by clock skew.",
+    "question": "Which workload most naturally reduces write conflicts across two writable regions?",
+    "answers": [
+      "Assign each region ownership of a disjoint set of records.",
+      "Let both regions update one global mutable counter using replacement writes.",
+      "Randomly split edits to each user profile across regions."
+    ],
+    "why": "Disjoint write ownership limits how often separate leaders concurrently change the same record."
+  },
+  {
+    "title": "Availability in Numbers",
+    "section": "Reliability",
+    "lesson": "Define a good event, the population of eligible events and a measurement window. For a request-based target, divide good requests by eligible requests. The remainder of the target is the error budget.",
+    "example": "If 999,500 of one million eligible searches succeed, request availability is 99.95%. A time-based uptime target measures a different quantity.",
+    "question": "One million requests are eligible and the target is 99.9% successful. How many failures fit the budget?",
+    "answers": ["1,000", "100", "10,000"],
+    "why": "The allowed failure fraction is 0.001. Multiplying by one million yields 1,000."
+  },
+  {
+    "title": "99.9% Availability - three 9s",
+    "section": "Reliability",
+    "lesson": "Three nines leaves 0.1% of the measurement window for unavailability. For a time-based objective over 30 full days, that is 43.2 minutes.",
+    "example": "A 30-minute outage uses about 69% of a 30-day three-nines time budget. The same outage might affect a very different share of monthly requests.",
+    "question": "A service with a 30-day, time-based 99.9% target is down for 40 minutes. Roughly how much budget remains?",
+    "answers": ["3.2 minutes", "32 minutes", "0.32 minutes"],
+    "why": "Thirty days contain 43,200 minutes. One thousandth of that is 43.2 minutes, leaving 3.2."
+  },
+  {
+    "title": "99.99% Availability - four 9s",
+    "section": "Reliability",
+    "lesson": "Four nines leaves 0.01% of a time window for unavailability. That amounts to 4.32 minutes in 30 days. An extra nine shrinks the budget tenfold.",
+    "example": "A five-minute manual failover can consume more than the whole 30-day four-nines budget even if it is the only outage.",
+    "question": "A team moves from 99.9% to 99.99% monthly uptime. How does its allowed downtime change?",
+    "answers": [
+      "It falls to one tenth of the previous budget.",
+      "It falls by half.",
+      "It falls by one minute regardless of the window."
+    ],
+    "why": "The allowed fraction changes from 0.1% to 0.01%, so the same measurement window gives one tenth the downtime."
+  },
+  {
+    "title": "Availability in Parallel vs Sequence",
+    "section": "Reliability",
+    "lesson": "For independent required dependencies in sequence, multiply their availabilities. When any one of several independent replicas can serve, multiply their failure probabilities and subtract from one. Shared failures weaken this model.",
+    "example": "Two independent 99% nodes in series yield 98.01%. If either can handle the full request with perfect failover, parallel availability is 99.99%.",
+    "question": "Two redundant nodes share one power supply. Why might the independent parallel formula overestimate uptime?",
+    "answers": [
+      "One power failure can disable both nodes together.",
+      "Parallel service always requires every node to be healthy.",
+      "The calculation should add the two uptime percentages."
+    ],
+    "why": "The formula assumes independent failures and successful routing. A shared power supply makes some failures correlated."
+  },
+  {
+    "title": "Background Jobs",
+    "section": "Service architecture",
+    "lesson": "A background job moves slow work out of the interactive request. Persist the task before acknowledging it, then use workers to process it with a retry policy and visible status.",
+    "example": "A photo upload returns a receipt after saving a thumbnail job. The photo may briefly show a placeholder while the worker runs.",
+    "question": "An API promises to convert a file after returning a receipt. What should happen before the receipt is sent?",
+    "answers": [
+      "Durably record the work and its identifier.",
+      "Begin conversion only in a request-local variable.",
+      "Mark conversion complete so the client stops polling."
+    ],
+    "why": "Once a client has a receipt, the task must survive the request handler disappearing."
+  },
+  {
+    "title": "Event-Driven",
+    "section": "Service architecture",
+    "lesson": "An event records something that happened. Producers publish it so consumers can react independently, which decouples releases but requires handling duplicates, delay and sometimes reordered delivery.",
+    "example": "A photo-uploaded event starts thumbnail generation. A worker writes output under a stable photo key so repeated delivery converges on the same result.",
+    "question": "A worker receives the same upload event twice. What helps it avoid creating duplicate thumbnails?",
+    "answers": [
+      "Use a stable event or photo identifier to make processing idempotent.",
+      "Assume each delivery represents a different upload.",
+      "Run two independent queues for the same worker."
+    ],
+    "why": "A stable key lets the consumer recognize or safely repeat an already processed event."
+  },
+  {
+    "title": "Schedule Driven",
+    "section": "Service architecture",
+    "lesson": "Scheduled jobs run at a time or interval. A delay, restart or overlap can make one scheduled interval execute late, twice or never, so define the time window each run owns.",
+    "example": "A nightly digest uses the calendar date and account as its job key. A delayed retry can reuse that key without sending a second digest.",
+    "question": "Yesterday's digest job restarts after midnight. Which input lets it finish the intended work?",
+    "answers": [
+      "The original scheduled reporting window.",
+      "The current clock time each time it retries.",
+      "The most recent successful email's subject."
+    ],
+    "why": "A stable interval keeps retries tied to the correct reporting period even after the date changes."
+  },
+  {
+    "title": "Returning Results",
+    "section": "Service architecture",
+    "lesson": "Long-running work needs a way to associate an eventual result with the original request. A job ID and status endpoint support polling. Push notifications or webhooks reduce polling but require delivery and retry handling.",
+    "example": "A PDF export returns HTTP 202 and a status URL. Once complete, the client retrieves its file using that URL.",
+    "question": "A mobile client disconnects halfway through a large export. What lets it retrieve the result later?",
+    "answers": [
+      "A durable job ID and an authorized status or result endpoint.",
+      "Keeping the original HTTP response open indefinitely.",
+      "A progress indicator held in the client screen."
+    ],
+    "why": "A durable identifier outlives the connection and maps a returning client to the correct stored result."
+  },
+  {
+    "title": "Domain Name System",
+    "section": "Networking",
+    "lesson": "DNS maps names to records such as IP addresses. A recursive resolver can cache answers until their time to live expires, reducing lookup work while delaying the visibility of changes.",
+    "example": "Moving a service to a new IP can leave clients reaching the old address while their cached records remain valid. Plan an overlap during the move.",
+    "question": "Why do some clients keep reaching an old server after its DNS record changes?",
+    "answers": [
+      "Their resolvers still have a valid cached answer.",
+      "Every client must download the entire DNS zone before switching.",
+      "DNS always routes by the lowest measured latency."
+    ],
+    "why": "Time to live controls how long ordinary cached records may be reused. Changing an authoritative record does not instantly empty resolver caches."
+  },
+  {
+    "title": "Content Delivery Networks",
+    "section": "Networking",
+    "lesson": "A CDN places servers near users to deliver cacheable content. A cache hit avoids a trip to the origin. Cache keys, freshness and access rules determine which users can safely receive the same response.",
+    "example": "A global class site caches identical lesson images at the edge. Personalized feedback requires a different cache policy to keep students' responses separate.",
+    "question": "Which response is the safest fit for shared edge caching without user-specific keys?",
+    "answers": [
+      "A public image with a content-hashed URL.",
+      "A private dashboard rendered for the signed-in user.",
+      "A response containing a one-time password reset link."
+    ],
+    "why": "The image is intentionally identical for everyone. Sharing personalized responses across users could expose private data."
+  },
+  {
+    "title": "Push CDNs",
+    "section": "Networking",
+    "lesson": "With push distribution, a publisher sends assets to CDN storage ahead of requests. Pre-positioning can avoid a slow first fetch but transfers and stores files regardless of demand.",
+    "example": "A game preloads a large release asset before launch. It pays distribution costs even in regions with few downloads.",
+    "question": "A live event has a fixed opening video and a known release time. What makes push distribution appealing?",
+    "answers": [
+      "The video can be staged before viewers arrive.",
+      "The initial viewer must populate the asset from origin.",
+      "The origin can change the video without publishing a new version."
+    ],
+    "why": "Pre-positioning makes the first viewer less dependent on an origin fetch when a crowd arrives together."
+  },
+  {
+    "title": "Pull CDNs",
+    "section": "Networking",
+    "lesson": "A pull CDN fetches content from its origin when an edge lacks a usable cached copy. Popular assets become local automatically, while cold or expired items incur origin latency.",
+    "example": "A recipe site's long tail of images suits on-demand caching. The first request in a new region may be slower than later requests.",
+    "question": "An image loads slowly for one visitor and quickly for later visitors in the same region. Which trace supports a pull-CDN explanation?",
+    "answers": [
+      "An edge miss fetches the image from origin, then subsequent requests hit.",
+      "Every edge downloads every image on publication.",
+      "The origin processes every request and sends a fresh image every time."
+    ],
+    "why": "A cold edge needs the initial fetch. Reuse of that stored response speeds up later requests."
+  },
+  {
+    "title": "Load Balancers",
+    "section": "Networking",
+    "lesson": "A load balancer chooses a healthy backend for incoming traffic. Health checks and routing policies keep one address usable while instances come and go. The balancing layer itself also needs redundancy.",
+    "example": "A checkout service removes a draining instance from rotation before stopping it. Existing requests get time to finish while new traffic goes elsewhere.",
+    "question": "A backend process is alive but cannot serve checkout requests. Which signal helps a balancer route around it?",
+    "answers": [
+      "A readiness check reflecting whether it can accept checkout traffic.",
+      "A count of historical orders for that server.",
+      "A check that its hostname is in DNS."
+    ],
+    "why": "Readiness measures whether sending new work will succeed. Merely knowing the host exists misses application failures."
+  },
+  {
+    "title": "LB vs Reverse Proxy",
+    "section": "Networking",
+    "lesson": "A reverse proxy receives requests on behalf of origin servers and forwards them. Load balancing is the function of distributing traffic among backends. One HTTP proxy can do both jobs.",
+    "example": "A proxy that terminates TLS and forwards to a single app still serves as a reverse proxy. Adding a healthy upstream pool lets it balance traffic too.",
+    "question": "A proxy terminates HTTPS and sends every request to one origin. Which statement fits?",
+    "answers": [
+      "It is a reverse proxy and currently has no pool to distribute work across.",
+      "TLS termination requires it to balance across at least two origins.",
+      "It is a forward proxy because it maintains a connection to the origin."
+    ],
+    "why": "The direction is defined by which side the proxy represents. A single origin is sufficient to proxy on behalf of the service."
+  },
+  {
+    "title": "Load Balancing Algorithms",
+    "section": "Networking",
+    "lesson": "Round robin rotates across eligible backends. Weighted routing accounts for unequal capacity. Least-connections favors servers with fewer active connections when that count reflects current work.",
+    "example": "A video relay holds connections open for very different durations. Counting active connections can avoid sending a new stream to a server already carrying many long streams.",
+    "question": "For equal servers handling one similarly costly stream per connection with varied durations, which signal best reflects occupied slots?",
+    "answers": [
+      "The current active connection count.",
+      "The total connections accepted since startup.",
+      "The backend's position in a fixed rotation."
+    ],
+    "why": "Active connections count the occupied slots now. Historical totals and fixed turns ignore streams that are still open."
+  },
+  {
+    "title": "Layer 7 Load Balancing",
+    "section": "Networking",
+    "lesson": "An application-layer balancer uses protocol details such as HTTP paths, hosts or headers to choose a backend. For HTTPS path routing, it needs access to the decrypted request.",
+    "example": "One domain sends /images to a media service and /orders to checkout. Inspecting paths allows this split on the same port.",
+    "question": "A service must route /video separately from /chat on the same HTTPS hostname. What capability is needed?",
+    "answers": [
+      "Read the HTTP path after TLS termination.",
+      "Hash the destination TCP port alone.",
+      "Rotate raw connections without reading application data."
+    ],
+    "why": "The path is an HTTP field inside the encrypted stream. A layer with access to HTTP can make a path-based choice."
+  },
+  {
+    "title": "Layer 4 Load Balancing",
+    "section": "Networking",
+    "lesson": "A transport-layer balancer routes flows using information such as protocol, IP addresses and ports. It can forward encrypted connections without inspecting HTTP content.",
+    "example": "A TLS service keeps decryption keys on the backends. A layer 4 balancer can spread new connections while leaving each encrypted stream intact.",
+    "question": "Which request can a layer 4 balancer satisfy without decrypting traffic?",
+    "answers": [
+      "Distribute new TCP connections across healthy endpoints.",
+      "Choose a backend using a session cookie.",
+      "Send requests with a particular HTTP path to a special pool."
+    ],
+    "why": "Addresses, ports and connection state are available at the transport layer. Cookies and paths live inside application data."
+  },
+  {
+    "title": "Horizontal Scaling",
+    "section": "Service architecture",
+    "lesson": "Horizontal scaling adds instances and spreads work across them. It works best when requests can run on any instance or the system can partition their state deliberately.",
+    "example": "Three API instances can process independent searches. A shared database still limits growth if every search runs the same expensive query there.",
+    "question": "Adding API replicas breaks shopping carts when users reach a different server. Which change makes requests portable?",
+    "answers": [
+      "Store cart state in a shared durable store accessible to all replicas.",
+      "Keep a separate private cart in each server's memory.",
+      "Reduce the DNS TTL for API servers."
+    ],
+    "why": "Each replica can load the same authoritative cart, so correctness no longer depends on which instance receives the next request."
+  },
+  {
+    "title": "Application Layer",
+    "section": "Service architecture",
+    "lesson": "The application layer executes the product's rules behind an interface. It validates requests, checks permissions and coordinates data access. Keeping that responsibility explicit makes important decisions easier to test.",
+    "example": "An API checks that an account owns a playlist before adding a song. The database transaction then commits the membership change.",
+    "question": "Where should a playlist service enforce edit permission for every request?",
+    "answers": [
+      "At a trusted server-side boundary before committing the edit.",
+      "Only in the browser's button visibility logic.",
+      "Only in a cache key attached to the playlist."
+    ],
+    "why": "Clients can issue requests directly. The component authorizing the state change must check the caller's rights."
+  },
+  {
+    "title": "Microservices",
+    "section": "Service architecture",
+    "lesson": "Microservices split a system into independently deployable services organized around business capabilities. Each boundary adds network calls, versioning and failure modes, so it should buy real independence.",
+    "example": "Separating video encoding from billing lets the encoding team scale GPU workers separately. A cross-service workflow now needs explicit handling of partial failure.",
+    "question": "Which boundary provides the strongest case for a separate service?",
+    "answers": [
+      "A video encoder with distinct scaling needs, data ownership and release cadence.",
+      "Two functions that always deploy together and share one transaction.",
+      "Two files that use different naming conventions."
+    ],
+    "why": "Independent ownership and capacity requirements can justify the operational costs of a network boundary."
+  },
+  {
+    "title": "Service Discovery",
+    "section": "Service architecture",
+    "lesson": "Service discovery turns a logical service name into current reachable endpoints. Instances register or are discovered as they start and stop. Clients or routing infrastructure must tolerate stale membership information.",
+    "example": "A checkout service looks up inventory by service name while containers restart on new addresses. Health checks limit how long dead endpoints stay eligible.",
+    "question": "New inventory containers receive fresh IPs on each rollout. How should checkout find them?",
+    "answers": [
+      "Resolve a stable service name backed by an updated endpoint registry.",
+      "Build each container IP into the checkout binary.",
+      "Cache the very first container address indefinitely."
+    ],
+    "why": "The registry decouples the calling service from short-lived addresses. Health and membership updates keep lookup results useful."
+  }
+]

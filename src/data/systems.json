@@ -1,0 +1,717 @@
+[
+  {
+    "title": "Databases",
+    "section": "Data systems",
+    "lesson": "A database keeps records and gives callers rules for reading and changing them. Start a design by listing the queries, relationships, and updates that must succeed together.",
+    "example": "A train reservation must claim a seat and record the booking together. A transaction adds coordination but prevents a half-booked seat.",
+    "question": "Which requirement matters most when choosing storage for a seat reservation?",
+    "answers": [
+      "Whether related changes can commit atomically",
+      "Whether the engine stores timestamps as text",
+      "Whether every table fits in memory"
+    ],
+    "why": "A failed booking should leave the seat and reservation records in agreement."
+  },
+  {
+    "title": "SQL vs NoSQL",
+    "section": "Data systems",
+    "lesson": "Relational systems model rows, constraints, and joins. Nonrelational systems offer models such as documents, graphs, and key-value pairs. Compare the particular engine's transaction, query, and scaling behavior against your workload.",
+    "example": "A meal-kit service joins orders, refunds, and customers for changing reports. A relational model supports new joins, while a document model can make one known order view cheap.",
+    "question": "Analysts often invent new joins across orders and refunds. Which capability deserves priority?",
+    "answers": [
+      "Flexible relational queries",
+      "Maximum single-key write speed",
+      "Document nesting depth"
+    ],
+    "why": "Unplanned combinations of related records favor a query engine that can join them directly."
+  },
+  {
+    "title": "Replication",
+    "section": "Data systems",
+    "lesson": "Replication keeps copies of the same records on multiple nodes. A follower that applies writes asynchronously can trail the primary, even when both machines are healthy.",
+    "example": "Sending catalog reads to replicas reduces primary load. A shopper who just edited an item may need to read from the primary to see the change immediately.",
+    "question": "An edit succeeds but a follower shows the old title. What explains it?",
+    "answers": [
+      "The follower has yet to apply the write",
+      "The row was split across two shards",
+      "The index cannot store changed text"
+    ],
+    "why": "A write can be acknowledged before asynchronous replicas receive and apply it."
+  },
+  {
+    "title": "Sharding",
+    "section": "Data systems",
+    "lesson": "Sharding divides records across machines using a partition key. The key determines both the spread of writes and how many shards a query must visit.",
+    "example": "Partitioning messages by conversation keeps a chat history together. One viral conversation can still overload its shard.",
+    "question": "All writes for a celebrity's chat land on one server. What is the likely cause?",
+    "answers": [
+      "A hot partition key",
+      "Slow replication across every shard",
+      "A missing join index on author names"
+    ],
+    "why": "A shard can become saturated when one value receives a disproportionate share of the traffic."
+  },
+  {
+    "title": "Federation",
+    "section": "Data systems",
+    "lesson": "Federation divides storage by business function, with different databases owning different kinds of records. Work confined to one domain can scale independently, while cross-domain reports need explicit integration.",
+    "example": "Moving billing and inventory to separate databases isolates billing traffic. A report matching invoices to warehouse shipments now has to combine data across systems.",
+    "question": "Which split is federation by function?",
+    "answers": [
+      "Orders in one database and fulfillment in another",
+      "Even order IDs on one node and odd IDs on another",
+      "An identical orders table copied to three nodes"
+    ],
+    "why": "Each database owns a different domain of data."
+  },
+  {
+    "title": "Denormalization",
+    "section": "Data systems",
+    "lesson": "Denormalization copies or precomputes data so common reads need fewer joins. Every duplicate creates a maintenance decision when the original changes.",
+    "example": "A feed card stores the author's display name alongside its post. Reading a page is cheap, but a rename may take time to reach old cards.",
+    "question": "A team copies author names into feed rows. Which cost should it design for?",
+    "answers": [
+      "Keeping copied names in sync after edits",
+      "Routing every read through a cross-table join",
+      "Losing the ability to index post IDs"
+    ],
+    "why": "One edit to the original may require changes to many stored copies."
+  },
+  {
+    "title": "SQL Tuning",
+    "section": "Data systems",
+    "lesson": "Find a slow query under representative load and inspect its execution plan. Compare row counts, scans, sorts, and joins before changing indexes or rewriting SQL.",
+    "example": "A lookup reads millions of orders to find six for one customer. An index on the customer key can reduce reads, at the cost of extra work on writes.",
+    "question": "A slow query returns six rows. Which evidence best guides an index decision?",
+    "answers": [
+      "The query plan and rows scanned",
+      "The maximum length of table names",
+      "The total number of application routes"
+    ],
+    "why": "The plan shows how the engine locates rows and where it spends work."
+  },
+  {
+    "title": "RDBMS",
+    "section": "Data systems",
+    "lesson": "A relational database management system stores data in related tables. Keys identify rows, constraints enforce rules, and transactions group changes into one commit.",
+    "example": "A school links enrollments to existing students using a foreign key. The check costs a little on writes and prevents orphan records.",
+    "question": "Which database feature rejects an enrollment for a nonexistent student?",
+    "answers": [
+      "A foreign key constraint",
+      "A read replica",
+      "A covering index"
+    ],
+    "why": "The constraint requires a matching key in the referenced student table."
+  },
+  {
+    "title": "Key-Value Store",
+    "section": "Data systems",
+    "lesson": "A key-value store retrieves or replaces a value using its key. Lookups are simple when the caller knows that key, while searching inside values may require another structure.",
+    "example": "A session ID looks up one session record efficiently. Listing sessions by city requires an index or a different access path.",
+    "question": "Which workload fits basic key-value access?",
+    "answers": [
+      "Load a session by its opaque session ID",
+      "Follow a chain of referrals across accounts",
+      "Group all purchases by daily profit"
+    ],
+    "why": "Each session read already has the exact key needed to locate the value."
+  },
+  {
+    "title": "Document Store",
+    "section": "Data systems",
+    "lesson": "A document store groups nested fields into records that can have different shapes. Embed data read and updated together, and check limits on document size and write contention.",
+    "example": "A recipe includes its ingredients and steps in one document. An ever-growing list of reviews belongs elsewhere to keep the recipe manageable.",
+    "question": "Which data is a good candidate to embed in a recipe document?",
+    "answers": [
+      "Its bounded list of preparation steps",
+      "Every review it will ever receive",
+      "All recipes written by the same cook"
+    ],
+    "why": "The steps are small, bounded, and typically read with their recipe."
+  },
+  {
+    "title": "Wide Column Store",
+    "section": "Data systems",
+    "lesson": "Wide-column systems organize sparse data around row or partition keys and families of columns. In systems such as Cassandra, partition and clustering keys shape efficient reads within a partition.",
+    "example": "A sensor log partitions by device and day, then orders readings by time. Looking up one device-hour is cheap, while a fleet-wide search needs a separate design.",
+    "question": "A device's readings would grow forever under one partition key. Which change bounds it?",
+    "answers": [
+      "Add a time bucket to the partition key",
+      "Store a longer device name",
+      "Reverse the sort order of timestamps"
+    ],
+    "why": "A new bucket creates a separate partition instead of extending one indefinitely."
+  },
+  {
+    "title": "Graph Databases",
+    "section": "Data systems",
+    "lesson": "A graph database models entities as vertices and relationships as edges. Traversals follow connections directly, but a search can still fan out sharply around highly connected vertices.",
+    "example": "A mentoring app searches two hops from a learner for introductions. Limiting depth keeps the search fast and leaves out distant matches.",
+    "question": "Which query benefits most directly from graph traversal?",
+    "answers": [
+      "Find connections within two introductions of a mentor",
+      "Read a receipt by receipt ID",
+      "Fetch the latest temperature for a known sensor"
+    ],
+    "why": "The query depends on the structure of relationships over several steps."
+  },
+  {
+    "title": "NoSQL",
+    "section": "Data systems",
+    "lesson": "NoSQL covers several nonrelational data models with different guarantees. Pick a model by the access path, then check the database's consistency settings and transaction limits.",
+    "example": "A device service uses a key-value model for fast status lookups. Historical fleet analysis may need a second model optimized for scans.",
+    "question": "A database is described only as NoSQL. What can you infer about transaction guarantees?",
+    "answers": [
+      "They must be checked for that engine and configuration",
+      "All writes are eventually consistent",
+      "Multi-record transactions are always supported"
+    ],
+    "why": "The label describes a family of models, each with its own guarantees."
+  },
+  {
+    "title": "Caching",
+    "section": "Caching",
+    "lesson": "A cache keeps reusable data closer to the work that needs it. Decide what makes an entry fresh, how it expires, and what happens when many requests miss at once.",
+    "example": "A menu cache cuts database traffic at lunch. A short expiry makes new prices visible sooner but increases misses.",
+    "question": "What must be true before caching a shared result under one key?",
+    "answers": [
+      "Every requester of that key may receive the same result",
+      "The result never changes after its first read",
+      "All clients are connected to the same server"
+    ],
+    "why": "A shared key declares that its cached value is appropriate for every matching request."
+  },
+  {
+    "title": "Refresh Ahead",
+    "section": "Caching",
+    "lesson": "Refresh-ahead caching renews an entry before it expires. It can keep popular reads fast, but refreshing unused entries spends backend capacity unnecessarily.",
+    "example": "Refresh tomorrow's train schedule just before its cache lifetime ends. Refresh only frequently used stations to avoid fetching schedules nobody requests.",
+    "question": "A popular timetable briefly slows down every time its cache entry expires. Which change targets that pause?",
+    "answers": [
+      "Rebuild the entry shortly before expiry",
+      "Shorten its expiry without changing refresh behavior",
+      "Drop the timetable after every successful read"
+    ],
+    "why": "Refreshing early can make the next value available before callers experience a miss."
+  },
+  {
+    "title": "Write-behind",
+    "section": "Caching",
+    "lesson": "A write-behind cache accepts a write and persists it to the backing store later. Batching can improve throughput, but durability depends on what survives before the batch reaches storage.",
+    "example": "A game buffers noncritical counter updates for a second. A crash can lose unflushed increments unless the buffer is durably logged.",
+    "question": "A write was acknowledged, then the only in-memory buffer crashed before flushing. What is at risk?",
+    "answers": [
+      "Loss of the acknowledged update",
+      "A read-only database becoming writable",
+      "Every previous batch being rolled back"
+    ],
+    "why": "The backing store never received that update and the only copy was volatile."
+  },
+  {
+    "title": "Write-through",
+    "section": "Caching",
+    "lesson": "Write-through sends updates through the cache to the backing store, waiting for the backing write before reporting success. This keeps the normal read path warm, while adding work to the write path.",
+    "example": "Changing a product description updates the store and cached copy before completion. The caller now experiences the store's write latency.",
+    "question": "The backing store is slow during a write-through update. What usually happens to the client's write?",
+    "answers": [
+      "Acknowledgment takes longer",
+      "The write always succeeds immediately",
+      "The cache automatically switches to write-behind"
+    ],
+    "why": "Successful acknowledgment depends on completing the backing write."
+  },
+  {
+    "title": "Cache Aside",
+    "section": "Caching",
+    "lesson": "The application reads the cache first. On a miss it reads the source and fills the cache. Updates need an invalidation or expiry policy to limit old values.",
+    "example": "A library caches book details by ISBN. Evicting a changed entry forces the next request to rebuild it, adding latency to that read.",
+    "question": "In cache-aside, who fetches a missing record and fills the cache?",
+    "answers": [
+      "The application handling the read",
+      "A mandatory background writer",
+      "The database transaction log alone"
+    ],
+    "why": "Cache-aside puts the miss and refill logic in the application."
+  },
+  {
+    "title": "Client Caching",
+    "section": "Caching",
+    "lesson": "A client cache keeps a reusable response on the user's device. HTTP freshness rules can avoid a request, and a validator such as an ETag can check whether a stored response still applies.",
+    "example": "A versioned illustration stays in the browser cache across visits. Shipping a new version under a new filename prevents browsers from reusing the old illustration.",
+    "question": "Which design permits a long freshness lifetime for a logo while still shipping updates promptly?",
+    "answers": [
+      "Use a new content-hashed URL when the logo changes",
+      "Reuse one URL and never revalidate it",
+      "Place the logo in each HTML response"
+    ],
+    "why": "A changed file gets a distinct cache key, so the old fresh entry cannot hide the update."
+  },
+  {
+    "title": "CDN Caching",
+    "section": "Caching",
+    "lesson": "A content delivery network stores reusable responses at edge locations near users. Its cache key and sharing rules must account for inputs that change the response.",
+    "example": "An edge serves public album covers quickly worldwide. Personalized account pages need separate handling to avoid sharing private content.",
+    "question": "A CDN keys pages only by URL, but the account page depends on a login cookie. What should the team do first?",
+    "answers": [
+      "Keep personalized pages out of the shared cache",
+      "Increase the cache lifetime",
+      "Add more edge locations"
+    ],
+    "why": "The same URL can return private data for different people, so sharing its cached response is unsafe."
+  },
+  {
+    "title": "Web Server Caching",
+    "section": "Caching",
+    "lesson": "A web server or reverse proxy can keep generated pages or fragments near the application origin. A hit skips rendering work even when the user has never visited before.",
+    "example": "A local proxy caches a concert lineup for thirty seconds. A lineup correction may take that long to appear without a purge.",
+    "question": "Two visitors hit the same origin and only the first request runs the page renderer. Which layer can explain this?",
+    "answers": [
+      "A shared web server response cache",
+      "A private browser history entry",
+      "A database disk buffer alone"
+    ],
+    "why": "A shared response cache can answer the second request before it reaches rendering."
+  },
+  {
+    "title": "Database Caching",
+    "section": "Caching",
+    "lesson": "Database engines retain frequently read data and index pages in memory to reduce storage I/O. A warm buffer cache can help repeated reads even when the SQL still runs each time.",
+    "example": "A book index fits in the buffer pool after the first scan. Reads avoid disk access, though filtering and sorting still consume CPU.",
+    "question": "The same query executes twice and the second run reads fewer pages from disk. What is a likely reason?",
+    "answers": [
+      "Needed pages stayed in the database buffer cache",
+      "The database disabled all transaction checks",
+      "The second query skipped all CPU work"
+    ],
+    "why": "Cached pages avoid repeated storage reads while query execution continues."
+  },
+  {
+    "title": "Application Caching",
+    "section": "Caching",
+    "lesson": "Application code can cache a computed value or domain object using a key that reflects its inputs. Process-local caches are fast, while a shared cache helps many instances reuse the same result.",
+    "example": "An offer service caches shipping quotes by origin, destination, weight, and carrier. Omitting weight makes a cheaper quote leak into a heavier parcel's estimate.",
+    "question": "A cached quote for a light parcel appears on a heavier parcel. Which fix addresses the cause?",
+    "answers": [
+      "Include weight in the quote's cache key",
+      "Increase the cache capacity",
+      "Cache the same key on more service instances"
+    ],
+    "why": "The key must distinguish every input that can change the result."
+  },
+  {
+    "title": "Asynchronism",
+    "section": "Messaging",
+    "lesson": "Asynchronous work lets the caller continue before the job finishes. Design separate signals for acceptance, completion, and failure so users can tell what happened.",
+    "example": "A photo app accepts an upload and queues thumbnail creation. Browsing stays responsive, with a placeholder until processing finishes.",
+    "question": "An import API replies that a job was accepted. Which claim can it safely make?",
+    "answers": [
+      "The system accepted the work for processing",
+      "Every row has been imported successfully",
+      "The resulting file is already available"
+    ],
+    "why": "Acceptance and completion are distinct states in an asynchronous flow."
+  },
+  {
+    "title": "Back Pressure",
+    "section": "Messaging",
+    "lesson": "Back pressure tells producers to slow down when consumers cannot keep up. Bounded queues, demand signals, and admission limits keep excess work from exhausting memory.",
+    "example": "A video processor stops requesting new frames while its buffer is full. Playback may pause, but the buffer stays within its memory budget.",
+    "question": "A consumer consistently handles 80 jobs per second while 100 arrive. Which option prevents unbounded growth?",
+    "answers": [
+      "Limit admitted work to sustainable capacity",
+      "Double the queue size once",
+      "Acknowledge jobs before doing them"
+    ],
+    "why": "A larger buffer only delays saturation while the arrival rate exceeds the drain rate."
+  },
+  {
+    "title": "Task Queues",
+    "section": "Messaging",
+    "lesson": "A task queue holds units of work for workers to execute outside the request path. Retries help recover from interrupted work, so handlers should tolerate repeated execution.",
+    "example": "A worker generates a PDF and stores it under the report ID. Reusing that ID avoids producing extra files if delivery repeats.",
+    "question": "A worker dies after saving a PDF but before acknowledging the task. What should its replacement expect?",
+    "answers": [
+      "It may receive and execute the same task again",
+      "The broker can infer that the PDF was saved",
+      "The original task can never be redelivered"
+    ],
+    "why": "The broker may retry unacknowledged work even though its external effect already happened."
+  },
+  {
+    "title": "Message Queues",
+    "section": "Messaging",
+    "lesson": "A queue buffers messages between senders and receivers with independent lifetimes. Delivery, ordering, retention, and acknowledgment guarantees vary by broker and configuration.",
+    "example": "Checkout places a receipt request on a durable queue while email workers are offline. Messages wait within retention limits, increasing delivery latency.",
+    "question": "Email workers stop briefly while checkout stays healthy. Which capability lets requests wait for recovery?",
+    "answers": [
+      "Durable buffering with sufficient retention",
+      "A synchronous call with no timeout",
+      "Immediate deletion on producer acknowledgment"
+    ],
+    "why": "A retained message survives the consumer outage and can be processed after recovery."
+  },
+  {
+    "title": "Idempotent Operations",
+    "section": "Messaging",
+    "lesson": "An idempotent operation has the same intended effect when repeated with the same input. A stable request key and an atomic record of the result can protect business actions from duplicate retries.",
+    "example": "A checkout retries a payment after a timeout using the original idempotency key. Keeping the key and result costs storage but avoids a second charge.",
+    "question": "A client times out after submitting a payment. Which retry design prevents a duplicate charge?",
+    "answers": [
+      "Reuse a key the server atomically associates with that payment",
+      "Generate a new key for each attempt",
+      "Wait ten seconds and send the original charge as a new request"
+    ],
+    "why": "A stable key lets the server recognize the earlier operation even if its response was lost."
+  },
+  {
+    "title": "Communication",
+    "section": "Networking",
+    "lesson": "A service boundary requires a protocol, a message format, and a failure policy. A missing reply leaves the caller uncertain whether the remote action ran.",
+    "example": "A ticket service times out contacting inventory. Asking inventory about the original reservation ID adds a lookup but avoids a blind second reservation.",
+    "question": "A request times out before its reply arrives. What can the caller conclude?",
+    "answers": [
+      "The outcome is uncertain without further evidence",
+      "The server definitely rejected the request",
+      "The server definitely completed the request"
+    ],
+    "why": "Either the request or the response may have been delayed or lost."
+  },
+  {
+    "title": "HTTP",
+    "section": "Networking",
+    "lesson": "HTTP describes requests and responses using methods, targets, headers, status codes, and optional bodies. Method semantics let clients and intermediaries reason about safety, retries, and caching.",
+    "example": "A reader fetches a chapter with GET. A crawler may issue that request too, so changing a subscription as a side effect would be unsafe.",
+    "question": "Which action belongs behind GET?",
+    "answers": [
+      "Retrieve the current reading list",
+      "Cancel a reader's subscription",
+      "Submit a purchase using the current cart"
+    ],
+    "why": "Clients reasonably expect a GET to retrieve a representation without requesting a state change."
+  },
+  {
+    "title": "TCP",
+    "section": "Networking",
+    "lesson": "TCP provides a reliable, ordered stream of bytes over a connection. It preserves byte order but leaves message boundaries to the application protocol.",
+    "example": "A chat protocol prefixes each frame with its length. This adds a little overhead and allows a reader to recover frames from arbitrary receive chunks.",
+    "question": "A single TCP read returns half of a chat message. What should the receiver do?",
+    "answers": [
+      "Buffer bytes until the protocol's complete frame arrives",
+      "Assume the sender truncated the message",
+      "Treat every TCP read as a complete application record"
+    ],
+    "why": "TCP can split or combine application writes while preserving the byte stream."
+  },
+  {
+    "title": "UDP",
+    "section": "Networking",
+    "lesson": "UDP sends independent datagrams without built-in delivery, ordering, or retransmission guarantees. Applications decide how to handle missing or late packets and how to control their sending rate.",
+    "example": "A voice call skips a late audio frame to keep speech timely. Occasional gaps are preferable to waiting on outdated audio.",
+    "question": "A live voice packet arrives after its playback deadline. What policy often suits this workload?",
+    "answers": [
+      "Discard it and continue with timely audio",
+      "Pause the call until all earlier packets arrive",
+      "Assume UDP will reorder it before delivery"
+    ],
+    "why": "Past its deadline the packet has little value, while waiting increases conversational delay."
+  },
+  {
+    "title": "RPC",
+    "section": "Networking",
+    "lesson": "Remote procedure call exposes an operation on another process through a method-like interface. A call still crosses a network, so deadlines, partial failure, and serialization matter.",
+    "example": "A recommendation service calls a ranking method with a forty-millisecond deadline. A fallback list keeps the page usable if ranking runs late.",
+    "question": "Why give a remote method call a deadline?",
+    "answers": [
+      "To bound the time the caller spends waiting",
+      "To prove the remote operation never started",
+      "To guarantee the reply will arrive in order"
+    ],
+    "why": "A deadline protects the caller's time budget even when the server or network is slow."
+  },
+  {
+    "title": "REST",
+    "section": "Networking",
+    "lesson": "REST models a system as resources with representations and a uniform interface. Requests carry the context needed to process them, and HTTP methods express common operations on resources.",
+    "example": "A library exposes a loan at /loans/42. Different clients can retrieve the same resource through a stable URL, though complex workflows may need several interactions.",
+    "question": "Which interface best reflects a resource-oriented design for retrieving one loan?",
+    "answers": [
+      "GET /loans/42",
+      "POST /executeGetLoan with an action parameter",
+      "PUT /loans/42 with an empty body"
+    ],
+    "why": "The URI identifies the loan and the HTTP method describes retrieval."
+  },
+  {
+    "title": "gRPC",
+    "section": "Networking",
+    "lesson": "gRPC defines services and methods with a shared contract, commonly using Protocol Buffers. Generated clients support typed calls and streaming, while schema compatibility matters as services evolve.",
+    "example": "A telemetry service streams sensor batches over one call. Adding a new field can be compatible, while reusing a retired field number can corrupt interpretation.",
+    "question": "A team removes a Protocol Buffers field. How should it handle the old field number?",
+    "answers": [
+      "Reserve it so future fields cannot reuse it",
+      "Immediately assign it to the next unrelated field",
+      "Renumber all following fields to fill the gap"
+    ],
+    "why": "Field numbers identify data on the wire, so reuse can mislead older clients."
+  },
+  {
+    "title": "GraphQL",
+    "section": "Networking",
+    "lesson": "GraphQL lets a client select fields from a typed schema in a single operation. Resolvers fetch those fields, so nested selections may still trigger a large amount of backend work.",
+    "example": "A mobile screen requests titles and cover URLs without fetching reviews. A resolver that loads each cover separately can still generate many database calls.",
+    "question": "One GraphQL request lists 100 books and makes 100 separate author lookups. What targets this cost?",
+    "answers": [
+      "Batch author lookups by ID within the request",
+      "Force clients to request more book fields",
+      "Rename the author field in the schema"
+    ],
+    "why": "Batching addresses repeated backend calls that a single client request can hide."
+  },
+  {
+    "title": "Performance Antipatterns",
+    "section": "Observability",
+    "lesson": "A performance antipattern is a recurring design choice that creates avoidable work or contention. Identify the limiting resource under realistic load before changing the architecture.",
+    "example": "A checkout slows during a sale. Traces show connection-pool wait time dominates, so adding API replicas alone could increase pressure on the same database.",
+    "question": "A system becomes slow at peak load. What gives the most useful first evidence?",
+    "answers": [
+      "A representative trace and resource metrics during the slowdown",
+      "The average response time from an idle development machine",
+      "The programming language's best benchmark score"
+    ],
+    "why": "Measurements from the failing workload reveal where time and capacity actually go."
+  },
+  {
+    "title": "Busy Database",
+    "section": "Observability",
+    "lesson": "A database becomes a bottleneck when it spends scarce capacity on work that could run elsewhere. Keep filtering and set-oriented operations near data, and move unrelated computation to suitable workers.",
+    "example": "A transaction database renders invoice PDFs. Moving rendering to workers frees database CPU but adds a job handoff.",
+    "question": "Which task is the clearest candidate to move off a saturated transaction database?",
+    "answers": [
+      "Formatting invoice graphics into PDFs",
+      "Filtering rows by an indexed customer key",
+      "Checking a foreign key during an insert"
+    ],
+    "why": "PDF rendering consumes compute without benefiting from the engine's access to relational data."
+  },
+  {
+    "title": "Busy Frontend",
+    "section": "Observability",
+    "lesson": "Request-serving processes have limited CPU and memory. Heavy background work in those same processes can starve interactive requests even after the original request returns.",
+    "example": "An API starts video encodes in local background threads. Moving them to separately scaled workers protects page latency at the cost of queueing jobs.",
+    "question": "Pages slow down whenever video encoding starts inside the API process. Which change provides resource isolation?",
+    "answers": [
+      "Run encoders in a separate worker pool",
+      "Launch more encoding threads in the API process",
+      "Return the upload response earlier while encoding stays in the same process"
+    ],
+    "why": "Separate capacity keeps CPU-hungry background work from consuming the web tier's resources."
+  },
+  {
+    "title": "Chatty I/O",
+    "section": "Observability",
+    "lesson": "Many tiny calls can spend more time on round trips than on useful work. Batching or fetching related records together reduces trips, provided the batch stays reasonably sized.",
+    "example": "A bookshelf sends one query per book to load its author. One batched query cuts latency but needs a limit for very large shelves.",
+    "question": "A page runs fifty one-millisecond queries in sequence across a ten-millisecond network. What should improve latency most directly?",
+    "answers": [
+      "Batch the related lookups into fewer round trips",
+      "Compress the text of each tiny query",
+      "Increase the length of each query timeout"
+    ],
+    "why": "Each separate request pays network latency, so reducing call count targets the dominant cost."
+  },
+  {
+    "title": "Extraneous Fetching",
+    "section": "Observability",
+    "lesson": "Retrieving fields or rows that a caller discards wastes storage I/O, network bandwidth, and memory. Project needed fields and filter near the source when the engine can do so efficiently.",
+    "example": "A profile list fetches full avatar files to display names only. Selecting names and IDs saves bandwidth but another request may be needed on the detail screen.",
+    "question": "A list shows names for twenty users but loads every user's full profile. Which fix addresses the waste?",
+    "answers": [
+      "Filter and project the twenty required rows and fields at the source",
+      "Increase the network timeout on the same full query",
+      "Fetch all profiles twice and compare results"
+    ],
+    "why": "Selecting just the required data cuts both transferred bytes and unnecessary application work."
+  },
+  {
+    "title": "Improper Instantiation",
+    "section": "Observability",
+    "lesson": "Repeatedly creating heavyweight clients wastes setup cost and can exhaust connection limits. Reuse objects that their libraries document as safe to share, and scope request-specific state separately.",
+    "example": "An HTTP client with a connection pool is recreated on every call. A shared client reuses connections, while per-request authorization still belongs on each request.",
+    "question": "TLS setup dominates tiny outbound requests because each request creates a new client. Which change targets that cost?",
+    "answers": [
+      "Reuse a supported pooled client with request-scoped credentials",
+      "Open extra clients in advance for every URL",
+      "Disable response caching in the browser"
+    ],
+    "why": "Pool reuse permits existing connections to carry later requests without repeating every handshake."
+  },
+  {
+    "title": "Monolithic Persistence",
+    "section": "Observability",
+    "lesson": "Using one storage technology for every workload can force incompatible access patterns to compete. Separate storage when a demonstrated workload has different needs and the extra operations are justified.",
+    "example": "Large analytics scans compete with small checkout updates. A reporting store isolates scans, while its copied data may lag behind purchases.",
+    "question": "Long reporting scans repeatedly disrupt order writes. Which option best isolates the workloads?",
+    "answers": [
+      "Feed a separate analytical store from order data",
+      "Add more unrelated tables to the orders database",
+      "Run every report inside the checkout transaction"
+    ],
+    "why": "A separate store can use independent resources and a layout suited to analytical scans."
+  },
+  {
+    "title": "No Caching",
+    "section": "Observability",
+    "lesson": "Repeatedly computing or loading the same stable result can waste capacity. Measure reuse and freshness requirements before caching, then monitor hits, misses, and stale reads.",
+    "example": "Every homepage request rebuilds an identical public category list. A short-lived shared cache saves work, while edits can take a few seconds to appear.",
+    "question": "Which value offers the strongest candidate for a shared cache?",
+    "answers": [
+      "A widely read public category list with infrequent edits",
+      "A one-time password entered once",
+      "An unkeyed personalized bank balance"
+    ],
+    "why": "High reuse and a tolerable freshness window make the category list valuable and safe to share."
+  },
+  {
+    "title": "Noisy Neighbor",
+    "section": "Observability",
+    "lesson": "Tenants or workloads sharing a finite resource can interfere with one another. Quotas, workload pools, and isolation can bound the impact of a burst.",
+    "example": "One customer's batch export uses every database connection. Per-tenant concurrency limits preserve access for others at the cost of slower bulk exports.",
+    "question": "One tenant's burst makes everyone wait for a shared connection pool. Which control protects other tenants?",
+    "answers": [
+      "A per-tenant concurrency limit",
+      "A longer timeout for every tenant",
+      "A faster retry loop for the loudest tenant"
+    ],
+    "why": "A concurrency limit caps how much shared capacity one tenant can occupy."
+  },
+  {
+    "title": "Retry Storm",
+    "section": "Observability",
+    "lesson": "Repeated retries can amplify load on a struggling service and delay its recovery. Bound retry attempts, spread them with jitter, and retry only when the operation can safely repeat.",
+    "example": "Thousands of clients reconnect after a brief outage. Randomized backoff spreads attempts over time, though some clients recover later than others.",
+    "question": "After an outage every client retries exactly one second later and overloads the service again. What reduces synchronization?",
+    "answers": [
+      "Use bounded exponential backoff with jitter",
+      "Retry immediately from every application layer",
+      "Set the same shorter fixed delay for all clients"
+    ],
+    "why": "Jitter varies each client's schedule so their next attempts are less likely to collide."
+  },
+  {
+    "title": "Synchronous I/O",
+    "section": "Observability",
+    "lesson": "Blocking I/O occupies a worker while it waits for a remote response. Nonblocking I/O can return that worker to other requests, but the downstream work still consumes capacity.",
+    "example": "An API has idle CPU and many threads waiting on slow object storage. Async reads free threads while a concurrency limit protects storage.",
+    "question": "A server runs out of request threads during slow network reads. What does nonblocking I/O directly improve?",
+    "answers": [
+      "The ability to serve other work while reads are pending",
+      "The physical network latency of each read",
+      "The durability of the remote storage system"
+    ],
+    "why": "Releasing the waiting worker relieves thread exhaustion without making the remote call faster."
+  },
+  {
+    "title": "Monitoring",
+    "section": "Observability",
+    "lesson": "Monitoring collects signals about a running system so you can detect user impact and diagnose changes. Metrics show trends, logs record events, and traces follow work across service boundaries.",
+    "example": "A checkout error-rate chart shows when failures started. A correlated trace identifies the tax-service call that failed, at the cost of extra instrumentation.",
+    "question": "You know checkout failures rose at noon. Which signal best reveals the failing step across services?",
+    "answers": [
+      "A trace spanning one failed checkout",
+      "The total number of dashboard users",
+      "The size of the deployment package"
+    ],
+    "why": "A trace ties the steps and timings of a single request together."
+  },
+  {
+    "title": "Health Monitoring",
+    "section": "Observability",
+    "lesson": "Health checks test whether a component is alive or ready to serve work. Separate these checks because an instance that is still starting can be healthy enough to keep running.",
+    "example": "A search node takes a minute to load its index. A readiness probe holds back traffic while a liveness probe avoids needless restarts.",
+    "question": "A healthy process is warming its index and cannot yet serve queries. Which state fits?",
+    "answers": [
+      "Alive but unready",
+      "Ready but permanently unhealthy",
+      "Ready because its port exists"
+    ],
+    "why": "Readiness answers whether the instance can safely take traffic now."
+  },
+  {
+    "title": "Availability Monitoring",
+    "section": "Observability",
+    "lesson": "Availability monitoring asks whether users can successfully complete an operation. Synthetic probes and real traffic measure different parts of the experience, so define success and the observation window explicitly.",
+    "example": "A synthetic search from two regions catches a failed login dependency despite green host metrics. Each probe costs a little traffic.",
+    "question": "All API hosts are running, but users cannot log in. What signal best captures lost availability?",
+    "answers": [
+      "The success rate of a representative login journey",
+      "Average free memory on API hosts",
+      "The number of healthy network interfaces"
+    ],
+    "why": "A user-facing success measure includes dependencies required to finish login."
+  },
+  {
+    "title": "Performance Monitoring",
+    "section": "Observability",
+    "lesson": "Performance monitoring measures how quickly and how much work the system completes. Track tail latency alongside throughput and saturation so a good average cannot hide a slow group of requests.",
+    "example": "Most image loads take 80 ms but the slowest one percent take several seconds. A percentile chart exposes that tail, though enough samples are needed to interpret it.",
+    "question": "Most users report fast searches but the slowest one percent complain. Which metric is most relevant?",
+    "answers": [
+      "Search latency around the 99th percentile",
+      "Total requests since launch",
+      "Monthly average server uptime"
+    ],
+    "why": "A high percentile describes the slow edge of the latency distribution."
+  },
+  {
+    "title": "Security Monitoring",
+    "section": "Observability",
+    "lesson": "Security monitoring watches authentication, authorization, and other sensitive activity for signs that need investigation. Use access-controlled audit records and avoid putting secrets into telemetry.",
+    "example": "A service records denied admin actions with account, time, and outcome. Limiting what it retains keeps the log useful without storing passwords.",
+    "question": "Which event record helps investigate unauthorized admin attempts?",
+    "answers": [
+      "Account identifier, attempted action, timestamp, and denial reason",
+      "The full password entered on each attempt",
+      "A total page-view count with no outcomes"
+    ],
+    "why": "The audit fields let investigators reconstruct relevant actions without collecting credentials."
+  },
+  {
+    "title": "Usage Monitoring",
+    "section": "Observability",
+    "lesson": "Usage monitoring measures how people or clients use a feature. Choose events that represent meaningful actions and establish a denominator before interpreting a count.",
+    "example": "A reading app tracks completed lessons per started lesson. Counting only opens is cheaper but cannot show whether learners finish.",
+    "question": "You want to know what fraction of started lessons are finished. Which signals do you need?",
+    "answers": [
+      "Matched lesson-start and completion events",
+      "Only the number of app opens",
+      "Only the total number of available lessons"
+    ],
+    "why": "Completion rate needs both the relevant starts and the subset that reached completion."
+  },
+  {
+    "title": "Instrumentation",
+    "section": "Observability",
+    "lesson": "Instrumentation adds measurements at the points where work occurs. Consistent operation names, timing, and correlation IDs help connect metrics, logs, and traces across components.",
+    "example": "A checkout timer uses a route template instead of an actual order ID as a metric label. This limits time-series growth while traces retain per-request context.",
+    "question": "Why label a latency metric with /orders/{id} instead of each unique order ID?",
+    "answers": [
+      "To keep metric label cardinality bounded",
+      "To produce a separate time series for every buyer",
+      "To guarantee each request receives a unique trace"
+    ],
+    "why": "Grouping by route prevents an unbounded number of metric series."
+  },
+  {
+    "title": "Visualization & Alerts",
+    "section": "Observability",
+    "lesson": "A dashboard helps people explore data, while an alert asks someone to act. Tie alerts to sustained symptoms, choose an owner, and give responders enough context to investigate.",
+    "example": "A checkout alert fires when failed purchases consume the service's error budget too quickly. A dashboard then breaks failure rates down by region and release.",
+    "question": "Which alert deserves to wake the on-call engineer?",
+    "answers": [
+      "A sustained checkout failure rate threatening the user-facing objective",
+      "A dashboard received its first view today",
+      "A brief CPU spike with no impact and ample capacity"
+    ],
+    "why": "The checkout signal describes actionable user harm and gives the responder a reason to intervene."
+  }
+]
