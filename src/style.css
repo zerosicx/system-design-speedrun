@@ -1278,3 +1278,102 @@ footer a {
 .plan-stage .actions {
   margin-top: 17px;
 }
+
+.lesson-detail {
+  margin: 0 0 20px;
+  max-width: 75ch;
+}
+.lesson-terms {
+  margin-top: 24px;
+}
+.lesson-terms h2,
+.lesson-references h2 {
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+.lesson-terms dl {
+  margin: 12px 0 0;
+}
+.lesson-terms dl > div {
+  border-top: 1px solid var(--line);
+  padding: 12px 0 0;
+  margin-top: 12px;
+}
+.lesson-terms dt {
+  font-weight: 700;
+}
+.lesson-terms dd {
+  margin: 3px 0 0;
+  line-height: 1.55;
+  max-width: 75ch;
+}
+.lesson-references {
+  max-width: 900px;
+  margin-top: 25px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+.lesson-references ul {
+  padding: 0;
+  list-style: none;
+  margin: 8px 0;
+}
+.lesson-references li {
+  padding: 6px 0;
+}
+.lesson-references a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lesson-references svg {
+  flex-shrink: 0;
+}
+.lesson-references small {
+  display: block;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.round-size {
+  border: 0;
+  padding: 0;
+  margin: 0 0 22px;
+}
+.round-size legend {
+  font-weight: 700;
+  padding: 0 0 8px;
+}
+.round-size label {
+  position: relative;
+  display: inline-block;
+  margin-right: 6px;
+}
+.round-size input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  cursor: pointer;
+}
+.round-size span {
+  display: grid;
+  place-items: center;
+  min-width: 50px;
+  min-height: 44px;
+  background: #fffefa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.round-size input:checked + span {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+  font-weight: 700;
+}
+.round-size input:focus-visible + span {
+  outline: 3px solid #b98930;
+  outline-offset: 2px;
+}

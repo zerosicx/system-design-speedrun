@@ -19,9 +19,24 @@ for (const group of ["core", "systems", "patterns"]) {
   );
   const ids = new Set();
   for (const c of cards) {
-    for (const k of ["title", "lesson", "example", "question", "why"])
+    for (const k of ["title", "lesson", "detail", "example", "question", "why"])
       assert.ok(c[k]?.trim(), group + " missing " + k);
     assert.ok(sections.has(c.section), c.section);
+    assert.ok(c.terms.length > 0, c.title + " needs terminology");
+    for (const { term, definition } of c.terms)
+      assert.ok(term.trim() && definition.trim(), c.title);
+    assert.ok(c.references.length > 0, c.title + " needs references");
+    for (const { title, url, source } of c.references) {
+      assert.equal(new URL(url).protocol, "https:");
+      assert.ok(
+        title.trim() && ["roadmap.sh", "Supplementary"].includes(source),
+        c.title,
+      );
+    }
+    assert.equal(
+      new Set(c.references.map((r) => r.url)).size,
+      c.references.length,
+    );
     assert.equal(c.answers.length, 3);
     assert.equal(new Set(c.answers).size, 3);
     const id = c.title

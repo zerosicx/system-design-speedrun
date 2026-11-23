@@ -8,6 +8,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { concepts, randomOrder } from "./curriculum";
+import { quizSizes } from "./progress";
 import { href, join, Meter } from "./ui";
 
 export function Question({ c, onAnswer }) {
@@ -54,12 +55,12 @@ export function Question({ c, onAnswer }) {
     </>
   );
 }
-export function QuizRoom({ p, start }) {
+export function QuizRoom({ p, start, onSizeChange }) {
   const options = [
     [
       Layers3,
       "Mixed practice",
-      "Five random questions from across the field guide.",
+      "Random questions from across the field guide.",
       concepts,
     ],
     [
@@ -87,6 +88,21 @@ export function QuizRoom({ p, start }) {
           missed.
         </p>
       </div>
+      <fieldset className="round-size">
+        <legend>Questions per round</legend>
+        {quizSizes.map((size) => (
+          <label key={size}>
+            <input
+              type="radio"
+              name="round-size"
+              value={size}
+              checked={p.quizSize === size}
+              onChange={() => onSizeChange(size)}
+            />
+            <span>{size}</span>
+          </label>
+        ))}
+      </fieldset>
       <div className="quiz-options">
         {options.map(([Icon, title, desc, pool], i) => (
           <div className="panel quiz-option" key={title}>
@@ -101,7 +117,9 @@ export function QuizRoom({ p, start }) {
               onClick={() => start(pool)}
             >
               {pool.length
-                ? "Start " + Math.min(5, pool.length) + " questions"
+                ? "Start " +
+                  Math.min(p.quizSize, pool.length) +
+                  (pool.length === 1 ? " question" : " questions")
                 : i === 1
                   ? "No missed questions"
                   : "No bookmarks yet"}

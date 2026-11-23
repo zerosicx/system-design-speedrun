@@ -6,7 +6,17 @@ import { href } from "./ui";
 export function StudyPlan({ p, start }) {
   const unread = concepts.filter((c) => !p.read.includes(c.id));
   const words = unread.reduce(
-    (n, c) => n + (c.lesson + " " + c.example).split(/\s+/).length,
+    (n, c) =>
+      n +
+      [
+        c.lesson,
+        c.detail,
+        c.example,
+        ...c.terms.flatMap((t) => [t.term, t.definition]),
+      ]
+        .join(" ")
+        .trim()
+        .split(/\s+/).length,
     0,
   );
   const missed = concepts.filter((c) => p.missed.includes(c.id));
@@ -27,9 +37,9 @@ export function StudyPlan({ p, start }) {
         <h2>Read the field guide</h2>
         <p>
           {unread.length} lessons left. At 150–200 words per minute, the
-          remaining notes and examples take about {Math.ceil(words / 200)}–
-          {Math.ceil(words / 150)} minutes of reading. Allow extra time for
-          breaks and questions.
+          remaining lessons, examples, and key terms take about{" "}
+          {Math.ceil(words / 200)}–{Math.ceil(words / 150)} minutes of reading.
+          Allow extra time for breaks and questions.
         </p>
         <p>
           Try a ten-minute reading block. Bookmark anything you couldn’t explain

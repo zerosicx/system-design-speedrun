@@ -10,7 +10,34 @@
       "Whether the engine stores timestamps as text",
       "Whether every table fits in memory"
     ],
-    "why": "A failed booking should leave the seat and reservation records in agreement."
+    "why": "A failed booking should leave the seat and reservation records in agreement.",
+    "detail": "Follow a $20 bank transfer through ACID. Atomicity commits the debit and credit together. Consistency preserves declared rules, such as a valid account reference on each entry. Isolation controls what concurrent transfers can see or change. Durability preserves the acknowledged transfer through the failures covered by the storage contract. Keeping the two amounts equal still requires correct transaction logic or an enforced constraint. A database cannot infer that rule from two numbers.",
+    "terms": [
+      {
+        "term": "ACID",
+        "definition": "Atomicity, consistency, isolation, and durability describe different properties of a transaction."
+      },
+      {
+        "term": "Invariant",
+        "definition": "A rule that must remain true across successful changes, such as a ledger's entries balancing."
+      },
+      {
+        "term": "Commit",
+        "definition": "The decision to accept a transaction's changes as a unit."
+      }
+    ],
+    "references": [
+      {
+        "title": "PostgreSQL tutorial: Transactions",
+        "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+        "source": "Supplementary"
+      },
+      {
+        "title": "Scaling up to your first 10 million users",
+        "url": "https://www.youtube.com/watch?v=kKjm4ehYiMs",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "SQL vs NoSQL",
@@ -23,7 +50,39 @@
       "Maximum single-key write speed",
       "Document nesting depth"
     ],
-    "why": "Unplanned combinations of related records favor a query engine that can join them directly."
+    "why": "Unplanned combinations of related records favor a query engine that can join them directly.",
+    "detail": "Ask two separate questions. How will a page find its records, and which updates must be observed together? SQL tables can serve stale reads from asynchronous replicas. Some document stores support multi-document ACID transactions, even across shards. Compare a concrete operation, such as reserving inventory and recording an order, under each engine's configured isolation, read location, and acknowledgment policy. Transaction coordination can add latency across machines.",
+    "terms": [
+      {
+        "term": "ACID",
+        "definition": "Atomicity commits all the steps together. Consistency preserves the rules a transaction must obey. Isolation governs how concurrent transactions interact. Durability keeps committed changes through the failures the database promises to tolerate."
+      },
+      {
+        "term": "BASE",
+        "definition": "Basically available means useful service can continue during a failure. Soft state means background updates can change what a reader sees. Eventually consistent means replicas can converge once writes stop and communication recovers."
+      },
+      {
+        "term": "Transaction scope",
+        "definition": "The set of records, partitions, or databases one transaction can update together."
+      }
+    ],
+    "references": [
+      {
+        "title": "ACID and BASE databases explained",
+        "url": "https://aws.amazon.com/compare/the-difference-between-acid-and-base-database/",
+        "source": "Supplementary"
+      },
+      {
+        "title": "Types of NoSQL Databases: How to Choose the Right One",
+        "url": "https://roadmap.sh/backend/types-of-nosql-databases",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "SQL vs. NoSQL Databases: What’s the Difference?",
+        "url": "https://www.ibm.com/blog/sql-vs-nosql/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Replication",
@@ -36,7 +95,34 @@
       "The row was split across two shards",
       "The index cannot store changed text"
     ],
-    "why": "A write can be acknowledged before asynchronous replicas receive and apply it."
+    "why": "A write can be acknowledged before asynchronous replicas receive and apply it.",
+    "detail": "Suppose the leader acknowledges version 19 while a nearby follower still serves version 18. A client can carry the acknowledged version into its next request. The service then picks a replica that has applied at least version 19, waits briefly, or reads from the leader. That makes a profile edit visible to its author while allowing other readers to use slightly stale copies.",
+    "terms": [
+      {
+        "term": "Replication lag",
+        "definition": "The distance in time or log position between the primary and a replica."
+      },
+      {
+        "term": "Read-your-writes",
+        "definition": "A session guarantee that a reader can observe its own completed writes or newer values."
+      },
+      {
+        "term": "Replication log",
+        "definition": "An ordered record of changes a follower can replay."
+      }
+    ],
+    "references": [
+      {
+        "title": "Replication: Availability Pattern",
+        "url": "https://github.com/donnemartin/system-design-primer#replication",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Database Replication Introduction: Types and Advantages",
+        "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Sharding",
@@ -49,7 +135,39 @@
       "Slow replication across every shard",
       "A missing join index on author names"
     ],
-    "why": "A shard can become saturated when one value receives a disproportionate share of the traffic."
+    "why": "A shard can become saturated when one value receives a disproportionate share of the traffic.",
+    "detail": "Hashing a customer ID spreads distinct customers among buckets. A query for one customer can route directly, while a query for all customers in a city may contact every bucket. Range partitioning can make ordered scans cheaper, but sequential timestamps can direct all new writes to the newest range. Estimate both how many keys exist and how traffic is distributed across them before choosing.",
+    "terms": [
+      {
+        "term": "Shard key",
+        "definition": "The value or combination of values used to choose a record's shard."
+      },
+      {
+        "term": "Scatter-gather",
+        "definition": "Sending a query to multiple shards and combining the replies."
+      },
+      {
+        "term": "Rebalancing",
+        "definition": "Moving partitions between nodes as load or capacity changes."
+      }
+    ],
+    "references": [
+      {
+        "title": "The coming of the Shard",
+        "url": "https://highscalability.com/blog/2009/8/6/an-unorthodox-approach-to-database-design-the-coming-of-the.html",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Shard (database architecture)",
+        "url": "https://en.wikipedia.org/wiki/Shard_%28database_architecture%29",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Sharding pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sharding",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Federation",
@@ -62,7 +180,25 @@
       "Even order IDs on one node and odd IDs on another",
       "An identical orders table copied to three nodes"
     ],
-    "why": "Each database owns a different domain of data."
+    "why": "Each database owns a different domain of data.",
+    "detail": "Start from a question about ownership. If billing corrects an invoice, inventory should learn only about events it needs. A report joining both domains can consume changes into a separate reporting store. The fields can briefly describe different moments if one feed falls behind. Publish the update time or reconcile a common checkpoint when a report needs a consistent cutoff.",
+    "terms": [
+      {
+        "term": "Domain boundary",
+        "definition": "A division around a business responsibility with a clear owner for its records."
+      },
+      {
+        "term": "Change feed",
+        "definition": "A stream describing inserts, updates, and deletes for downstream consumers."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design Primer: federation",
+        "url": "https://github.com/donnemartin/system-design-primer#federation",
+        "source": "Supplementary"
+      }
+    ]
   },
   {
     "title": "Denormalization",
@@ -75,7 +211,25 @@
       "Routing every read through a cross-table join",
       "Losing the ability to index post IDs"
     ],
-    "why": "One edit to the original may require changes to many stored copies."
+    "why": "One edit to the original may require changes to many stored copies.",
+    "detail": "Decide whether a copied field represents a historical snapshot or the latest value. An invoice usually keeps the delivery address used at purchase, even after the customer moves. A public profile name on an old comment may need to follow later edits. For a live copy, identify the authoritative record, propagate changes, and provide a way to repair missed updates.",
+    "terms": [
+      {
+        "term": "Source of truth",
+        "definition": "The authoritative record used to resolve disagreements between copies."
+      },
+      {
+        "term": "Write amplification",
+        "definition": "The extra writes incurred when one logical change updates several stored records."
+      }
+    ],
+    "references": [
+      {
+        "title": "Denormalization",
+        "url": "https://en.wikipedia.org/wiki/Denormalization",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "SQL Tuning",
@@ -88,7 +242,29 @@
       "The maximum length of table names",
       "The total number of application routes"
     ],
-    "why": "The plan shows how the engine locates rows and where it spends work."
+    "why": "The plan shows how the engine locates rows and where it spends work.",
+    "detail": "Compare estimated and actual rows near the first expensive step. An estimate of ten matches that becomes 500,000 can cause an expensive nested-loop join. Outdated statistics, correlated columns, or a filter unsuitable for the index can explain the gap. Test a change with representative parameters. A table scan can be cheaper when the query returns most of the table.",
+    "terms": [
+      {
+        "term": "Execution plan",
+        "definition": "The engine's chosen sequence of scans, joins, sorts, and other operations."
+      },
+      {
+        "term": "Selectivity",
+        "definition": "How much of a table a condition matches. A highly selective condition returns few rows."
+      },
+      {
+        "term": "Statistics",
+        "definition": "Summaries of data distribution that help the planner estimate costs."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to SQL Tuning - Oracle",
+        "url": "https://docs.oracle.com/en/database/oracle/oracle-database/26/tgsql/introduction-to-sql-tuning.html#GUID-B653E5F3-F078-4BBC-9516-B892960046A2",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "RDBMS",
@@ -101,7 +277,39 @@
       "A read replica",
       "A covering index"
     ],
-    "why": "The constraint requires a matching key in the referenced student table."
+    "why": "The constraint requires a matching key in the referenced student table.",
+    "detail": "Concurrent correctness matters even when each request succeeds on its own. Two customers can read the last seat as available before either books it. A unique constraint on the seat and departure can reject the second booking. More complex rules may need locks or serializable transactions. Applications using serializable isolation must be ready to retry a transaction that conflicts with another.",
+    "terms": [
+      {
+        "term": "Primary key",
+        "definition": "A unique, non-null identifier for each row in a table."
+      },
+      {
+        "term": "Serializable isolation",
+        "definition": "Committed transactions have an outcome equivalent to executing them one at a time in some order."
+      },
+      {
+        "term": "Unique constraint",
+        "definition": "An engine-enforced rule preventing duplicate key values under the database's uniqueness semantics."
+      }
+    ],
+    "references": [
+      {
+        "title": "PostgreSQL tutorial: Transactions",
+        "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+        "source": "Supplementary"
+      },
+      {
+        "title": "SQL vs. NoSQL Databases: What’s the Difference?",
+        "url": "https://www.ibm.com/blog/sql-vs-nosql/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NoSQL vs. SQL Databases",
+        "url": "https://www.mongodb.com/nosql-explained/nosql-vs-sql",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Key-Value Store",
@@ -114,7 +322,25 @@
       "Follow a chain of referrals across accounts",
       "Group all purchases by daily profit"
     ],
-    "why": "Each session read already has the exact key needed to locate the value."
+    "why": "Each session read already has the exact key needed to locate the value.",
+    "detail": "Think through an update as well as a lookup. Two workers read stock level 8, each subtracts 1, and both write 7. A conditional update compares the stored version with the version previously read. The second worker then retries against fresh state. An atomic decrement supported by the store can also express this operation without a read-modify-write race.",
+    "terms": [
+      {
+        "term": "Compare-and-set",
+        "definition": "Change a value only when its current version or value matches an expected one."
+      },
+      {
+        "term": "Lost update",
+        "definition": "One writer overwrites another writer's change after both read the same earlier state."
+      }
+    ],
+    "references": [
+      {
+        "title": "Key–value database",
+        "url": "https://en.wikipedia.org/wiki/Key%E2%80%93value_database",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Document Store",
@@ -127,7 +353,25 @@
       "Every review it will ever receive",
       "All recipes written by the same cook"
     ],
-    "why": "The steps are small, bounded, and typically read with their recipe."
+    "why": "The steps are small, bounded, and typically read with their recipe.",
+    "detail": "Choose the document boundary around a unit of access. A single-document update can atomically change a recipe's ingredient quantities and serving count in engines offering document atomicity. Embedding a chef's whole profile in every recipe would duplicate frequent edits. A reference lets those recipes share one profile, at the cost of another lookup or a join-like operation when reading.",
+    "terms": [
+      {
+        "term": "Embedding",
+        "definition": "Storing related data inside the same document."
+      },
+      {
+        "term": "Reference",
+        "definition": "A field containing another record's identifier instead of a copy of its contents."
+      }
+    ],
+    "references": [
+      {
+        "title": "Document-oriented database",
+        "url": "https://en.wikipedia.org/wiki/Document-oriented_database",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Wide Column Store",
@@ -140,7 +384,25 @@
       "Store a longer device name",
       "Reverse the sort order of timestamps"
     ],
-    "why": "A new bucket creates a separate partition instead of extending one indefinitely."
+    "why": "A new bucket creates a separate partition instead of extending one indefinitely.",
+    "detail": "Design from an actual query such as “read this sensor's values between 10 and 11 yesterday.” A device-and-day key locates one partition. Within it, timestamp order permits a range read. A fleet-wide query for all low-battery devices cuts across those partitions. A second table keyed for battery alerts can make that query efficient, provided writes keep both representations current.",
+    "terms": [
+      {
+        "term": "Partition key",
+        "definition": "The fields used to locate the group of related rows on a storage node."
+      },
+      {
+        "term": "Clustering key",
+        "definition": "In systems such as Cassandra, fields defining the order of rows inside a partition."
+      }
+    ],
+    "references": [
+      {
+        "title": "Bigtable architecture",
+        "url": "https://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Graph Databases",
@@ -153,7 +415,34 @@
       "Read a receipt by receipt ID",
       "Fetch the latest temperature for a known sensor"
     ],
-    "why": "The query depends on the structure of relationships over several steps."
+    "why": "The query depends on the structure of relationships over several steps.",
+    "detail": "Estimate how many paths a query must explore. If each person has 100 contacts, following two hops can inspect roughly 10,000 links before removing duplicates. An index can locate the starting person, but traversal still pays for fan-out. Restrict edge types, stop at a chosen depth, or cap results when the application only needs a few introductions.",
+    "terms": [
+      {
+        "term": "Vertex",
+        "definition": "An entity in the graph, such as a person or a station."
+      },
+      {
+        "term": "Edge",
+        "definition": "A relationship connecting vertices, often carrying a direction, type, and properties."
+      },
+      {
+        "term": "Fan-out",
+        "definition": "The number of next steps a traversal or request generates."
+      }
+    ],
+    "references": [
+      {
+        "title": "Graph database",
+        "url": "https://en.wikipedia.org/wiki/Graph_database",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Introduction to NoSQL",
+        "url": "https://www.youtube.com/watch?v=qI_g07C_Q5I",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "NoSQL",
@@ -166,7 +455,34 @@
       "All writes are eventually consistent",
       "Multi-record transactions are always supported"
     ],
-    "why": "The label describes a family of models, each with its own guarantees."
+    "why": "The label describes a family of models, each with its own guarantees.",
+    "detail": "BASE describes one approach to replicated data. Basically available means the design favors returning a response during disruption, possibly with stale data. Soft state means a replica's visible state can change as background updates arrive. Eventually consistent means replicas converge once writes stop and communication resumes under the system's assumptions. A regional follower count may temporarily show 98 instead of 100. A bank debit requiring a coordinated balance check needs stronger guarantees for that operation.",
+    "terms": [
+      {
+        "term": "Basically available",
+        "definition": "The system prioritizes useful service during partial failures, with possible degradation."
+      },
+      {
+        "term": "Soft state",
+        "definition": "Background reconciliation can change visible values without another user write."
+      },
+      {
+        "term": "Eventually consistent",
+        "definition": "Replicas converge after updates cease and propagation and reconciliation can finish."
+      }
+    ],
+    "references": [
+      {
+        "title": "SQL vs. NoSQL Databases: What’s the Difference?",
+        "url": "https://www.ibm.com/blog/sql-vs-nosql/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NoSQL vs. SQL Databases",
+        "url": "https://www.mongodb.com/nosql-explained/nosql-vs-sql",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Caching",
@@ -179,7 +495,39 @@
       "The result never changes after its first read",
       "All clients are connected to the same server"
     ],
-    "why": "A shared key declares that its cached value is appropriate for every matching request."
+    "why": "A shared key declares that its cached value is appropriate for every matching request.",
+    "detail": "A 95% hit rate at 10,000 reads per second leaves the origin handling about 500 reads per second. If the cache restarts empty, the origin may suddenly receive all 10,000. Coalescing concurrent misses for the same key lets one request fetch while the others wait. Randomizing expiry times across keys can keep a whole batch from expiring together.",
+    "terms": [
+      {
+        "term": "Hit rate",
+        "definition": "The fraction of lookups served by a usable cached entry."
+      },
+      {
+        "term": "Cache stampede",
+        "definition": "A burst of overlapping rebuilds after entries become unavailable."
+      },
+      {
+        "term": "Eviction",
+        "definition": "Removing an entry, often to free space before its normal expiry."
+      }
+    ],
+    "references": [
+      {
+        "title": "Database Caching",
+        "url": "https://aws.amazon.com/caching/database-caching/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Introduction to database caching",
+        "url": "https://www.prisma.io/dataguide/managing-databases/introduction-database-caching",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Cache-Aside pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Refresh Ahead",
@@ -192,7 +540,25 @@
       "Shorten its expiry without changing refresh behavior",
       "Drop the timetable after every successful read"
     ],
-    "why": "Refreshing early can make the next value available before callers experience a miss."
+    "why": "Refreshing early can make the next value available before callers experience a miss.",
+    "detail": "Choose when and what to refresh using both access frequency and rebuild time. If an entry takes two seconds to regenerate, starting one millisecond before expiry will still leave a gap. Let only one worker refresh a key at a time. If renewal fails, the product needs a policy for how long it may serve the previous value.",
+    "terms": [
+      {
+        "term": "TTL",
+        "definition": "Time to live, the interval after which an entry expires under a cache's policy."
+      },
+      {
+        "term": "Staleness window",
+        "definition": "The period during which serving an older value is acceptable for this use."
+      }
+    ],
+    "references": [
+      {
+        "title": "Caching Strategy: Refresh Ahead Pattern",
+        "url": "https://www.enjoyalgorithms.com/blog/refresh-ahead-caching-pattern",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Write-behind",
@@ -205,7 +571,25 @@
       "A read-only database becoming writable",
       "Every previous batch being rolled back"
     ],
-    "why": "The backing store never received that update and the only copy was volatile."
+    "why": "The backing store never received that update and the only copy was volatile.",
+    "detail": "Consider successive values for the same record. A worker flushes revision 12, crashes before recording completion, then later replays revision 11. A backing store that accepts the older value can move backward. Durable buffering, per-key ordering or revision checks, and monitoring the age of the oldest unflushed write help distinguish a fast acknowledgment from a completed persistence operation.",
+    "terms": [
+      {
+        "term": "Flush",
+        "definition": "Transfer pending updates to the backing store."
+      },
+      {
+        "term": "Dirty entry",
+        "definition": "A cached value with changes that have yet to reach durable backing storage."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design Primer: write behind",
+        "url": "https://github.com/donnemartin/system-design-primer#write-behind-write-back",
+        "source": "Supplementary"
+      }
+    ]
   },
   {
     "title": "Write-through",
@@ -218,7 +602,25 @@
       "The write always succeeds immediately",
       "The cache automatically switches to write-behind"
     ],
-    "why": "Successful acknowledgment depends on completing the backing write."
+    "why": "Successful acknowledgment depends on completing the backing write.",
+    "detail": "Walk through a partial failure. The backing store commits a new price, then the cache update fails. A retry should be safe, and an invalidation or repair step can prevent an old entry from continuing to win reads. Even synchronous write-through needs a stated policy for such failures. Writers that bypass the cache can also create stale entries.",
+    "terms": [
+      {
+        "term": "Write path",
+        "definition": "The sequence of operations required to accept a change."
+      },
+      {
+        "term": "Invalidation",
+        "definition": "Marking a cached copy unusable so a future read obtains current data."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design Primer: write through",
+        "url": "https://github.com/donnemartin/system-design-primer#write-through",
+        "source": "Supplementary"
+      }
+    ]
   },
   {
     "title": "Cache Aside",
@@ -231,7 +633,25 @@
       "A mandatory background writer",
       "The database transaction log alone"
     ],
-    "why": "Cache-aside puts the miss and refill logic in the application."
+    "why": "Cache-aside puts the miss and refill logic in the application.",
+    "detail": "A subtle race occurs when a reader misses and loads the old value, a writer updates storage and evicts the key, then the reader inserts its old value. The cache now appears freshly populated with stale data. A short expiry limits exposure. If immediate correctness matters, guard updates with versions or perform that particular read against authoritative storage.",
+    "terms": [
+      {
+        "term": "Cache miss",
+        "definition": "A lookup with no usable value under the requested key."
+      },
+      {
+        "term": "Version check",
+        "definition": "A comparison that prevents an older revision from replacing a newer one."
+      }
+    ],
+    "references": [
+      {
+        "title": "Cache-Aside pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Client Caching",
@@ -244,7 +664,25 @@
       "Reuse one URL and never revalidate it",
       "Place the logo in each HTML response"
     ],
-    "why": "A changed file gets a distinct cache key, so the old fresh entry cannot hide the update."
+    "why": "A changed file gets a distinct cache key, so the old fresh entry cannot hide the update.",
+    "detail": "Freshness and validation save different costs. A still-fresh cached response can be reused without contacting the origin. After it becomes stale, the browser can send its ETag in an If-None-Match request. If the representation is unchanged, a 304 response saves the body transfer but still costs a round trip. Personalized responses also need a policy that controls shared storage.",
+    "terms": [
+      {
+        "term": "ETag",
+        "definition": "An opaque validator identifying a version of a representation."
+      },
+      {
+        "term": "304 Not Modified",
+        "definition": "An HTTP response telling the client its conditional request can reuse a previously stored representation."
+      }
+    ],
+    "references": [
+      {
+        "title": "HTTP Caching",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "CDN Caching",
@@ -257,7 +695,30 @@
       "Increase the cache lifetime",
       "Add more edge locations"
     ],
-    "why": "The same URL can return private data for different people, so sharing its cached response is unsafe."
+    "why": "The same URL can return private data for different people, so sharing its cached response is unsafe.",
+    "detail": "Two clients request the same article in different languages. If the origin selects language from a header, the edge must distinguish that header when caching variants. Vary or an explicit CDN cache-key configuration can express this. Adding every incoming header instead would create many near-duplicate entries and reduce hits. Include only inputs that actually affect the shareable response.",
+    "terms": [
+      {
+        "term": "Vary",
+        "definition": "An HTTP response header identifying request headers used to select a representation."
+      },
+      {
+        "term": "Edge location",
+        "definition": "A network site near clients that can answer requests from a CDN cache."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to CDNs",
+        "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Brief about Content delivery network",
+        "url": "https://en.wikipedia.org/wiki/Content_delivery_network",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Web Server Caching",
@@ -270,7 +731,25 @@
       "A private browser history entry",
       "A database disk buffer alone"
     ],
-    "why": "A shared response cache can answer the second request before it reaches rendering."
+    "why": "A shared response cache can answer the second request before it reaches rendering.",
+    "detail": "Caching a full HTML response skips routing, queries, and rendering on a hit, but every visitor must be allowed to see the same page. If a header includes an unread-message count, cache the public lineup fragment and render the personal header per request. A new ticket price may then invalidate one fragment without rebuilding every possible personalized page.",
+    "terms": [
+      {
+        "term": "Fragment cache",
+        "definition": "Storage for reusable pieces of a rendered page."
+      },
+      {
+        "term": "Reverse proxy",
+        "definition": "A server in front of origin services that can route requests and sometimes cache responses."
+      }
+    ],
+    "references": [
+      {
+        "title": "HTTP Caching",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Database Caching",
@@ -283,7 +762,30 @@
       "The database disabled all transaction checks",
       "The second query skipped all CPU work"
     ],
-    "why": "Cached pages avoid repeated storage reads while query execution continues."
+    "why": "Cached pages avoid repeated storage reads while query execution continues.",
+    "detail": "Distinguish a page cache from a result cache. A warm database buffer pool supplies table and index pages from memory, yet a query can still join and aggregate them repeatedly. A result cache stores the final answer and must know when underlying data has changed. Compare physical reads, query CPU, and repeat frequency before deciding which layer will save work.",
+    "terms": [
+      {
+        "term": "Buffer pool",
+        "definition": "Memory reserved by the database engine for frequently accessed storage pages."
+      },
+      {
+        "term": "Result cache",
+        "definition": "Storage for a query's computed output so a repeat request can skip computation."
+      }
+    ],
+    "references": [
+      {
+        "title": "Database Caching",
+        "url": "https://aws.amazon.com/caching/database-caching/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Introduction to database caching",
+        "url": "https://www.prisma.io/dataguide/managing-databases/introduction-database-caching",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Application Caching",
@@ -296,7 +798,25 @@
       "Increase the cache capacity",
       "Cache the same key on more service instances"
     ],
-    "why": "The key must distinguish every input that can change the result."
+    "why": "The key must distinguish every input that can change the result.",
+    "detail": "Simulate an edit with three application instances. Clearing an in-process entry on server A leaves copies on B and C unchanged. A distributed invalidation message can clear those copies, but a disconnected instance may miss it. A bounded TTL limits that case. A shared cache simplifies visibility across instances while adding network latency and another component to operate.",
+    "terms": [
+      {
+        "term": "Process-local cache",
+        "definition": "A cache accessible only inside one running application process."
+      },
+      {
+        "term": "Cache key",
+        "definition": "The identifier combining the inputs that determine which stored result may be reused."
+      }
+    ],
+    "references": [
+      {
+        "title": "Intro to Application Caching",
+        "url": "https://github.com/donnemartin/system-design-primer#application-caching",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Asynchronism",
@@ -309,7 +829,35 @@
       "Every row has been imported successfully",
       "The resulting file is already available"
     ],
-    "why": "Acceptance and completion are distinct states in an asynchronous flow."
+    "why": "Acceptance and completion are distinct states in an asynchronous flow.",
+    "detail": "Allocate a durable job identifier before telling the user their upload was accepted. Record transitions such as queued, running, succeeded, and failed so the UI can reconnect to the job. A background crash can leave a job looking active forever. A lease, heartbeat, or reconciliation process lets the system find abandoned work and decide whether it is safe to retry.",
+    "terms": [
+      {
+        "term": "Job state",
+        "definition": "A durable description of where work is in its lifecycle."
+      },
+      {
+        "term": "Lease",
+        "definition": "A time-limited claim granting a worker the right to perform a task."
+      }
+    ],
+    "references": [
+      {
+        "title": "Applying back pressure when overloaded",
+        "url": "https://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Little's law",
+        "url": "https://en.wikipedia.org/wiki/Little%27s_law",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "It's all a numbers game",
+        "url": "https://www.youtube.com/watch?v=1KRYH75wgy4",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Back Pressure",
@@ -322,7 +870,25 @@
       "Double the queue size once",
       "Acknowledge jobs before doing them"
     ],
-    "why": "A larger buffer only delays saturation while the arrival rate exceeds the drain rate."
+    "why": "A larger buffer only delays saturation while the arrival rate exceeds the drain rate.",
+    "detail": "If 100 jobs arrive each second and workers finish 80, backlog grows by 20 per second. A buffer with 1,000 empty slots will fill in about 50 seconds at that rate. Decide where the next arrival should wait, be rejected, or be dropped. Communicating that decision to producers helps them reduce demand before memory is exhausted.",
+    "terms": [
+      {
+        "term": "Bounded queue",
+        "definition": "A queue with an explicit maximum capacity."
+      },
+      {
+        "term": "Load shedding",
+        "definition": "Rejecting or discarding lower-priority work to protect capacity for the rest."
+      }
+    ],
+    "references": [
+      {
+        "title": "Applying back pressure when overloaded",
+        "url": "https://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Task Queues",
@@ -335,7 +901,25 @@
       "The broker can infer that the PDF was saved",
       "The original task can never be redelivered"
     ],
-    "why": "The broker may retry unacknowledged work even though its external effect already happened."
+    "why": "The broker may retry unacknowledged work even though its external effect already happened.",
+    "detail": "Set a visibility timeout long enough for typical work and renew it for valid long-running jobs. If it expires while a worker is still processing, a second worker may start the task. Repeated failure on one malformed job can waste the entire pool. Cap retries, record the terminal error, and transfer that job to a holding queue for inspection.",
+    "terms": [
+      {
+        "term": "Visibility timeout",
+        "definition": "An interval that hides a claimed message from other workers before acknowledgment."
+      },
+      {
+        "term": "Dead-letter queue",
+        "definition": "A separate destination for messages the normal consumer repeatedly fails to process."
+      }
+    ],
+    "references": [
+      {
+        "title": "Celery - Distributed Task Queue",
+        "url": "https://docs.celeryq.dev/en/stable/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Message Queues",
@@ -348,7 +932,35 @@
       "A synchronous call with no timeout",
       "Immediate deletion on producer acknowledgment"
     ],
-    "why": "A retained message survives the consumer outage and can be processed after recovery."
+    "why": "A retained message survives the consumer outage and can be processed after recovery.",
+    "detail": "If several workers share one queue, a message normally goes to one worker for a given delivery attempt. If billing and analytics must each see every new order, give each a subscription or queue fed by the same event. Track the oldest message age as well as depth. Ten old payment messages can matter more than 100 fresh analytics events.",
+    "terms": [
+      {
+        "term": "Acknowledgment",
+        "definition": "A consumer's signal that the broker may consider a delivery handled."
+      },
+      {
+        "term": "Retention",
+        "definition": "The time or conditions under which the broker keeps a message available."
+      }
+    ],
+    "references": [
+      {
+        "title": "RabbitMQ in Message Queues",
+        "url": "https://www.rabbitmq.com/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Overview of Amazon SQS",
+        "url": "https://aws.amazon.com/sqs/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Apache Kafka",
+        "url": "https://kafka.apache.org/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Idempotent Operations",
@@ -361,7 +973,25 @@
       "Generate a new key for each attempt",
       "Wait ten seconds and send the original charge as a new request"
     ],
-    "why": "A stable key lets the server recognize the earlier operation even if its response was lost."
+    "why": "A stable key lets the server recognize the earlier operation even if its response was lost.",
+    "detail": "Scope the key to the caller and operation, and record a fingerprint of the request. A retry carrying the same payment key and amount can receive the earlier result. Reusing that key with a different amount should produce a conflict. Determine how long to retain keys from the client's retry window. An expired key can make a late retry look new.",
+    "terms": [
+      {
+        "term": "Idempotency key",
+        "definition": "A stable client-supplied identifier for one intended operation across retries."
+      },
+      {
+        "term": "Request fingerprint",
+        "definition": "A representation of the relevant payload used to detect conflicting reuse of a key."
+      }
+    ],
+    "references": [
+      {
+        "title": "Idempotent operations in HTTP",
+        "url": "https://developer.mozilla.org/en-US/docs/Glossary/Idempotent",
+        "source": "Supplementary"
+      }
+    ]
   },
   {
     "title": "Communication",
@@ -374,7 +1004,35 @@
       "The server definitely rejected the request",
       "The server definitely completed the request"
     ],
-    "why": "Either the request or the response may have been delayed or lost."
+    "why": "Either the request or the response may have been delayed or lost.",
+    "detail": "Draw both the request and the return route. If the inventory service commits a reservation and its response is lost, a successful connection alone cannot tell the caller what happened. Agree on an operation ID, an outcome lookup, and what a timeout means. Decide which fields can evolve independently so a rolling deployment can still exchange understandable messages.",
+    "terms": [
+      {
+        "term": "Protocol",
+        "definition": "The rules for how peers structure messages and interpret their exchange."
+      },
+      {
+        "term": "Serialization",
+        "definition": "Encoding an in-memory value into bytes that another process can decode."
+      }
+    ],
+    "references": [
+      {
+        "title": "Everything you need to know about HTTP",
+        "url": "https://cs.fyi/guide/http-in-depth",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What Is HTTP?",
+        "url": "https://www.nginx.com/resources/glossary/http/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What Is RPC?",
+        "url": "https://github.com/donnemartin/system-design-primer#remote-procedure-call-rpc",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "HTTP",
@@ -387,7 +1045,30 @@
       "Cancel a reader's subscription",
       "Submit a purchase using the current cart"
     ],
-    "why": "Clients reasonably expect a GET to retrieve a representation without requesting a state change."
+    "why": "Clients reasonably expect a GET to retrieve a representation without requesting a state change.",
+    "detail": "Use the method and status code together to describe progress. Creating a report immediately can return 201 with its location. Accepting a report request for later processing can return 202 and a status URL. A client that receives 202 should display pending work and check the status resource. A successful HTTP exchange does not by itself mean the report exists.",
+    "terms": [
+      {
+        "term": "Representation",
+        "definition": "The bytes and metadata conveying a resource's state in a chosen format."
+      },
+      {
+        "term": "Safe method",
+        "definition": "An HTTP method whose requested semantics are read-only, such as GET or HEAD."
+      }
+    ],
+    "references": [
+      {
+        "title": "Everything you need to know about HTTP",
+        "url": "https://cs.fyi/guide/http-in-depth",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What Is HTTP?",
+        "url": "https://www.nginx.com/resources/glossary/http/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "TCP",
@@ -400,7 +1081,30 @@
       "Assume the sender truncated the message",
       "Treat every TCP read as a complete application record"
     ],
-    "why": "TCP can split or combine application writes while preserving the byte stream."
+    "why": "TCP can split or combine application writes while preserving the byte stream.",
+    "detail": "In an ordered stream, a missing segment can hold up delivery of later bytes to the application until retransmission succeeds. A successful local write only shows that the operating system accepted bytes for sending. Even acknowledgment by the remote TCP stack does not prove the application committed a purchase. A business-level response or outcome lookup must carry that information.",
+    "terms": [
+      {
+        "term": "Framing",
+        "definition": "An application convention for finding individual messages within a byte stream."
+      },
+      {
+        "term": "Head-of-line blocking",
+        "definition": "Later work must wait for an earlier missing or unfinished item."
+      }
+    ],
+    "references": [
+      {
+        "title": "What Is TCP?",
+        "url": "https://github.com/donnemartin/system-design-primer#transmission-control-protocol-tcp",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Networking for game programming",
+        "url": "https://gafferongames.com/post/udp_vs_tcp/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "UDP",
@@ -413,7 +1117,25 @@
       "Pause the call until all earlier packets arrive",
       "Assume UDP will reorder it before delivery"
     ],
-    "why": "Past its deadline the packet has little value, while waiting increases conversational delay."
+    "why": "Past its deadline the packet has little value, while waiting increases conversational delay.",
+    "detail": "Imagine a game server sends player positions 41, 42, and 43. When 43 arrives before 42, an application-level sequence number can let the client discard the older update. A purchase made inside that game needs different delivery semantics and may use a reliable stream. UDP still needs congestion control at the protocol or application layer for sustained traffic.",
+    "terms": [
+      {
+        "term": "Datagram",
+        "definition": "A single message delivered as one unit if it arrives."
+      },
+      {
+        "term": "Sequence number",
+        "definition": "An application or protocol counter used to recognize newer, duplicate, or missing messages."
+      }
+    ],
+    "references": [
+      {
+        "title": "Networking for game programming",
+        "url": "https://gafferongames.com/post/udp_vs_tcp/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "RPC",
@@ -426,7 +1148,25 @@
       "To prove the remote operation never started",
       "To guarantee the reply will arrive in order"
     ],
-    "why": "A deadline protects the caller's time budget even when the server or network is slow."
+    "why": "A deadline protects the caller's time budget even when the server or network is slow.",
+    "detail": "A web endpoint has a 300 ms budget and spends 180 ms before calling search. Giving search a fresh 300 ms timeout can exceed the user's deadline. Pass the remaining budget downstream and include time for assembling the reply. If the caller cancels, the remote handler must cooperate to stop unnecessary work. A timeout alone cannot undo an action already committed.",
+    "terms": [
+      {
+        "term": "Deadline propagation",
+        "definition": "Passing the caller's remaining time budget through nested calls."
+      },
+      {
+        "term": "Stub",
+        "definition": "Generated or handwritten client code that encodes a method call and handles its response."
+      }
+    ],
+    "references": [
+      {
+        "title": "What Is RPC?",
+        "url": "https://github.com/donnemartin/system-design-primer#remote-procedure-call-rpc",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "REST",
@@ -439,7 +1179,30 @@
       "POST /executeGetLoan with an action parameter",
       "PUT /loans/42 with an empty body"
     ],
-    "why": "The URI identifies the loan and the HTTP method describes retrieval."
+    "why": "The URI identifies the loan and the HTTP method describes retrieval.",
+    "detail": "Expose the state of a long-running export through a resource. POST to a collection creates an export request, and a Location header can point to its URL. A client can later GET that URL to see progress or retrieve a result link. Keep permissions on each request and use validators when concurrent editors must avoid overwriting newer representations.",
+    "terms": [
+      {
+        "term": "Resource",
+        "definition": "An identifiable concept, such as one export job, that a client may address through a URI."
+      },
+      {
+        "term": "Stateless request",
+        "definition": "A request carrying enough context for processing without relying on an earlier conversational step stored on one server."
+      }
+    ],
+    "references": [
+      {
+        "title": "Visit the Dedicated API Design Roadmap",
+        "url": "https://roadmap.sh/api-design",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What Is REST?",
+        "url": "https://github.com/donnemartin/system-design-primer#representational-state-transfer-rest",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "gRPC",
@@ -452,7 +1215,25 @@
       "Immediately assign it to the next unrelated field",
       "Renumber all following fields to fill the gap"
     ],
-    "why": "Field numbers identify data on the wire, so reuse can mislead older clients."
+    "why": "Field numbers identify data on the wire, so reuse can mislead older clients.",
+    "detail": "Choose a unary, server-streaming, client-streaming, or bidirectional method according to who must send multiple messages. A stream delivering thousands of readings still needs bounded buffering when the receiver slows down. For a rolling deployment, add new fields with fresh numbers and compatible defaults. Exercise old clients against new servers since business assumptions can break even when decoding succeeds.",
+    "terms": [
+      {
+        "term": "Protocol Buffers",
+        "definition": "A schema language and binary encoding using numbered fields."
+      },
+      {
+        "term": "Unary RPC",
+        "definition": "A method invocation with one request message and one response message."
+      }
+    ],
+    "references": [
+      {
+        "title": "An introduction to gRPC",
+        "url": "https://grpc.io/docs/what-is-grpc/introduction/",
+        "source": "Supplementary"
+      }
+    ]
   },
   {
     "title": "GraphQL",
@@ -465,7 +1246,35 @@
       "Force clients to request more book fields",
       "Rename the author field in the schema"
     ],
-    "why": "Batching addresses repeated backend calls that a single client request can hide."
+    "why": "Batching addresses repeated backend calls that a single client request can hide.",
+    "detail": "Work through a feed operation with twenty items, each selecting an author. A naive resolver issues twenty reads, even if only three authors occur. Collect keys during the request, fetch the three authors in a batch, then map results back in the requested order. Keep batch caches scoped appropriately so results authorized for one user cannot leak to another.",
+    "terms": [
+      {
+        "term": "Resolver",
+        "definition": "Code that supplies a value for a field in a GraphQL operation."
+      },
+      {
+        "term": "N+1 query problem",
+        "definition": "One initial lookup followed by an additional lookup for each result."
+      }
+    ],
+    "references": [
+      {
+        "title": "Visit the Dedicated GraphQL Roadmap",
+        "url": "https://roadmap.sh/graphql",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "GraphQL Server",
+        "url": "https://www.howtographql.com/basics/3-big-picture/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What is GraphQL?",
+        "url": "https://www.redhat.com/en/topics/api/what-is-graphql",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Performance Antipatterns",
@@ -478,7 +1287,25 @@
       "The average response time from an idle development machine",
       "The programming language's best benchmark score"
     ],
-    "why": "Measurements from the failing workload reveal where time and capacity actually go."
+    "why": "Measurements from the failing workload reveal where time and capacity actually go.",
+    "detail": "Test the smallest hypothesis that explains the observed slowdown. If response time grows as traffic rises while CPU stays flat, inspect waiting time for connections, locks, or downstream services. Change one suspected constraint and repeat the same workload. If throughput barely moves, the earlier symptom may have been a consequence of a different bottleneck.",
+    "terms": [
+      {
+        "term": "Bottleneck",
+        "definition": "The resource or stage currently limiting end-to-end capacity."
+      },
+      {
+        "term": "Saturation",
+        "definition": "Work waiting because available capacity is occupied."
+      }
+    ],
+    "references": [
+      {
+        "title": "Performance antipatterns for cloud applications",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Busy Database",
@@ -491,7 +1318,25 @@
       "Filtering rows by an indexed customer key",
       "Checking a foreign key during an insert"
     ],
-    "why": "PDF rendering consumes compute without benefiting from the engine's access to relational data."
+    "why": "PDF rendering consumes compute without benefiting from the engine's access to relational data.",
+    "detail": "Break down what database time actually buys. Sorting a small filtered set near its data may save a large transfer, while building a printable PDF spends database CPU on presentation. Capture execution time, rows sent, and peak resource demand before moving work. Extracting too much logic can simply replace a CPU bottleneck with millions of row transfers.",
+    "terms": [
+      {
+        "term": "Pushdown",
+        "definition": "Executing filtering or aggregation close to stored data to reduce data movement."
+      },
+      {
+        "term": "Contention",
+        "definition": "Multiple operations competing for the same limited resource."
+      }
+    ],
+    "references": [
+      {
+        "title": "Busy Database antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/busy-database/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Busy Frontend",
@@ -504,7 +1349,25 @@
       "Launch more encoding threads in the API process",
       "Return the upload response earlier while encoding stays in the same process"
     ],
-    "why": "Separate capacity keeps CPU-hungry background work from consuming the web tier's resources."
+    "why": "Separate capacity keeps CPU-hungry background work from consuming the web tier's resources.",
+    "detail": "A request can return quickly and still leave trouble behind. Starting an image resize on a local background thread frees the request handler but consumes the same machine's CPU and memory. Compare page latency with worker concurrency while applying a fixed upload load. Moving work to a separately bounded pool lets you set different capacity and failure limits for each tier.",
+    "terms": [
+      {
+        "term": "Worker pool",
+        "definition": "A bounded group of executors serving a class of background jobs."
+      },
+      {
+        "term": "Resource isolation",
+        "definition": "Limiting how much one workload can consume from another workload's capacity."
+      }
+    ],
+    "references": [
+      {
+        "title": "Busy Front End antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/busy-front-end/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Chatty I/O",
@@ -517,7 +1380,25 @@
       "Compress the text of each tiny query",
       "Increase the length of each query timeout"
     ],
-    "why": "Each separate request pays network latency, so reducing call count targets the dominant cost."
+    "why": "Each separate request pays network latency, so reducing call count targets the dominant cost.",
+    "detail": "Compare three traces for loading twenty covers. Sequential lookups incur twenty network waits. Parallel lookups may reduce elapsed time but can consume twenty connections at once. A bounded batch amortizes the round trip while keeping response size manageable. Measure the downstream queue as well as client latency, especially when many users open the same screen concurrently.",
+    "terms": [
+      {
+        "term": "Round trip",
+        "definition": "Time spent sending a request to a remote peer and receiving its response."
+      },
+      {
+        "term": "Batching",
+        "definition": "Combining several logical operations into one bounded request."
+      }
+    ],
+    "references": [
+      {
+        "title": "Chatty I/O antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/chatty-io/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Extraneous Fetching",
@@ -530,7 +1411,25 @@
       "Increase the network timeout on the same full query",
       "Fetch all profiles twice and compare results"
     ],
-    "why": "Selecting just the required data cuts both transferred bytes and unnecessary application work."
+    "why": "Selecting just the required data cuts both transferred bytes and unnecessary application work.",
+    "detail": "A response compressed down to 10 KB may have required loading 5 MB from storage. Trace bytes and row counts at each stage to find where data was discarded. Project columns early and paginate large collections in a stable order. For a details view, defer large attachments until the user actually opens them.",
+    "terms": [
+      {
+        "term": "Projection",
+        "definition": "Selecting only the fields needed by a query or response."
+      },
+      {
+        "term": "Pagination",
+        "definition": "Splitting a result into bounded pages using a cursor, key, or offset."
+      }
+    ],
+    "references": [
+      {
+        "title": "Extraneous Fetching antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/extraneous-fetching/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Improper Instantiation",
@@ -543,7 +1442,25 @@
       "Open extra clients in advance for every URL",
       "Disable response caching in the browser"
     ],
-    "why": "Pool reuse permits existing connections to carry later requests without repeating every handshake."
+    "why": "Pool reuse permits existing connections to carry later requests without repeating every handshake.",
+    "detail": "Look at object lifetimes. A client that owns a pool is often intended to serve many requests. A query transaction carries request-specific state and must be completed and released. Reusing both indiscriminately risks leaking state, while recreating both on each call wastes setup work. Check the library's concurrency contract and explicitly bound the shared pool.",
+    "terms": [
+      {
+        "term": "Connection pool",
+        "definition": "A reusable set of open connections managed under a capacity limit."
+      },
+      {
+        "term": "Request scope",
+        "definition": "A lifetime tied to one request, suitable for its credentials, transaction, or cancellation state."
+      }
+    ],
+    "references": [
+      {
+        "title": "Improper Instantiation antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/improper-instantiation/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Monolithic Persistence",
@@ -556,7 +1473,25 @@
       "Add more unrelated tables to the orders database",
       "Run every report inside the checkout transaction"
     ],
-    "why": "A separate store can use independent resources and a layout suited to analytical scans."
+    "why": "A separate store can use independent resources and a layout suited to analytical scans.",
+    "detail": "A dedicated search index lets keyword queries scale independently of the order database. Copying changes through a feed introduces lag, so a newly created item might be accessible by ID before it appears in search. Assign one authoritative writer, expose an acceptable freshness delay, and plan how to rebuild the derived index after a missed event.",
+    "terms": [
+      {
+        "term": "Polyglot persistence",
+        "definition": "Using different storage technologies for workloads with different access requirements."
+      },
+      {
+        "term": "Derived store",
+        "definition": "A secondary representation populated from authoritative data for a specific read workload."
+      }
+    ],
+    "references": [
+      {
+        "title": "Monolithic Persistence antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/monolithic-persistence/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "No Caching",
@@ -569,7 +1504,25 @@
       "A one-time password entered once",
       "An unkeyed personalized bank balance"
     ],
-    "why": "High reuse and a tolerable freshness window make the category list valuable and safe to share."
+    "why": "High reuse and a tolerable freshness window make the category list valuable and safe to share.",
+    "detail": "Estimate reuse before introducing a cache. If 10,000 requests contain 9,950 unique keys that never recur, even a large cache will save little. If most requests hit a handful of stable keys, a modest cache can save substantial work. Measure the real key distribution, then test stale-result behavior and cold starts as part of the decision.",
+    "terms": [
+      {
+        "term": "Working set",
+        "definition": "The data actively used over a period that matters to the workload."
+      },
+      {
+        "term": "Locality",
+        "definition": "The tendency for some keys or nearby data to be accessed repeatedly."
+      }
+    ],
+    "references": [
+      {
+        "title": "No Caching antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/no-caching/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Noisy Neighbor",
@@ -582,7 +1535,25 @@
       "A longer timeout for every tenant",
       "A faster retry loop for the loudest tenant"
     ],
-    "why": "A concurrency limit caps how much shared capacity one tenant can occupy."
+    "why": "A concurrency limit caps how much shared capacity one tenant can occupy.",
+    "detail": "A global limit of 100 active queries keeps the database within capacity but still allows one tenant to claim all 100 slots. Add per-tenant limits or a fair scheduler, and decide whether spare capacity can be borrowed. Monitor delay by tenant because a healthy fleet-wide median can hide severe starvation for smaller customers.",
+    "terms": [
+      {
+        "term": "Fair scheduling",
+        "definition": "A policy distributing service among groups according to explicit shares or priorities."
+      },
+      {
+        "term": "Starvation",
+        "definition": "A workload repeatedly waiting while other work receives the available resources."
+      }
+    ],
+    "references": [
+      {
+        "title": "Noisy Neighbor antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/noisy-neighbor/noisy-neighbor",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Retry Storm",
@@ -595,7 +1566,25 @@
       "Retry immediately from every application layer",
       "Set the same shorter fixed delay for all clients"
     ],
-    "why": "Jitter varies each client's schedule so their next attempts are less likely to collide."
+    "why": "Jitter varies each client's schedule so their next attempts are less likely to collide.",
+    "detail": "Count retries across the whole path. If a browser, gateway, and API each make up to three attempts per incoming request, one user action can produce 27 downstream attempts. Choose a single layer to own retries for that operation, allocate a retry budget, and respect server hints about when capacity may return. Some failures should surface immediately.",
+    "terms": [
+      {
+        "term": "Retry budget",
+        "definition": "A limit on extra requests caused by retries over a chosen interval."
+      },
+      {
+        "term": "Jitter",
+        "definition": "Random variation in a delay that spreads otherwise synchronized attempts."
+      }
+    ],
+    "references": [
+      {
+        "title": "Retry Storm antipattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Synchronous I/O",
@@ -608,7 +1597,25 @@
       "The physical network latency of each read",
       "The durability of the remote storage system"
     ],
-    "why": "Releasing the waiting worker relieves thread exhaustion without making the remote call faster."
+    "why": "Releasing the waiting worker relieves thread exhaustion without making the remote call faster.",
+    "detail": "One hundred blocking workers each waiting half a second per request can complete roughly 200 requests per second if nothing else limits them. Async I/O lets the same threads handle other ready work, yet the downstream can still saturate. Cap concurrent requests to that dependency and cancel calls past their deadline to avoid replacing a thread queue with a connection queue.",
+    "terms": [
+      {
+        "term": "Blocking call",
+        "definition": "A call that occupies the executing thread until completion or timeout."
+      },
+      {
+        "term": "In-flight work",
+        "definition": "Operations started but awaiting completion, whether or not a thread is blocked."
+      }
+    ],
+    "references": [
+      {
+        "title": "What is Synchronous I/O antipattern?",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Monitoring",
@@ -621,7 +1628,29 @@
       "The total number of dashboard users",
       "The size of the deployment package"
     ],
-    "why": "A trace ties the steps and timings of a single request together."
+    "why": "A trace ties the steps and timings of a single request together.",
+    "detail": "Follow an incident from symptom to cause. An error-rate metric can flag a change across all checkouts, a trace can locate a time-consuming payment call, and a structured log can explain the returned error code. Correlate by timestamp, service version, and trace ID. Sampling detailed traces controls cost while always-on aggregate counters retain a broader population view.",
+    "terms": [
+      {
+        "term": "Metric",
+        "definition": "A numerical observation aggregated across time or events."
+      },
+      {
+        "term": "Trace",
+        "definition": "A set of linked spans showing how one operation traversed components."
+      },
+      {
+        "term": "Structured log",
+        "definition": "An event record with named fields that can be searched and grouped."
+      }
+    ],
+    "references": [
+      {
+        "title": "Monitoring and Diagnostics Guidance",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Health Monitoring",
@@ -634,7 +1663,25 @@
       "Ready but permanently unhealthy",
       "Ready because its port exists"
     ],
-    "why": "Readiness answers whether the instance can safely take traffic now."
+    "why": "Readiness answers whether the instance can safely take traffic now.",
+    "detail": "A liveness check that calls every downstream database can trigger a restart wave when one database briefly fails. Restarting healthy instances then increases recovery traffic. Keep liveness focused on failures a restart might fix. Use readiness for traffic eligibility, with sensible thresholds and timeouts. Exercise the probes during startup, shutdown, and dependency loss to see how the router responds.",
+    "terms": [
+      {
+        "term": "Liveness probe",
+        "definition": "A check used to decide whether a running instance needs to be restarted."
+      },
+      {
+        "term": "Readiness probe",
+        "definition": "A check used to decide whether an instance can currently receive traffic."
+      }
+    ],
+    "references": [
+      {
+        "title": "Health Monitoring of a System",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#health-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability Monitoring",
@@ -647,7 +1694,25 @@
       "Average free memory on API hosts",
       "The number of healthy network interfaces"
     ],
-    "why": "A user-facing success measure includes dependencies required to finish login."
+    "why": "A user-facing success measure includes dependencies required to finish login.",
+    "detail": "Define the denominator. For a search API, count eligible search requests and the fraction returning a usable result before a deadline. A 200 response containing an error page should count as a failure for that journey. Run probes from user regions during quiet periods and combine them with real-user measurements. One synthetic route alone may miss a regional problem.",
+    "terms": [
+      {
+        "term": "SLI",
+        "definition": "Service level indicator, a measured quantity representing a user-visible service outcome."
+      },
+      {
+        "term": "Synthetic probe",
+        "definition": "A scheduled test that performs a chosen journey and reports whether it worked."
+      }
+    ],
+    "references": [
+      {
+        "title": "Availability Monitoring",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#availability-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Performance Monitoring",
@@ -660,7 +1725,25 @@
       "Total requests since launch",
       "Monthly average server uptime"
     ],
-    "why": "A high percentile describes the slow edge of the latency distribution."
+    "why": "A high percentile describes the slow edge of the latency distribution.",
+    "detail": "Read latency and load together. A slowdown from 100 ms to 500 ms with rising queues suggests the system is nearing capacity. A stable median can hide a small group stuck behind a saturated dependency. Record histograms and aggregate bucket counts across instances before computing a fleet percentile. Averaging instance p99 values does not produce the fleet's p99.",
+    "terms": [
+      {
+        "term": "p99 latency",
+        "definition": "A latency value at or below which about 99% of measured requests finished."
+      },
+      {
+        "term": "Histogram",
+        "definition": "Counts of observations grouped into value ranges that can be aggregated to estimate percentiles."
+      }
+    ],
+    "references": [
+      {
+        "title": "Performance Monitoring",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#performance-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Security Monitoring",
@@ -673,7 +1756,25 @@
       "The full password entered on each attempt",
       "A total page-view count with no outcomes"
     ],
-    "why": "The audit fields let investigators reconstruct relevant actions without collecting credentials."
+    "why": "The audit fields let investigators reconstruct relevant actions without collecting credentials.",
+    "detail": "Design a useful audit trail by reconstructing one action. Who requested a permission change, which resource and permission were involved, what did policy decide, and when did it happen? Keep access to the trail narrow and watch for gaps in ingestion. A sudden disappearance of denied actions can mean a collector stopped, even when application traffic appears healthy.",
+    "terms": [
+      {
+        "term": "Audit trail",
+        "definition": "A sequence of attributable records that supports reconstructing actions and outcomes."
+      },
+      {
+        "term": "Least privilege",
+        "definition": "Granting only the access needed for a specific job, including access to audit records."
+      }
+    ],
+    "references": [
+      {
+        "title": "Security Monitoring",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#security-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Usage Monitoring",
@@ -686,7 +1787,25 @@
       "Only the number of app opens",
       "Only the total number of available lessons"
     ],
-    "why": "Completion rate needs both the relevant starts and the subset that reached completion."
+    "why": "Completion rate needs both the relevant starts and the subset that reached completion.",
+    "detail": "A completion percentage needs an explicit unit. One person may open a lesson three times before completing it, so completions divided by page views answers a different question from completions per distinct lesson start. Specify a time window and match starts to outcomes with stable identifiers. Duplicate or delayed mobile events need deduplication before interpreting a trend.",
+    "terms": [
+      {
+        "term": "Cohort",
+        "definition": "A group defined by a shared condition, such as learners who started in the same week."
+      },
+      {
+        "term": "Denominator",
+        "definition": "The eligible population against which an outcome count is compared."
+      }
+    ],
+    "references": [
+      {
+        "title": "Usage Monitoring",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#usage-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Instrumentation",
@@ -699,7 +1818,34 @@
       "To produce a separate time series for every buyer",
       "To guarantee each request receives a unique trace"
     ],
-    "why": "Grouping by route prevents an unbounded number of metric series."
+    "why": "Grouping by route prevents an unbounded number of metric series.",
+    "detail": "Place a span around the whole checkout and child spans around inventory and payment calls. Propagate the trace context when crossing service boundaries. The resulting timing reveals whether calls overlapped or ran one after another. Put trace IDs on detailed logs so a responder can find supporting events, and reserve metric labels for dimensions with a bounded number of values.",
+    "terms": [
+      {
+        "term": "Span",
+        "definition": "A measured operation with start and end times inside a trace."
+      },
+      {
+        "term": "Cardinality",
+        "definition": "The number of distinct values or label combinations a telemetry system must store."
+      },
+      {
+        "term": "Context propagation",
+        "definition": "Passing identifiers and trace information across a boundary so related work can be linked."
+      }
+    ],
+    "references": [
+      {
+        "title": "Instrumenting an application",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#instrument-an-application",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Instrumenting using Open Telemetry",
+        "url": "https://opentelemetry.io/docs/concepts/what-is-opentelemetry",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Visualization & Alerts",
@@ -712,6 +1858,24 @@
       "A dashboard received its first view today",
       "A brief CPU spike with no impact and ample capacity"
     ],
-    "why": "The checkout signal describes actionable user harm and gives the responder a reason to intervene."
+    "why": "The checkout signal describes actionable user harm and gives the responder a reason to intervene.",
+    "detail": "Start from a user objective and calculate how quickly bad requests consume the allowed errors. If 1% may fail in the measurement window and failures are running at 5%, the current burn rate is five times the sustainable rate. Pair a short window with a longer one to distinguish a material incident from noise. Link the alert to an owner and a diagnostic view.",
+    "terms": [
+      {
+        "term": "Error budget",
+        "definition": "The allowed number or fraction of bad outcomes within an objective's measurement window."
+      },
+      {
+        "term": "Burn rate",
+        "definition": "The observed bad-event fraction divided by the allowed bad-event fraction over the relevant window."
+      }
+    ],
+    "references": [
+      {
+        "title": "Visualize Data and Raise Alerts",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#visualize-data-and-raise-alerts",
+        "source": "roadmap.sh"
+      }
+    ]
   }
 ]

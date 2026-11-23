@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { byId } from "./curriculum";
 
+export const quizSizes = [5, 10, 20];
+
 const key = "stack-garden-v1";
 const empty = {
   read: [],
   saved: [],
   missed: [],
   correct: 0,
+  quizSize: quizSizes[0],
   attempts: 0,
   last: "",
   sound: false,
@@ -24,6 +27,7 @@ function restore() {
       result[k] = Number.isSafeInteger(data[k]) && data[k] >= 0 ? data[k] : 0;
     for (const k of ["sound", "haptics"])
       if (typeof data[k] === "boolean") result[k] = data[k];
+    if (quizSizes.includes(data.quizSize)) result.quizSize = data.quizSize;
     result.last = byId[data.last] ? data.last : "";
     return result;
   } catch {

@@ -10,7 +10,25 @@
       "Which queue offers the longest retention",
       "How many regions the broker supports"
     ],
-    "why": "Moving work into a queue changes when users see the result. The team needs to know whether that delay fits the product."
+    "why": "Moving work into a queue changes when users see the result. The team needs to know whether that delay fits the product.",
+    "detail": "Sketch one user request, from the first click to the last durable write. Mark the step that fails your objective and name the improvement you need. If buffering makes a slow upload feel immediate, check how people learn when it has finished. That second question often reveals another piece of the design, such as a status endpoint.",
+    "terms": [
+      {
+        "term": "Constraint",
+        "definition": "An explicit limit, such as available memory, a delivery deadline or a cost ceiling."
+      },
+      {
+        "term": "Trade-off",
+        "definition": "An improvement in one property that comes with a cost elsewhere."
+      }
+    ],
+    "references": [
+      {
+        "title": "Cloud Design Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Messaging",
@@ -23,7 +41,25 @@
       "Increase how long the broker retains each message",
       "Add another worker to the same subscription"
     ],
-    "why": "Redelivery can occur after a crash. A durable identity lets the handler recognize work it already performed."
+    "why": "Redelivery can occur after a crash. A durable identity lets the handler recognize work it already performed.",
+    "detail": "Consider the gap between updating a database and publishing a notification. A crash in that gap can leave an order with no event. An outbox stores the pending message in the same database transaction as the order. A separate publisher can resume delivery after a crash, and downstream handlers still need to recognize duplicate events.",
+    "terms": [
+      {
+        "term": "Transactional outbox",
+        "definition": "A table of pending messages written atomically with the business change that produces them."
+      },
+      {
+        "term": "Acknowledgement",
+        "definition": "A receiver's signal that a delivery reached the agreed stage of processing."
+      }
+    ],
+    "references": [
+      {
+        "title": "Messaging Cloud Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/messaging",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Sequential Convoy",
@@ -36,7 +72,30 @@
       "Sort all updates by the time a worker finishes them",
       "Prioritize the smallest update from every customer's stream"
     ],
-    "why": "The customer key defines the boundary for ordering. Different customers can progress independently."
+    "why": "The customer key defines the boundary for ordering. Different customers can progress independently.",
+    "detail": "A broker can keep related updates in order if the sender supplies a grouping key and the transport preserves the required order within that group. Include a sequence number when producers can submit updates out of order. If shipment update 8 arrives ahead of update 7, the consumer can pause that shipment and continue processing others.",
+    "terms": [
+      {
+        "term": "Grouping key",
+        "definition": "A value, such as shipment ID, identifying the updates that need coordinated ordering."
+      },
+      {
+        "term": "Sequence number",
+        "definition": "A position within an ordered stream that helps a receiver spot missing or repeated updates."
+      }
+    ],
+    "references": [
+      {
+        "title": "What is Sequential Convoy?",
+        "url": "https://learn.microsoft.com/en-us/biztalk/core/sequential-convoys",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Overview - Sequential Convoy pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sequential-convoy",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Scheduler Agent Supervisor",
@@ -49,7 +108,25 @@
       "A gateway combining the results for the UI",
       "A router selecting the closest worker"
     ],
-    "why": "The supervisor can compare recorded progress with deadlines even after the original worker exits."
+    "why": "The supervisor can compare recorded progress with deadlines even after the original worker exits.",
+    "detail": "Imagine a shipment workflow has completed the address check and started buying postage. The agent stops responding. The supervisor reads the saved step and elapsed time, checks whether a label already exists and then resumes or compensates. Saving the external reference before moving to the next step gives recovery something concrete to check.",
+    "terms": [
+      {
+        "term": "Checkpoint",
+        "definition": "A durable record of completed work that allows a workflow to resume."
+      },
+      {
+        "term": "Compensation",
+        "definition": "A follow-up business action that accounts for a previously completed step."
+      }
+    ],
+    "references": [
+      {
+        "title": "Scheduler Agent Supervisor pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/scheduler-agent-supervisor",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Queue-Based Load Leveling",
@@ -62,7 +139,25 @@
       "Start a separate worker for every queued job",
       "Retry every refused call immediately"
     ],
-    "why": "The queue holds the spike while the shared rate cap protects the downstream API. Sustained arrivals above capacity still grow the backlog."
+    "why": "The queue holds the spike while the shared rate cap protects the downstream API. Sustained arrivals above capacity still grow the backlog.",
+    "detail": "Suppose a worker pool finishes 50 jobs each minute and new jobs keep arriving at 30 per minute. A burst that adds 200 waiting jobs takes roughly ten minutes to clear, assuming steady rates. If arrivals rise to 50 per minute, the backlog stays. Choose a maximum waiting time and decide what to do when you exceed it.",
+    "terms": [
+      {
+        "term": "Drain rate",
+        "definition": "The net rate at which a backlog shrinks after subtracting new arrivals from completed jobs."
+      },
+      {
+        "term": "Queue age",
+        "definition": "The time a job has already spent waiting to be processed."
+      }
+    ],
+    "references": [
+      {
+        "title": "Queue-Based Load Leveling pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Publisher/Subscriber",
@@ -75,7 +170,25 @@
       "Have both services compete for jobs on one queue",
       "Route odd order IDs to billing and even IDs to analytics"
     ],
-    "why": "Separate subscriptions fan out the same event and track each service's progress independently."
+    "why": "Separate subscriptions fan out the same event and track each service's progress independently.",
+    "detail": "Suppose you add a fraud detector after a shop has already published a year's sales. A new subscription might begin with future events only. If it needs history, the broker must retain events for replay or the service needs a separate backfill. Define the starting point so a backfill and live deliveries do not double-count a sale.",
+    "terms": [
+      {
+        "term": "Replay",
+        "definition": "Reading retained events again from a chosen point."
+      },
+      {
+        "term": "Backfill",
+        "definition": "Loading earlier records into a new or repaired view of the data."
+      }
+    ],
+    "references": [
+      {
+        "title": "Publisher-Subscriber pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Priority Queue",
@@ -88,7 +201,25 @@
       "Assign a higher priority to every alert",
       "Increase the retention time of ordinary alerts"
     ],
-    "why": "A reserved share or an aging policy bounds starvation while still favoring urgent work."
+    "why": "A reserved share or an aging policy bounds starvation while still favoring urgent work.",
+    "detail": "Priority usually decides which waiting job starts next. If a low-priority export has already occupied the only worker for ten minutes, an urgent alert can still wait behind it. Small work units, separate workers or explicit preemption can help. Choose a policy based on how long an urgent item can afford to wait.",
+    "terms": [
+      {
+        "term": "Preemption",
+        "definition": "Interrupting running work so a different task can use the resource."
+      },
+      {
+        "term": "Starvation",
+        "definition": "A task waits indefinitely because other tasks repeatedly take precedence."
+      }
+    ],
+    "references": [
+      {
+        "title": "Priority Queue pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Pipes and Filters",
@@ -101,7 +232,25 @@
       "Remove the need to track failed audio files",
       "Guarantee every stage processes each file exactly once"
     ],
-    "why": "Each stage has its own capacity. Queued boundaries let one stage absorb work without scaling every other stage."
+    "why": "Each stage has its own capacity. Queued boundaries let one stage absorb work without scaling every other stage.",
+    "detail": "Follow one failed item through a three-stage image pipeline. If resizing succeeds and watermarking fails, storing the resized image lets the worker retry only the failed stage. Each saved intermediate result costs space and needs an expiry policy. Give stages versioned input formats so a new resize worker can coexist with an older watermark worker.",
+    "terms": [
+      {
+        "term": "Intermediate result",
+        "definition": "Output from one processing step that later steps consume."
+      },
+      {
+        "term": "Stage contract",
+        "definition": "The input, output and error behavior that neighboring processing steps rely on."
+      }
+    ],
+    "references": [
+      {
+        "title": "Pipes and Filters pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/pipes-and-filters",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Competing Consumers",
@@ -114,7 +263,25 @@
       "Give each worker a separate subscription to every invoice",
       "Broadcast each invoice to every worker and merge their outputs"
     ],
-    "why": "Consumers on the same queue divide deliveries. Redelivery still calls for duplicate-safe processing."
+    "why": "Consumers on the same queue divide deliveries. Redelivery still calls for duplicate-safe processing.",
+    "detail": "A worker typically has a deadline to finish a leased message. If processing lasts longer, the broker may offer the same job to another worker while the first is still busy. Size or renew the lease for slow jobs. Monitor repeated failures and move persistently failing jobs aside so they do not occupy all consumers.",
+    "terms": [
+      {
+        "term": "Visibility timeout",
+        "definition": "The period during which a delivered queue item is temporarily hidden from other consumers."
+      },
+      {
+        "term": "Dead-letter queue",
+        "definition": "A separate destination for messages that repeatedly fail normal processing."
+      }
+    ],
+    "references": [
+      {
+        "title": "Competing Consumers pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Choreography",
@@ -127,7 +294,25 @@
       "Give each message an unrelated request ID with no parent",
       "Track only total messages published across all bookings"
     ],
-    "why": "A shared identifier connects independent transitions into the history of a single booking."
+    "why": "A shared identifier connects independent transitions into the history of a single booking.",
+    "detail": "Draw the business events as a sequence and assign each one an owner. A ticket service might publish TicketHeld, while payment publishes PaymentAuthorized or PaymentDeclined. Decide who releases a hold if a payment event never arrives. Keeping those decisions explicit makes it possible to change one service without leaving reservations stuck between steps.",
+    "terms": [
+      {
+        "term": "Domain event",
+        "definition": "A record of a meaningful business fact that has already happened."
+      },
+      {
+        "term": "Correlation ID",
+        "definition": "An identifier shared by messages or operations belonging to the same workflow."
+      }
+    ],
+    "references": [
+      {
+        "title": "Choreography pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/choreography",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Claim Check",
@@ -140,7 +325,25 @@
       "The first megabyte of the video and its total length",
       "A longer message retention time and the original video"
     ],
-    "why": "The broker carries a small claim while the object store handles the large bytes. The reference must remain valid through processing."
+    "why": "The broker carries a small claim while the object store handles the large bytes. The reference must remain valid through processing.",
+    "detail": "Consider the two writes involved in sending a large recording. Write the recording successfully before announcing its reference so a worker can always fetch the bytes. If sending the reference fails, the recording can become an orphan. Retain it for retries, track pending publication and clean it up once the recovery window has passed.",
+    "terms": [
+      {
+        "term": "Payload",
+        "definition": "The data a message carries or points to for processing."
+      },
+      {
+        "term": "Orphaned object",
+        "definition": "A stored item that remains after its expected reference or owner is lost."
+      }
+    ],
+    "references": [
+      {
+        "title": "Claim Check - Cloud Design patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/claim-check",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Async Request Reply",
@@ -153,7 +356,25 @@
       "Hold the original connection open until the export finishes",
       "Return a success receipt indicating the report is already complete"
     ],
-    "why": "The status resource survives a lost connection and distinguishes acceptance from successful completion."
+    "why": "The status resource survives a lost connection and distinguishes acceptance from successful completion.",
+    "detail": "A job endpoint can return a status document with states such as queued, running, completed and failed. Include an estimate of when to check again, and make the result accessible after completion. A client that loses the initial response may resubmit. Giving the submission an operation ID can connect both attempts to the same job.",
+    "terms": [
+      {
+        "term": "HTTP 202 Accepted",
+        "definition": "A response indicating acceptance for processing while the final outcome is still pending."
+      },
+      {
+        "term": "Polling",
+        "definition": "Repeatedly checking a resource for a change in status."
+      }
+    ],
+    "references": [
+      {
+        "title": "Asynchronous Request-Reply pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/async-request-reply",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Data Management",
@@ -166,7 +387,25 @@
       "How often engineers deploy the web frontend",
       "Which color represents today's sales"
     ],
-    "why": "A precomputed result trades freshness and maintenance work for cheaper reads."
+    "why": "A precomputed result trades freshness and maintenance work for cheaper reads.",
+    "detail": "Write down which service can change each fact. A catalog can own a product's current price while a receipt records the price actually charged. Editing the catalog tomorrow should leave yesterday's receipt intact. This example shows why apparently duplicated values sometimes have different meanings and different requirements for consistency and retention.",
+    "terms": [
+      {
+        "term": "System of record",
+        "definition": "The authoritative source for a particular fact."
+      },
+      {
+        "term": "Invariant",
+        "definition": "A rule that must hold across valid states, such as a paid invoice matching its recorded total."
+      }
+    ],
+    "references": [
+      {
+        "title": "Data management patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/data-management",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Static Content Hosting",
@@ -179,7 +418,25 @@
       "Overwrite the file and assume every edge refreshes at once",
       "Set a year-long cache lifetime on the entry document as well"
     ],
-    "why": "A new URL selects the new representation. A fresh entry document tells clients which asset version to request."
+    "why": "A new URL selects the new representation. A fresh entry document tells clients which asset version to request.",
+    "detail": "A browser first retrieves the page, then follows its links to scripts, images and styles. Publish the new assets before publishing a page that references them. Keep the previous assets available while older pages may still reference them. This release order prevents a visitor who loaded an older page from getting missing files midway through a session.",
+    "terms": [
+      {
+        "term": "Content hash",
+        "definition": "A fingerprint derived from file contents that can be included in the file name."
+      },
+      {
+        "term": "Origin",
+        "definition": "The authoritative server or storage location from which an edge cache obtains an asset."
+      }
+    ],
+    "references": [
+      {
+        "title": "Static Content Hosting pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/static-content-hosting",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Sharding",
@@ -192,7 +449,35 @@
       "Average record size across the whole database",
       "Number of columns in the shared schema"
     ],
-    "why": "A balanced row count can hide a hot shard. The key must distribute the workload as well as the data."
+    "why": "A balanced row count can hide a hot shard. The key must distribute the workload as well as the data.",
+    "detail": "Range partitioning can make a date-range query cheap because nearby dates live together, but today's shard may receive almost every insert. Hashing a key spreads many distinct keys across shards while making a date-range query harder. List the most frequent queries and the busiest individual keys before committing to a strategy that will be expensive to change.",
+    "terms": [
+      {
+        "term": "Range partitioning",
+        "definition": "Assigning contiguous intervals of key values to different partitions."
+      },
+      {
+        "term": "Scatter-gather",
+        "definition": "Sending a query to several partitions and combining their responses."
+      }
+    ],
+    "references": [
+      {
+        "title": "The coming of the Shard",
+        "url": "https://highscalability.com/blog/2009/8/6/an-unorthodox-approach-to-database-design-the-coming-of-the.html",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Shard (database architecture)",
+        "url": "https://en.wikipedia.org/wiki/Shard_%28database_architecture%29",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Sharding pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sharding",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Materialized View",
@@ -205,7 +490,25 @@
       "Run the full aggregation on every chart view",
       "Store only an index of city names"
     ],
-    "why": "The expensive computation moves out of the read path. The refresh interval establishes the expected freshness."
+    "why": "The expensive computation moves out of the read path. The refresh interval establishes the expected freshness.",
+    "detail": "Decide how to handle edits after a summary has been built. If a sale changes from ten dollars to seven, adding seven again inflates the total. A refresh can recompute the affected group or apply the difference once. Keep a way to rebuild the view from its underlying facts when a bug corrupts the summary.",
+    "terms": [
+      {
+        "term": "Incremental refresh",
+        "definition": "Updating a stored query result using the changes since its last update."
+      },
+      {
+        "term": "Full refresh",
+        "definition": "Recomputing the complete result from its source data."
+      }
+    ],
+    "references": [
+      {
+        "title": "Materialized View pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/materialized-view",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Index Table",
@@ -218,7 +521,25 @@
       "A separate random shard key for each lookup",
       "A daily count of users grouped by email domain"
     ],
-    "why": "A secondary mapping turns the email into the key the primary store already understands."
+    "why": "A secondary mapping turns the email into the key the primary store already understands.",
+    "detail": "When a customer changes an email address, three records may be involved: the user, the new email mapping and the old mapping. If they cannot be changed in one transaction, readers can briefly see stale or missing results. Verify the primary record after lookup and reconcile incomplete index updates. Enforcing globally unique emails needs a separate atomic ownership rule.",
+    "terms": [
+      {
+        "term": "Secondary index",
+        "definition": "A lookup organized by a field other than the record's primary key."
+      },
+      {
+        "term": "Primary key",
+        "definition": "A value or set of values identifying one record in its main store."
+      }
+    ],
+    "references": [
+      {
+        "title": "Index Table pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/index-table",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Event Sourcing",
@@ -231,7 +552,30 @@
       "Only the latest computed balance",
       "A cache of the last balance displayed to each user"
     ],
-    "why": "Event history preserves the reason and sequence of changes. A projection can derive the current balance."
+    "why": "Event history preserves the reason and sequence of changes. A projection can derive the current balance.",
+    "detail": "Two people try to reserve the last studio seat. Each reads the same event stream through version 14. A store that checks the expected version allows one reservation to append version 15. The second writer must reload and reconsider the request. Replaying the history should rebuild state without sending another confirmation email for every past booking.",
+    "terms": [
+      {
+        "term": "Expected version",
+        "definition": "The stream position a writer believes is current when it submits a change."
+      },
+      {
+        "term": "Projection",
+        "definition": "A derived representation built by applying events, often optimized for a particular query."
+      }
+    ],
+    "references": [
+      {
+        "title": "Event Sourcing pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Event Sourcing Explained Using Football",
+        "url": "https://www.youtube.com/watch?v=xPmQxYIi5fA&list=PLCl5BUbK0jXt5l18S5UNAoUc4eQ2PJDye",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "CQRS",
@@ -244,7 +588,25 @@
       "The browser's last rendered seat map",
       "The asynchronously refreshed popularity ranking"
     ],
-    "why": "The command side owns the invariant. A fast read projection may still show a seat another buyer just claimed."
+    "why": "The command side owns the invariant. A fast read projection may still show a seat another buyer just claimed.",
+    "detail": "Separate the verbs from the questions your application answers. ReserveSeat is a command with business rules and a possible rejection. ShowAvailableSeats is a read optimized for browsing. If an asynchronous read model lags, the successful command can return the reservation ID immediately, letting the UI confirm the user's action while the list catches up.",
+    "terms": [
+      {
+        "term": "Command",
+        "definition": "A request to change state that can succeed or be rejected by domain rules."
+      },
+      {
+        "term": "Query",
+        "definition": "A request that retrieves information without changing the underlying business state."
+      }
+    ],
+    "references": [
+      {
+        "title": "CQRS pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Cache-Aside",
@@ -257,7 +619,25 @@
       "Increasing the cache lifetime for every product",
       "Writing the new text only into a browser's memory"
     ],
-    "why": "A cache fill captures one version of the data. Later writes need an explicit freshness strategy."
+    "why": "A cache fill captures one version of the data. Later writes need an explicit freshness strategy.",
+    "detail": "On a popular item's expiry, many callers can miss at once and send the same query to storage. Coordinate concurrent misses for that key so one caller fetches the value and others share the result. Spread expiration times across popular keys as well. Both choices protect the database when a large batch of cached entries expires.",
+    "terms": [
+      {
+        "term": "Cache stampede",
+        "definition": "A surge of simultaneous recomputations or source reads after cached data becomes unavailable."
+      },
+      {
+        "term": "Request coalescing",
+        "definition": "Combining concurrent equivalent requests into one operation and sharing its result."
+      }
+    ],
+    "references": [
+      {
+        "title": "Cache-Aside pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Design & Implementation",
@@ -270,7 +650,25 @@
       "A split based only on which files are longest",
       "A new endpoint requiring every client to upgrade simultaneously"
     ],
-    "why": "An independently routable contract supports gradual migration and a practical rollback."
+    "why": "An independently routable contract supports gradual migration and a practical rollback.",
+    "detail": "Try writing down a change you expect next month, such as adding a new payment provider. Trace how many modules, databases and client versions would need coordinated changes. If the answer is nearly all of them, a boundary may expose too much detail. Put the translation at one boundary and test the externally observable behavior there.",
+    "terms": [
+      {
+        "term": "Coupling",
+        "definition": "How strongly a change or failure in one component affects another."
+      },
+      {
+        "term": "Interface contract",
+        "definition": "The inputs, outputs and behavior another component can depend on."
+      }
+    ],
+    "references": [
+      {
+        "title": "Design and implementation patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/design-implementation",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Strangler Fig",
@@ -283,7 +681,25 @@
       "Maintain two independent payroll ledgers with unrestricted writes",
       "Wait until every feature is rewritten before sending any production traffic"
     ],
-    "why": "Incremental routing lets the team verify one capability in production and retire the matching legacy piece."
+    "why": "Incremental routing lets the team verify one capability in production and retire the matching legacy piece.",
+    "detail": "Before switching a feature, capture how the old system handles its trickiest inputs. For reads, a team can quietly query the replacement and compare outputs while returning the old answer. For writes, identify one authoritative writer during each migration step. Routing traffic back is much easier when you know which system owns changes made since the switch.",
+    "terms": [
+      {
+        "term": "Shadow read",
+        "definition": "Sending a copy of a read to a candidate implementation to compare results without affecting the user's response."
+      },
+      {
+        "term": "Cutover",
+        "definition": "The point when production requests or ownership move to the replacement."
+      }
+    ],
+    "references": [
+      {
+        "title": "What is Strangler fig?",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Sidecar",
@@ -296,7 +712,25 @@
       "Only in the browser that calls the binary",
       "Inside the source of a shared library the binary must recompile"
     ],
-    "why": "A sidecar supplies a local capability while leaving the application's implementation independent."
+    "why": "A sidecar supplies a local capability while leaving the application's implementation independent.",
+    "detail": "Decide how the main process should behave if its helper fails. Losing a metrics exporter may justify dropping telemetry temporarily, while losing a required local proxy may make the replica unable to serve requests. Define separate resource limits and health checks for the helper. A burst of log traffic should have a bounded impact on application memory.",
+    "terms": [
+      {
+        "term": "Lifecycle",
+        "definition": "The startup, operation, shutdown and replacement of a component."
+      },
+      {
+        "term": "Resource limit",
+        "definition": "A configured ceiling on a component's use of resources such as memory or CPU."
+      }
+    ],
+    "references": [
+      {
+        "title": "Sidecar pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sidecar",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Leader Election",
@@ -309,7 +743,25 @@
       "Assume the previous leader received its shutdown signal",
       "Use the timestamp displayed on the old leader's UI"
     ],
-    "why": "The resource enforces leadership order using a monotonic token. A paused process may still believe it holds a valid lease."
+    "why": "The resource enforces leadership order using a monotonic token. A paused process may still believe it holds a valid lease.",
+    "detail": "Election gives a group a way to hand off coordination, but actions already started by a previous leader may still reach storage. Attach an epoch number to each protected write and let the receiving resource remember the newest epoch. When a delayed write from epoch 4 arrives after epoch 5 took over, the resource can reject it.",
+    "terms": [
+      {
+        "term": "Lease",
+        "definition": "A time-limited grant of authority that must be renewed to remain effective."
+      },
+      {
+        "term": "Epoch",
+        "definition": "A numbered leadership term that advances when control passes to a new holder."
+      }
+    ],
+    "references": [
+      {
+        "title": "Leader Election Pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/leader-election",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Gateway Routing",
@@ -322,7 +774,25 @@
       "Send every request to every service and merge the replies",
       "Have every client query both deployment inventories"
     ],
-    "why": "Routing hides backend addresses behind a durable contract and selects the responsible service per request."
+    "why": "Routing hides backend addresses behind a durable contract and selects the responsible service per request.",
+    "detail": "For a migration, route a small group of customers to a new implementation while the rest use the old one. If a workflow expects consistent behavior across requests, use a stable customer assignment. Randomly picking a backend on each request could switch the same customer's checkout between incompatible versions halfway through a purchase.",
+    "terms": [
+      {
+        "term": "Route rule",
+        "definition": "A condition that maps an incoming request to a backend destination."
+      },
+      {
+        "term": "Canary rollout",
+        "definition": "Exposing a new release to a small group first so its behavior can be measured."
+      }
+    ],
+    "references": [
+      {
+        "title": "Gateway Routing pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-routing",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Gateway Offloading",
@@ -335,7 +805,25 @@
       "Place every service's business rules in the mobile app",
       "Combine unrelated API databases into a single schema"
     ],
-    "why": "The gateway can apply common controls consistently while services retain domain-specific authorization."
+    "why": "The gateway can apply common controls consistently while services retain domain-specific authorization.",
+    "detail": "When the gateway authenticates a caller, a backend needs a trustworthy way to receive that identity. Remove any client-supplied identity header and pass the verified identity over a protected internal connection. Review how the backend behaves when the gateway is unavailable, since moving a shared function also gives many services a shared dependency.",
+    "terms": [
+      {
+        "term": "TLS termination",
+        "definition": "The point that completes the client's encrypted connection before forwarding traffic."
+      },
+      {
+        "term": "Trust boundary",
+        "definition": "A point where data or identity moves between components with different security assumptions."
+      }
+    ],
+    "references": [
+      {
+        "title": "Gateway Offloading pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-offloading",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Gateway Aggregation",
@@ -348,7 +836,25 @@
       "Send three sequential requests through the same public hostname",
       "Increase image cache lifetimes for all clients"
     ],
-    "why": "Aggregation moves coordination behind the gateway, reducing repeated trips across the mobile network."
+    "why": "Aggregation moves coordination behind the gateway, reducing repeated trips across the mobile network.",
+    "detail": "Three independent backend calls can often run in parallel. If they take 40, 80 and 300 milliseconds, a response that waits for all three needs at least about 300 milliseconds before network and gateway overhead. Give optional sections their own deadlines and define the response shape when a section is unavailable, so clients can render a useful partial screen.",
+    "terms": [
+      {
+        "term": "Fan-out",
+        "definition": "One incoming operation triggering several outgoing calls."
+      },
+      {
+        "term": "Partial response",
+        "definition": "A response containing the available portions of a result when a dependency fails or times out."
+      }
+    ],
+    "references": [
+      {
+        "title": "Gateway Aggregation pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-aggregation",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "External Config Store",
@@ -361,7 +867,25 @@
       "Fetching all settings synchronously on every request",
       "Storing the only copy in a single worker's memory"
     ],
-    "why": "Versioning identifies a known-good value. Staged rollout limits how many instances receive a bad update."
+    "why": "Versioning identifies a known-good value. Staged rollout limits how many instances receive a bad update.",
+    "detail": "Different replicas may observe a configuration change at different moments. For a new event format, enable readers to understand both formats before telling writers to emit the new one. Validate a configuration bundle as a unit and expose its version in diagnostics. Seeing one slow replica on the previous version can explain an otherwise puzzling incident.",
+    "terms": [
+      {
+        "term": "Configuration propagation",
+        "definition": "The process by which a changed setting reaches the instances using it."
+      },
+      {
+        "term": "Last known good configuration",
+        "definition": "A previously validated settings version retained for fallback."
+      }
+    ],
+    "references": [
+      {
+        "title": "External Configuration Store pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/external-configuration-store",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Compute Resource Consolidation",
@@ -374,7 +898,25 @@
       "Two latency-critical services that peak together",
       "Jobs that both require all memory continuously"
     ],
-    "why": "Complementary load profiles can improve utilization. Simultaneous peaks increase contention and latency."
+    "why": "Complementary load profiles can improve utilization. Simultaneous peaks increase contention and latency.",
+    "detail": "A machine with spare CPU can still be short on disk bandwidth. Measure the resources each task needs during its busiest window and leave headroom for spikes. Consolidation also ties maintenance windows together. Restarting the host to patch a batch processor now interrupts anything else sharing it unless the workloads have independent failover.",
+    "terms": [
+      {
+        "term": "Headroom",
+        "definition": "Capacity deliberately left available for spikes, failures or growth."
+      },
+      {
+        "term": "Contention",
+        "definition": "Multiple workloads competing for the same finite resource."
+      }
+    ],
+    "references": [
+      {
+        "title": "Compute Resource Consolidation pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/compute-resource-consolidation",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Backends for Frontend",
@@ -387,7 +929,25 @@
       "Require both clients to download every domain record",
       "Fork the authoritative business rules into both UIs"
     ],
-    "why": "Client-specific adapters can evolve payloads independently while central services preserve common business behavior."
+    "why": "Client-specific adapters can evolve payloads independently while central services preserve common business behavior.",
+    "detail": "Look for decisions that genuinely differ between devices. A phone feed may need one small payload with just the first ten items, while a desktop inspector may request richer detail on demand. Both should ask the same underlying service whether an item is visible to this user. Keep display-specific composition close to each client and policy decisions with their owner.",
+    "terms": [
+      {
+        "term": "Payload shaping",
+        "definition": "Selecting and structuring fields to fit a client's display or bandwidth needs."
+      },
+      {
+        "term": "Domain service",
+        "definition": "A component that owns business capabilities or rules shared across clients."
+      }
+    ],
+    "references": [
+      {
+        "title": "Backends for Frontends pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Anti-Corruption Layer",
@@ -400,7 +960,25 @@
       "A transparent forwarder that only renames the field",
       "One global customer ID assigned without resolving household membership"
     ],
-    "why": "The mismatch is semantic. A translation layer must preserve the meaning of the data in each domain."
+    "why": "The mismatch is semantic. A translation layer must preserve the meaning of the data in each domain.",
+    "detail": "Model the awkward cases before mapping fields. If a legacy booking status of closed can mean either canceled or completed, a translation may need an additional timestamp or an explicit unknown outcome. Silently picking one interpretation loses information. Give the boundary tests for ambiguous historical records as well as the obvious current ones.",
+    "terms": [
+      {
+        "term": "Semantic mapping",
+        "definition": "Translation that preserves the meaning of a value across two different models."
+      },
+      {
+        "term": "Adapter",
+        "definition": "A component that converts one interface or representation into another."
+      }
+    ],
+    "references": [
+      {
+        "title": "Anti-corruption Layer pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Ambassador",
@@ -413,7 +991,25 @@
       "A separate data warehouse for request history",
       "A gateway that handles only inbound public requests"
     ],
-    "why": "An ambassador owns the outbound path and can apply a common policy for heterogeneous clients."
+    "why": "An ambassador owns the outbound path and can apply a common policy for heterogeneous clients.",
+    "detail": "Consider which component owns a timeout or retry. If the application makes three attempts and its local proxy makes three attempts for each call, the remote service might see nine requests. Agree on one retry budget across the layers. Record both the application's request ID and the proxy's attempts so operators can trace failures.",
+    "terms": [
+      {
+        "term": "Outbound proxy",
+        "definition": "A component that forwards requests initiated by an application to remote destinations."
+      },
+      {
+        "term": "Retry budget",
+        "definition": "A limit on repeat attempts or the additional load they may generate."
+      }
+    ],
+    "references": [
+      {
+        "title": "Ambassador pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/ambassador",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Reliability Patterns",
@@ -426,7 +1022,25 @@
       "As soon as it enters a worker's in-memory queue",
       "When the load balancer receives the first byte"
     ],
-    "why": "The acknowledgement creates a user-visible promise. Durable state makes recovery possible after the worker disappears."
+    "why": "The acknowledgement creates a user-visible promise. Durable state makes recovery possible after the worker disappears.",
+    "detail": "Pick an operation such as saving a draft and ask where an accepted edit could disappear. Follow it through the browser, network, API and storage. At each handoff, ask who still holds a recoverable copy. An explicit answer guides the choice of local persistence, acknowledgement timing or duplicate handling much better than adding redundancy everywhere.",
+    "terms": [
+      {
+        "term": "Failure mode",
+        "definition": "A specific way a component or operation can fail."
+      },
+      {
+        "term": "Durability",
+        "definition": "The ability of acknowledged data to survive the failures the design promises to tolerate."
+      }
+    ],
+    "references": [
+      {
+        "title": "Reliability Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/framework/resiliency/reliability-patterns",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability",
@@ -439,7 +1053,25 @@
       "Count of running processes in the cluster",
       "Number of deployments without rollback"
     ],
-    "why": "User-facing success measures the actual operation through its dependencies and time budget."
+    "why": "User-facing success measures the actual operation through its dependencies and time budget.",
+    "detail": "Suppose an endpoint receives 100,000 eligible requests over a week and promises 99.9% success. That allows 100 failures under this request-based measure. A short outage during peak traffic can consume more of that allowance than a longer outage at night. Choose the denominator carefully and separately inspect important low-volume user journeys.",
+    "terms": [
+      {
+        "term": "Service level indicator",
+        "definition": "An observed measure of service behavior, such as the fraction of successful requests."
+      },
+      {
+        "term": "Error budget",
+        "definition": "The amount of failure permitted by a service's objective over a stated period."
+      }
+    ],
+    "references": [
+      {
+        "title": "Availability Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Deployment Stamps",
@@ -452,7 +1084,25 @@
       "Update every stamp's shared database schema destructively first",
       "Switch all tenant traffic to the updated stamp at once"
     ],
-    "why": "A stamp provides a bounded deployment unit when its critical dependencies are isolated as well."
+    "why": "A stamp provides a bounded deployment unit when its critical dependencies are isolated as well.",
+    "detail": "A routing directory can map each tenant to its assigned stamp. Capacity planning now happens per stamp, so track tenant size and leave space for growth. A bug in a global routing directory can still affect every stamp. Verify that apparently independent copies can keep serving existing tenants when their shared provisioning tools are unavailable.",
+    "terms": [
+      {
+        "term": "Blast radius",
+        "definition": "The portion of a system or user population affected by one failure."
+      },
+      {
+        "term": "Tenant placement",
+        "definition": "The rule or mapping that assigns a customer's workload to a particular deployment."
+      }
+    ],
+    "references": [
+      {
+        "title": "Deployment Stamps pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Geodes",
@@ -465,7 +1115,25 @@
       "A DNS alias pointing to another name for the same failed server",
       "A global dashboard listing every regional process"
     ],
-    "why": "Traffic redirection works only when the destination can process the request and access the necessary state."
+    "why": "Traffic redirection works only when the destination can process the request and access the necessary state.",
+    "detail": "Imagine two regions both accept a profile update while the network between them is down. Local writes can keep the application responsive, but the design needs a rule for reconciling competing changes later. A single write authority avoids that conflict and may make writes unavailable from a disconnected region. Choose based on what the field actually represents.",
+    "terms": [
+      {
+        "term": "Active-active",
+        "definition": "An arrangement in which several sites serve live traffic at the same time."
+      },
+      {
+        "term": "Conflict resolution",
+        "definition": "The rule that reconciles competing changes made to the same data."
+      }
+    ],
+    "references": [
+      {
+        "title": "Geode pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/geodes",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Health Endpoint Monitoring",
@@ -478,7 +1146,25 @@
       "Restart every replica sharing the same index version",
       "Send it all traffic so the index warms faster"
     ],
-    "why": "Readiness controls traffic admission. A temporary startup condition can resolve without restarting the process."
+    "why": "Readiness controls traffic admission. A temporary startup condition can resolve without restarting the process.",
+    "detail": "A deep check that always queries a shared database can turn a database outage into every replica reporting unready at once. Separate process health, the ability to accept traffic and external end-to-end testing. Put a small time budget on probes and avoid expensive work in each probe, since the probes continue during incidents.",
+    "terms": [
+      {
+        "term": "Readiness",
+        "definition": "Whether an instance is currently suitable to receive normal traffic."
+      },
+      {
+        "term": "Synthetic check",
+        "definition": "A scheduled test request that exercises a service from an observer's perspective."
+      }
+    ],
+    "references": [
+      {
+        "title": "Health Endpoint Monitoring pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/health-endpoint-monitoring",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Throttling",
@@ -491,7 +1177,25 @@
       "Offer the customer unlimited immediate retries",
       "Keep idle export connections open longer"
     ],
-    "why": "A concurrency limit bounds one tenant's active resource consumption even when individual jobs last a long time."
+    "why": "A concurrency limit bounds one tenant's active resource consumption even when individual jobs last a long time.",
+    "detail": "A token bucket separates a short burst allowance from the longer-term rate. A bucket that holds 20 tokens and refills at five per second can accept 20 one-token calls immediately when full. Once depleted, callers wait for the refill. Limit concurrent work separately if a few long jobs can occupy all connections despite a low arrival rate.",
+    "terms": [
+      {
+        "term": "Token bucket",
+        "definition": "A limiter that adds permits at a configured rate up to a maximum stored balance."
+      },
+      {
+        "term": "Concurrency",
+        "definition": "The number of operations in progress at the same time."
+      }
+    ],
+    "references": [
+      {
+        "title": "Throttling pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/throttling",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "High Availability",
@@ -504,7 +1208,25 @@
       "Run a second copy of the application on each server",
       "Poll the shared circuit twice as often"
     ],
-    "why": "Redundancy helps against failures that spare at least one usable path. A common power dependency defeats both servers."
+    "why": "Redundancy helps against failures that spare at least one usable path. A common power dependency defeats both servers.",
+    "detail": "An alternate zone needs enough spare capacity to take traffic during a failure. Three zones running at 80% of equal capacity cannot carry their full combined load using only two zones. For that failure plan, reserve capacity, scale quickly enough, or decide which work can be shed. Exercise the transition under realistic traffic.",
+    "terms": [
+      {
+        "term": "Failover",
+        "definition": "Switching service from an unavailable component or location to a surviving one."
+      },
+      {
+        "term": "Failure domain",
+        "definition": "A group of resources that can be lost together through one event."
+      }
+    ],
+    "references": [
+      {
+        "title": "High availability Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Bulkhead",
@@ -517,7 +1239,25 @@
       "Expand the single shared queue without a limit",
       "Increase the timeout on every image job"
     ],
-    "why": "A separate pool places a hard boundary on how many slots image work can consume."
+    "why": "A separate pool places a hard boundary on how many slots image work can consume.",
+    "detail": "Allocate pools around what must survive a failure. Giving each tenant its own queue helps little if every queue drains into a single unbounded shared database pool. Follow requests to the next scarce resource, then enforce a matching admission budget there. Track rejected work by pool to see whether an allocation needs adjusting.",
+    "terms": [
+      {
+        "term": "Admission control",
+        "definition": "Deciding whether to start new work given current limits."
+      },
+      {
+        "term": "Isolation boundary",
+        "definition": "A separation that limits how a failure or resource shortage spreads."
+      }
+    ],
+    "references": [
+      {
+        "title": "Bulkhead pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Circuit Breaker",
@@ -530,7 +1270,25 @@
       "Send each new request with several immediate retries",
       "Hold all workers until the provider recovers"
     ],
-    "why": "Failing fast releases local resources. Limited probes discover recovery without flooding the dependency."
+    "why": "Failing fast releases local resources. Limited probes discover recovery without flooding the dependency.",
+    "detail": "Measure enough calls to tell a real outage from a single unlucky request. A breaker can open after a sustained failure rate, wait, then permit a limited number of trial calls. Decide which errors should count. A caller's invalid input usually says little about whether the dependency can serve its next valid request.",
+    "terms": [
+      {
+        "term": "Open state",
+        "definition": "The period when a breaker blocks ordinary calls to a dependency."
+      },
+      {
+        "term": "Half-open state",
+        "definition": "A trial period when a breaker admits limited calls to evaluate recovery."
+      }
+    ],
+    "references": [
+      {
+        "title": "Circuit breaker design pattern",
+        "url": "https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Resiliency",
@@ -543,7 +1301,25 @@
       "Recovery time objective",
       "Median request latency"
     ],
-    "why": "The recovery point objective measures tolerable data loss in time. Recovery time measures how long restoration takes."
+    "why": "The recovery point objective measures tolerable data loss in time. Recovery time measures how long restoration takes.",
+    "detail": "Practice restoring into an empty environment and then try opening a real record. A completed backup job alone cannot show that the restored data, schema, credentials and application work together. Time the entire exercise and inspect how recent the last recovered record is. These measurements turn a recovery promise into something the team can test.",
+    "terms": [
+      {
+        "term": "Recovery drill",
+        "definition": "A rehearsal that checks whether a recovery procedure produces a usable service."
+      },
+      {
+        "term": "Recovery point",
+        "definition": "The latest point in the data history that a recovery procedure restores."
+      }
+    ],
+    "references": [
+      {
+        "title": "Resiliency Patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Compensating Transaction",
@@ -556,7 +1332,30 @@
       "Roll back only the local package database and assume the ticket disappears",
       "Replay the entire purchase with a new booking ID"
     ],
-    "why": "The partner committed independent state. A compensating business action reconciles that state according to the partner's rules."
+    "why": "The partner committed independent state. A compensating business action reconciles that state according to the partner's rules.",
+    "detail": "A refund can be interrupted too. Store a record of which reversals remain and give each one a stable operation ID so a restarted worker can continue safely. Decide which steps require human review, such as a partner refusing cancellation. Show the user a pending resolution state while the system still has business work to complete.",
+    "terms": [
+      {
+        "term": "Saga",
+        "definition": "A distributed business workflow composed of local transactions and recovery actions."
+      },
+      {
+        "term": "Idempotent compensation",
+        "definition": "A corrective action that can be repeated without applying the correction twice."
+      }
+    ],
+    "references": [
+      {
+        "title": "Compensating Transaction pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Intro to Compensation Transaction",
+        "url": "https://en.wikipedia.org/wiki/Compensating_transaction",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Retry",
@@ -569,7 +1368,25 @@
       "Generate a distinct purchase ID on every attempt",
       "Keep retrying instantly until a response arrives"
     ],
-    "why": "The same operation identity lets the provider return or complete the original charge without creating another."
+    "why": "The same operation identity lets the provider return or complete the original charge without creating another.",
+    "detail": "Fit each attempt inside the user's total deadline. If a request has 500 milliseconds left, waiting a full second for a retry cannot help that caller. Classify failures as temporary or permanent, space temporary attempts apart and cap their count. A small randomized delay reduces the chance of thousands of clients trying again at the same instant.",
+    "terms": [
+      {
+        "term": "Backoff",
+        "definition": "Increasing the delay between successive attempts."
+      },
+      {
+        "term": "Jitter",
+        "definition": "Random variation added to retry timing to spread traffic over time."
+      }
+    ],
+    "references": [
+      {
+        "title": "Retry pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Security",
@@ -582,7 +1399,25 @@
       "Whether the document ID has a valid format",
       "Whether this user signed in within the past day"
     ],
-    "why": "Authentication identifies the caller. Resource-specific authorization determines whether that caller may read the document."
+    "why": "Authentication identifies the caller. Resource-specific authorization determines whether that caller may read the document.",
+    "detail": "Start with one valuable action, such as exporting a workspace. Identify the caller, the workspace, the requested operation and where permissions are checked. Record a useful audit event when the export starts, and limit access to the resulting file as well. Protecting the request alone leaves a gap if its output can be fetched by anyone.",
+    "terms": [
+      {
+        "term": "Principal",
+        "definition": "An identifiable actor, such as a person or service, whose permissions can be checked."
+      },
+      {
+        "term": "Least privilege",
+        "definition": "Granting only the access required for the intended task and duration."
+      }
+    ],
+    "references": [
+      {
+        "title": "Security patterns",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/framework/security/security-patterns",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Federated Identity",
@@ -595,7 +1430,25 @@
       "Accept it because both applications trust the campus provider",
       "Use the username alone to create a local session"
     ],
-    "why": "Audience validation binds an assertion to its intended recipient. A valid signature alone does not grant access to every trusting app."
+    "why": "Audience validation binds an assertion to its intended recipient. A valid signature alone does not grant access to every trusting app.",
+    "detail": "A service can identify a user using both the provider's identity and the user's stable subject identifier. An email address can change or be reassigned and may be ambiguous across providers. Validate the token for the chosen protocol, including its intended audience and lifetime, then map that authenticated identity to permissions in the application.",
+    "terms": [
+      {
+        "term": "Issuer",
+        "definition": "The authority that created an identity assertion or token."
+      },
+      {
+        "term": "Subject",
+        "definition": "The identifier the issuer assigns to the user or other principal represented by a token."
+      }
+    ],
+    "references": [
+      {
+        "title": "Federated Identity pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/federated-identity",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Gatekeeper",
@@ -608,7 +1461,25 @@
       "Add more validation messages to the gateway response",
       "Increase the cache lifetime of the backend address"
     ],
-    "why": "The protection applies only when requests pass through the enforced checks. Ingress policy makes that boundary effective."
+    "why": "The protection applies only when requests pass through the enforced checks. Ingress policy makes that boundary effective.",
+    "detail": "Keep validation at the front door inexpensive enough to apply under load. For a document conversion service, check the caller's permission and allowed request size before assigning a costly conversion worker. The worker still verifies the document conditions it understands. Give the entry service only the access it needs to send accepted jobs onward.",
+    "terms": [
+      {
+        "term": "Ingress",
+        "definition": "Traffic entering a service or network boundary."
+      },
+      {
+        "term": "Defense in depth",
+        "definition": "Using several independent protections so one missed check does not expose the entire system."
+      }
+    ],
+    "references": [
+      {
+        "title": "Gatekeeper pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gatekeeper",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Valet Key",
@@ -621,6 +1492,24 @@
       "A permanent account-wide storage key",
       "A read-only link to the whole photo bucket"
     ],
-    "why": "The credential needs just the intended operation, object and time window. Direct transfer keeps the file bytes off the app server."
+    "why": "The credential needs just the intended operation, object and time window. Direct transfer keeps the file bytes off the app server.",
+    "detail": "Choose a unique object name before issuing an upload grant, then verify completion before adding the image to a public gallery. A grant to upload bytes says nothing about whether the resulting image is valid. Keep its expiry long enough for the transfer and short enough to limit exposure if the URL is shared accidentally.",
+    "terms": [
+      {
+        "term": "Signed URL",
+        "definition": "A URL containing a verifiable, scoped grant to perform an operation on a resource."
+      },
+      {
+        "term": "Expiry",
+        "definition": "The time after which a credential is no longer accepted for new requests."
+      }
+    ],
+    "references": [
+      {
+        "title": "Valet Key pattern",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/valet-key",
+        "source": "roadmap.sh"
+      }
+    ]
   }
 ]

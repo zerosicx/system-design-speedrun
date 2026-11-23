@@ -10,7 +10,35 @@
       "What will the database tables be named?",
       "Which JSON property should hold the title?"
     ],
-    "why": "The allowed delay determines whether occasional background sync is enough or whether collaborators need a live connection."
+    "why": "The allowed delay determines whether occasional background sync is enough or whether collaborators need a live connection.",
+    "detail": "Sketch a small piece of the product first. For a note app, follow a single note through create, close and reopen. Which component can still produce the note if the phone loses power? Now add a second phone. Naming the new decision about conflicting edits is already a useful design outcome, even before choosing a database.",
+    "terms": [
+      {
+        "term": "Functional requirement",
+        "definition": "An action the product must support, such as retrieving a saved note."
+      },
+      {
+        "term": "Constraint",
+        "definition": "A limit the solution must work within, such as an offline device or a fixed storage budget."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design: Complete Guide with Patterns, Examples, and Techniques",
+        "url": "https://swimm.io/learn/system-design/system-design-complete-guide-with-patterns-examples-and-techniques",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "A comprehensive guide to system design",
+        "url": "https://www.crio.do/blog/a-comprehensive-guide-to-system-design/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "How to approach System Design?",
+        "url": "https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "What is System Design?",
@@ -23,7 +51,30 @@
       "Refresh the search results twice as often.",
       "Add another copy of the seat map to each client."
     ],
-    "why": "A single authoritative reservation decision lets the system enforce the one-buyer rule even when clients see old seat maps."
+    "why": "A single authoritative reservation decision lets the system enforce the one-buyer rule even when clients see old seat maps.",
+    "detail": "Draw a box only when you can explain which decision or data it owns. Then annotate the arrows with what crosses them and what counts as success. If a payment service sends a receipt, ask whether the charge must already be durably recorded. That answer changes the operation ordering and recovery plan.",
+    "terms": [
+      {
+        "term": "Interface contract",
+        "definition": "The accepted input, expected result and failure behavior that components agree on."
+      },
+      {
+        "term": "Invariant",
+        "definition": "A rule that must remain true after every allowed operation, such as one reservation per seat."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design: Complete Guide with Patterns, Examples, and Techniques",
+        "url": "https://swimm.io/learn/system-design/system-design-complete-guide-with-patterns-examples-and-techniques",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "A comprehensive guide to system design",
+        "url": "https://www.crio.do/blog/a-comprehensive-guide-to-system-design/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "How to approach System Design?",
@@ -36,7 +87,35 @@
       "The exact number of replicas a competitor runs.",
       "The longest possible name for a feed item."
     ],
-    "why": "How clients read and write data determines which operations must stay cheap and how much capacity they need."
+    "why": "How clients read and write data determines which operations must stay cheap and how much capacity they need.",
+    "detail": "Put units on every estimate. Ten uploads per second at two megabytes each means twenty megabytes per second arriving before duplication or compression. Next, decide whether that is a typical or a peak rate. A diagram that survives an ordinary weekday may need a different bottleneck analysis for the minute concert tickets go on sale.",
+    "terms": [
+      {
+        "term": "Peak load",
+        "definition": "The highest demand expected during a specified interval."
+      },
+      {
+        "term": "Back-of-the-envelope estimate",
+        "definition": "A rough calculation with stated assumptions that tests whether a design is in the right range."
+      }
+    ],
+    "references": [
+      {
+        "title": "How to approach System Design?",
+        "url": "https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What are system design questions?",
+        "url": "https://www.hiredintech.com/system-design",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Intro to Architecture and Systems Design Interviews",
+        "url": "https://www.youtube.com/watch?v=ZgdS0EUmn70",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Performance vs Scalability",
@@ -49,7 +128,30 @@
       "One request finishes faster after a query rewrite.",
       "A faster processor lowers median response time at the original traffic level."
     ],
-    "why": "Holding the latency target fixed reveals whether extra resources actually support more concurrent work."
+    "why": "Holding the latency target fixed reveals whether extra resources actually support more concurrent work.",
+    "detail": "Benchmark different loads using the same mix of reads and writes. Record completed requests, errors and latency as you add servers. A shared lock can make a single worker fast yet leave eight workers waiting their turn. If their wait time dominates, reducing the time spent inside the lock can help more than adding more workers.",
+    "terms": [
+      {
+        "term": "Contention",
+        "definition": "Competition among operations for a resource that can serve only limited work at once."
+      },
+      {
+        "term": "Bottleneck",
+        "definition": "The resource or step currently limiting the rate at which the whole workload can finish."
+      }
+    ],
+    "references": [
+      {
+        "title": "A Word on Scalability",
+        "url": "https://www.allthingsdistributed.com/2006/03/a_word_on_scalability.html",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Performance vs Scalability",
+        "url": "https://blog.professorbeekums.com/performance-vs-scalability/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Latency vs Throughput",
@@ -62,7 +164,30 @@
       "Higher throughput and lower latency.",
       "Lower throughput and higher latency."
     ],
-    "why": "Completions per minute rose while elapsed time per email also rose. The two measurements track different experiences."
+    "why": "Completions per minute rose while elapsed time per email also rose. The two measurements track different experiences.",
+    "detail": "A dashboard can report a healthy average while a small group waits several seconds. Track a high percentile alongside completion rate. If requests arrive steadily at 110 per second and workers sustain only 100, the waiting line grows by about ten each second. Latency can keep rising even while the completion graph stays flat.",
+    "terms": [
+      {
+        "term": "p99 latency",
+        "definition": "The time at or below which roughly 99% of measured requests finish."
+      },
+      {
+        "term": "Queueing delay",
+        "definition": "Time spent waiting for a resource before processing begins."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design: Latency vs Throughput",
+        "url": "https://cs.fyi/guide/latency-vs-throughput/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Latency and Throughput - MIT",
+        "url": "https://www.youtube.com/watch?v=3HIV4MnLGCw",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability vs Consistency",
@@ -75,7 +200,35 @@
       "Confirm locally in both regions and merge the bookings later.",
       "Shorten the time each region caches the seating chart."
     ],
-    "why": "Local confirmation can promise the seat twice. Coordination may make booking unavailable in one region but preserves the reservation rule."
+    "why": "Local confirmation can promise the seat twice. Coordination may make booking unavailable in one region but preserves the reservation rule.",
+    "detail": "Write down the promise separately for browsing, booking and confirmation. During a connection failure a shop could display a cached product page while turning off the final stock commitment. For another policy, it could issue each region a limited inventory allocation in advance. Then a region can sell locally until its allocation runs out without overselling the total.",
+    "terms": [
+      {
+        "term": "Partition",
+        "definition": "A communication failure that prevents some parts of a distributed system from exchanging needed messages."
+      },
+      {
+        "term": "Stale read",
+        "definition": "A read from a copy that has not incorporated a newer write."
+      }
+    ],
+    "references": [
+      {
+        "title": "CAP FAQ",
+        "url": "https://github.com/henryr/cap-faq",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "CAP Theorem Revisited",
+        "url": "https://robertgreiner.com/cap-theorem-revisited/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "CAP Theorem",
+        "url": "https://www.youtube.com/watch?v=_RbsFXWRZ10&t=1s",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "CAP Theorem",
@@ -88,7 +241,30 @@
       "It must discard all previously stored data.",
       "It can preserve both guarantees by waiting without a time limit for every partition."
     ],
-    "why": "A partition can last indefinitely. Waiting forever fails the availability requirement, while returning a local value risks violating linearizability."
+    "why": "A partition can last indefinitely. Waiting forever fails the availability requirement, while returning a local value risks violating linearizability.",
+    "detail": "Imagine two histories visible to a disconnected replica. In the first, a remote writer changed a flag to green. In the second, no writer did. The replica receives exactly the same messages in both histories, so it cannot distinguish them. Any immediate answer can be wrong in one history. Adding faster CPUs does nothing to supply the missing information.",
+    "terms": [
+      {
+        "term": "Register",
+        "definition": "A value clients can read and replace, used as a small model for reasoning about a storage system."
+      },
+      {
+        "term": "Linearizability",
+        "definition": "The guarantee that operations behave as if they occurred in a single order consistent with real time."
+      }
+    ],
+    "references": [
+      {
+        "title": "CAP FAQ",
+        "url": "https://github.com/henryr/cap-faq",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "The CAP theorem",
+        "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "AP - Availability + Partition Tolerance",
@@ -101,7 +277,30 @@
       "Require each edit to lock both sides first.",
       "Treat each local view as globally current."
     ],
-    "why": "Independent writes can conflict. A merge policy gives those conflicts predictable meaning for the user."
+    "why": "Independent writes can conflict. A merge policy gives those conflicts predictable meaning for the user.",
+    "detail": "Picking a winner by timestamp gives replicas a simple rule for resolving two writes, but it can erase an edit. A counter can use a different representation. If each region keeps its own monotonic contribution and replicas merge each contribution by its maximum, independent increments survive retries and later reconciliation. The choices depend on what the data means.",
+    "terms": [
+      {
+        "term": "Conflict resolution",
+        "definition": "The rule for combining or choosing among changes accepted without coordination."
+      },
+      {
+        "term": "Monotonic counter",
+        "definition": "A counter whose value only increases, which makes older and newer copies easier to compare."
+      }
+    ],
+    "references": [
+      {
+        "title": "CAP FAQ",
+        "url": "https://github.com/henryr/cap-faq",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "The CAP theorem",
+        "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "CP - Consistency + Partition Tolerance",
@@ -114,7 +313,30 @@
       "The isolated voter if its local clock is newer.",
       "Both sides if clients use different endpoints."
     ],
-    "why": "A majority intersects every other majority. The isolated node cannot collect enough votes to commit a conflicting history."
+    "why": "A majority intersects every other majority. The isolated node cannot collect enough votes to commit a conflicting history.",
+    "detail": "For five voters, a majority requires three. Only a group that can collect enough votes can elect and maintain a leader able to commit new entries. In a three-versus-two split, the smaller group may still answer liveness checks. Allowing its clients to treat tentative local writes as committed would break the promise of a single history.",
+    "terms": [
+      {
+        "term": "Quorum",
+        "definition": "A set of participants large enough to make a decision under a protocol's rules."
+      },
+      {
+        "term": "Consensus",
+        "definition": "A protocol by which participants agree on decisions despite specified failures."
+      }
+    ],
+    "references": [
+      {
+        "title": "CAP FAQ",
+        "url": "https://github.com/henryr/cap-faq",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "The CAP theorem",
+        "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Consistency Patterns",
@@ -127,7 +349,25 @@
       "A single global order for all profile operations.",
       "Eventual convergence alone with arbitrary replica reads."
     ],
-    "why": "Read-your-writes ties the author's later read to their earlier write. Other clients can still use eventually updated copies."
+    "why": "Read-your-writes ties the author's later read to their earlier write. Other clients can still use eventually updated copies.",
+    "detail": "Ask what sequence a single person can see. Someone might read a document at revision 12 and then reach a lagging server that shows revision 10. A client can carry the highest revision it has seen. A server can wait until it reaches that revision or route the read elsewhere, adding delay when replicas are far apart.",
+    "terms": [
+      {
+        "term": "Monotonic reads",
+        "definition": "A session guarantee that later reads do not go backward to an earlier version."
+      },
+      {
+        "term": "Session guarantee",
+        "definition": "A promise about observations made within one client's sequence of operations."
+      }
+    ],
+    "references": [
+      {
+        "title": "Consistency Patterns in Distributed Systems",
+        "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Weak Consistency",
@@ -140,7 +380,25 @@
       "Choosing the winner of a final-seat reservation.",
       "Confirming a withdrawal against the latest balance."
     ],
-    "why": "A later cursor update can replace an intermediate position. The other workflows depend on a definitive decision about scarce resources."
+    "why": "A later cursor update can replace an intermediate position. The other workflows depend on a definitive decision about scarce resources.",
+    "detail": "Design the receiver around what it can safely forget. A cursor can replace a previous position with the latest sequence number and discard older arrivals. That rule would lose information in an append-only conversation where every message matters. Decide whether your data describes a current state or a history of individually valuable events before tolerating gaps.",
+    "terms": [
+      {
+        "term": "Sequence number",
+        "definition": "An ordered identifier that lets a receiver detect gaps, duplicates or older updates from a stream."
+      },
+      {
+        "term": "Staleness",
+        "definition": "The difference between a reported state and a newer state already known elsewhere."
+      }
+    ],
+    "references": [
+      {
+        "title": "Consistency Patterns in Distributed Systems",
+        "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Eventual Consistency",
@@ -153,7 +411,25 @@
       "Every read immediately sees the last write.",
       "Every replica catches up within one second."
     ],
-    "why": "Convergence is the guarantee. A bound such as one second requires an additional freshness commitment."
+    "why": "Convergence is the guarantee. A bound such as one second requires an additional freshness commitment.",
+    "detail": "A missed update needs a route back into the system. Replicas can compare version summaries in the background, find the differing records and exchange missing changes. They also need a deterministic rule for concurrent edits. Merely broadcasting each write once leaves a disconnected replica permanently behind if nothing ever checks it again.",
+    "terms": [
+      {
+        "term": "Anti-entropy",
+        "definition": "A background process through which replicas discover differences and repair them."
+      },
+      {
+        "term": "Convergence",
+        "definition": "The outcome in which replicas that have learned the same updates agree on their state."
+      }
+    ],
+    "references": [
+      {
+        "title": "Consistency Patterns in Distributed Systems",
+        "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Strong Consistency",
@@ -166,7 +442,25 @@
       "Either value until background sync ends.",
       "The value previously observed by that client."
     ],
-    "why": "The two operations do not overlap. Real-time ordering therefore puts the completed write before the read."
+    "why": "The two operations do not overlap. Real-time ordering therefore puts the completed write before the read.",
+    "detail": "A storage service can keep a lagging follower and still give clients linearizable behavior by routing reads through a writer that verifies its current authority. Think carefully about operations on several objects. Reading two individually linearizable records in separate calls can still produce a mixed snapshot if another client changes a record between the calls.",
+    "terms": [
+      {
+        "term": "Atomic operation",
+        "definition": "An operation whose externally visible effect takes place as one indivisible step."
+      },
+      {
+        "term": "Snapshot",
+        "definition": "A view of multiple values associated with a single logical point in time."
+      }
+    ],
+    "references": [
+      {
+        "title": "Consistency Patterns in Distributed Systems",
+        "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability Patterns",
@@ -179,7 +473,30 @@
       "Whether both zones use the same instance names.",
       "Whether daily average CPU looks equal across zones."
     ],
-    "why": "Normal load can hide capacity shortfalls. A realistic exercise exposes what the surviving path needs during failure."
+    "why": "Normal load can hide capacity shortfalls. A realistic exercise exposes what the surviving path needs during failure.",
+    "detail": "Trace a request past the web servers all the way to its data and identity checks. Two frontends that both need one unavailable token service still leave users locked out. Identify a failure that can affect several components at once, then test a degraded mode such as browsing a catalog while checkout is temporarily unavailable.",
+    "terms": [
+      {
+        "term": "Failure domain",
+        "definition": "A set of components vulnerable to the same incident, such as a whole power zone."
+      },
+      {
+        "term": "Graceful degradation",
+        "definition": "Keeping selected functions available with reduced capability during a failure."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design: Availability Patterns",
+        "url": "https://dev.to/decoders_lord/system-design-availability-patterns-104i",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Design Patterns for High Availability: What gets you 99.999% uptime?",
+        "url": "https://www.youtube.com/watch?v=LdvduBxZRLs",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Fail-Over",
@@ -192,7 +509,30 @@
       "Declare the old host unhealthy in the dashboard.",
       "Increase the read replica count."
     ],
-    "why": "A routing change or health label alone cannot stop a client already connected to the old primary from writing."
+    "why": "A routing change or health label alone cannot stop a client already connected to the old primary from writing.",
+    "detail": "Choose failure detection delays with care. A very short timeout can promote a standby on a busy but healthy network. A long timeout leaves clients waiting during a real outage. Measure the whole recovery interval from the user's first failed request until a representative operation succeeds, including client retries and stale route updates.",
+    "terms": [
+      {
+        "term": "Recovery time objective (RTO)",
+        "definition": "The target elapsed time for restoring a service after disruption."
+      },
+      {
+        "term": "Fencing",
+        "definition": "A mechanism that prevents a former owner from continuing to modify a protected resource."
+      }
+    ],
+    "references": [
+      {
+        "title": "Fail Over",
+        "url": "https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#fail-over",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Active-Passive vs. Active-Active Failover",
+        "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Active - Active",
@@ -205,7 +545,30 @@
       "It uses 60% because both regions were active.",
       "It uses 80% because failover halves spare capacity."
     ],
-    "why": "Each region contributes demand of 0.6 region-equivalents, so the survivor must serve 1.2 region-equivalents."
+    "why": "Each region contributes demand of 0.6 region-equivalents, so the survivor must serve 1.2 region-equivalents.",
+    "detail": "Capacity planning must consider skew. If one region normally handles 70% of traffic and another handles 30%, the smaller one may need to more than triple its usual throughput during failover. Check downstream limits too. A frontend fleet with spare cores can still exhaust its database connection allowance after traffic shifts.",
+    "terms": [
+      {
+        "term": "Headroom",
+        "definition": "Unused capacity available to absorb a spike or another site's workload."
+      },
+      {
+        "term": "Traffic steering",
+        "definition": "Selecting which location or pool receives requests, often using health and client location."
+      }
+    ],
+    "references": [
+      {
+        "title": "Fail Over",
+        "url": "https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#fail-over",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Active-Passive vs. Active-Active Failover",
+        "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Active - Passive",
@@ -218,7 +581,30 @@
       "Check that standby software versions have similar names.",
       "Verify that the standby returns an empty homepage."
     ],
-    "why": "Handling real demand exercises promotion, capacity, configuration and dependencies together."
+    "why": "Handling real demand exercises promotion, capacity, configuration and dependencies together.",
+    "detail": "Think through what the standby already has before promotion. A running application with a fresh data copy can recover quickly. A backup image that first needs restoring costs less to keep but lengthens the outage. Track the age of the standby's latest recoverable data separately from the time required to bring it online.",
+    "terms": [
+      {
+        "term": "Warm standby",
+        "definition": "A partially running replacement that needs some preparation or scaling before serving all traffic."
+      },
+      {
+        "term": "Recovery point objective (RPO)",
+        "definition": "The target maximum amount of recent data loss, measured as elapsed time before failure."
+      }
+    ],
+    "references": [
+      {
+        "title": "Fail Over",
+        "url": "https://github.com/donnemartin/system-design-primer?tab=readme-ov-file#fail-over",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Active-Passive vs. Active-Active Failover",
+        "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Replication",
@@ -231,7 +617,30 @@
       "Reads at the primary always become slower.",
       "The primary must wait for every replica."
     ],
-    "why": "An acknowledgment can reach the client while the only copy of the new write is still on the failed primary."
+    "why": "An acknowledgment can reach the client while the only copy of the new write is still on the failed primary.",
+    "detail": "A follower often replays changes from an ordered log. Watch both how far behind it is and whether it is making progress. Replication also faithfully copies accidental deletes. To recover yesterday's state after a mistaken delete, keep independent backups or enough retained history for a point-in-time restore and rehearse the restore.",
+    "terms": [
+      {
+        "term": "Replication lag",
+        "definition": "The delay or distance between changes on the writer and changes applied on a replica."
+      },
+      {
+        "term": "Point-in-time recovery",
+        "definition": "Restoring data to a selected earlier instant, often by replaying a backup and change log."
+      }
+    ],
+    "references": [
+      {
+        "title": "Replication: Availability Pattern",
+        "url": "https://github.com/donnemartin/system-design-primer#replication",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Database Replication Introduction: Types and Advantages",
+        "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Master - Slave",
@@ -244,7 +653,30 @@
       "Choose a random follower for every read.",
       "Increase the number of asynchronous followers."
     ],
-    "why": "A follower may still be replaying earlier writes. The committing leader already holds the new value."
+    "why": "A follower may still be replaying earlier writes. The committing leader already holds the new value.",
+    "detail": "A leader can return a marker identifying the position of a committed write in its log. A later read can present that marker to a follower. If the follower has replayed far enough it can answer locally. Otherwise the service can wait or use the leader, preserving a fresh read without sending all traffic there.",
+    "terms": [
+      {
+        "term": "Log position",
+        "definition": "An identifier marking progress through a change log."
+      },
+      {
+        "term": "Promotion",
+        "definition": "Giving a former follower authority to accept new writes after the previous leader steps aside or fails."
+      }
+    ],
+    "references": [
+      {
+        "title": "Replication: Availability Pattern",
+        "url": "https://github.com/donnemartin/system-design-primer#replication",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Database Replication Introduction: Types and Advantages",
+        "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Master - Master",
@@ -257,7 +689,30 @@
       "Let both regions update one global mutable counter using replacement writes.",
       "Randomly split edits to each user profile across regions."
     ],
-    "why": "Disjoint write ownership limits how often separate leaders concurrently change the same record."
+    "why": "Disjoint write ownership limits how often separate leaders concurrently change the same record.",
+    "detail": "Consider more than collisions on the same field. Two disconnected sites could each create a different account with the same username. Merging fields later cannot make both original uniqueness promises true. Reserve unique names centrally, give sites separate namespaces, or make the initial result provisional and explain how the conflict will be resolved.",
+    "terms": [
+      {
+        "term": "Uniqueness constraint",
+        "definition": "A rule that a value such as a username may belong to at most one record."
+      },
+      {
+        "term": "Concurrent writes",
+        "definition": "Writes that proceed without either writer first seeing the other's change."
+      }
+    ],
+    "references": [
+      {
+        "title": "Replication: Availability Pattern",
+        "url": "https://github.com/donnemartin/system-design-primer#replication",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Database Replication Introduction: Types and Advantages",
+        "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability in Numbers",
@@ -265,8 +720,35 @@
     "lesson": "Define a good event, the population of eligible events and a measurement window. For a request-based target, divide good requests by eligible requests. The remainder of the target is the error budget.",
     "example": "If 999,500 of one million eligible searches succeed, request availability is 99.95%. A time-based uptime target measures a different quantity.",
     "question": "One million requests are eligible and the target is 99.9% successful. How many failures fit the budget?",
-    "answers": ["1,000", "100", "10,000"],
-    "why": "The allowed failure fraction is 0.001. Multiplying by one million yields 1,000."
+    "answers": [
+      "1,000",
+      "100",
+      "10,000"
+    ],
+    "why": "The allowed failure fraction is 0.001. Multiplying by one million yields 1,000.",
+    "detail": "A server process can stay alive while every checkout returns an error. Measure an outcome close to the user, state whether slow successes count as good, and choose the interval in advance. Compare the result by region too. A high global success fraction can hide an outage affecting a small but important population.",
+    "terms": [
+      {
+        "term": "Service level indicator (SLI)",
+        "definition": "A measured signal such as the fraction of eligible purchases that finish successfully."
+      },
+      {
+        "term": "Service level objective (SLO)",
+        "definition": "A target value for an indicator over a specified time window."
+      }
+    ],
+    "references": [
+      {
+        "title": "Availability in System Design",
+        "url": "https://www.enjoyalgorithms.com/blog/availability-system-design-concept/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Calculate the downtime budget",
+        "url": "https://uptime.is/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "99.9% Availability - three 9s",
@@ -274,8 +756,35 @@
     "lesson": "Three nines leaves 0.1% of the measurement window for unavailability. For a time-based objective over 30 full days, that is 43.2 minutes.",
     "example": "A 30-minute outage uses about 69% of a 30-day three-nines time budget. The same outage might affect a very different share of monthly requests.",
     "question": "A service with a 30-day, time-based 99.9% target is down for 40 minutes. Roughly how much budget remains?",
-    "answers": ["3.2 minutes", "32 minutes", "0.32 minutes"],
-    "why": "Thirty days contain 43,200 minutes. One thousandth of that is 43.2 minutes, leaving 3.2."
+    "answers": [
+      "3.2 minutes",
+      "32 minutes",
+      "0.32 minutes"
+    ],
+    "why": "Thirty days contain 43,200 minutes. One thousandth of that is 43.2 minutes, leaving 3.2.",
+    "detail": "In a 30-day month, a time-based 99.9% target allows about 43 minutes of downtime. A request-based target works differently. If ten times the usual traffic arrives during those 43 minutes, the same outage can consume a much larger share of the failed-request allowance. Choose the denominator before converting nines into minutes.",
+    "terms": [
+      {
+        "term": "Measurement window",
+        "definition": "The period over which eligible events or available time are counted."
+      },
+      {
+        "term": "Error budget",
+        "definition": "The amount of bad service an objective permits over its chosen window."
+      }
+    ],
+    "references": [
+      {
+        "title": "Availability in System Design",
+        "url": "https://www.enjoyalgorithms.com/blog/availability-system-design-concept/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Calculate the downtime budget",
+        "url": "https://uptime.is/99.9",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "99.99% Availability - four 9s",
@@ -288,7 +797,30 @@
       "It falls by half.",
       "It falls by one minute regardless of the window."
     ],
-    "why": "The allowed fraction changes from 0.1% to 0.01%, so the same measurement window gives one tenth the downtime."
+    "why": "The allowed fraction changes from 0.1% to 0.01%, so the same measurement window gives one tenth the downtime.",
+    "detail": "At four nines, a constant 1% error rate spends a request-based error budget one hundred times faster than the sustainable rate of 0.01%, assuming steady traffic. A team tracking this can act during a brief sharp outage and also detect a smaller persistent leak using a longer observation window.",
+    "terms": [
+      {
+        "term": "Burn rate",
+        "definition": "How quickly an error budget is being consumed relative to the rate the objective allows."
+      },
+      {
+        "term": "Rolling window",
+        "definition": "An interval ending at the present time that advances as new measurements arrive."
+      }
+    ],
+    "references": [
+      {
+        "title": "Availability in System Design",
+        "url": "https://www.enjoyalgorithms.com/blog/availability-system-design-concept/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Calculate the downtime budget",
+        "url": "https://uptime.is/99.99",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Availability in Parallel vs Sequence",
@@ -301,7 +833,35 @@
       "Parallel service always requires every node to be healthy.",
       "The calculation should add the two uptime percentages."
     ],
-    "why": "The formula assumes independent failures and successful routing. A shared power supply makes some failures correlated."
+    "why": "The formula assumes independent failures and successful routing. A shared power supply makes some failures correlated.",
+    "detail": "Write a success condition before multiplying probabilities. A page might require login and inventory, yet tolerate a broken recommendations widget. Including that widget as required would understate availability. Conversely, assuming two storage replicas are independent overlooks software bugs deployed to both. Draw the dependency structure for the exact user action being measured.",
+    "terms": [
+      {
+        "term": "Series dependency",
+        "definition": "A component whose failure prevents this operation from succeeding."
+      },
+      {
+        "term": "Common-mode failure",
+        "definition": "One underlying cause that disables multiple components together."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design Primer: availability in parallel vs sequence",
+        "url": "https://github.com/donnemartin/system-design-primer#availability-in-parallel-vs-in-sequence",
+        "source": "Supplementary"
+      },
+      {
+        "title": "Availability in System Design",
+        "url": "https://www.enjoyalgorithms.com/blog/availability-system-design-concept/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Calculate the downtime budget",
+        "url": "https://uptime.is/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Background Jobs",
@@ -314,7 +874,25 @@
       "Begin conversion only in a request-local variable.",
       "Mark conversion complete so the client stops polling."
     ],
-    "why": "Once a client has a receipt, the task must survive the request handler disappearing."
+    "why": "Once a client has a receipt, the task must survive the request handler disappearing.",
+    "detail": "A worker can finish the requested work and crash before acknowledging its message. The queue may then give the same task to another worker. Make the task safe to repeat and acknowledge it after committing its output. For repeated failures, record the reason and isolate the task so one malformed input cannot block healthy jobs.",
+    "terms": [
+      {
+        "term": "Acknowledgment",
+        "definition": "A signal to the queue that processing has finished and the message can be removed."
+      },
+      {
+        "term": "Dead-letter queue",
+        "definition": "A holding area for messages that repeatedly fail processing and need inspection."
+      }
+    ],
+    "references": [
+      {
+        "title": "Background Jobs - Best Practices",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Event-Driven",
@@ -327,7 +905,25 @@
       "Assume each delivery represents a different upload.",
       "Run two independent queues for the same worker."
     ],
-    "why": "A stable key lets the consumer recognize or safely repeat an already processed event."
+    "why": "A stable key lets the consumer recognize or safely repeat an already processed event.",
+    "detail": "A checkout that commits an order and then publishes an event has a gap. It might crash after the commit, before publication. Recording an outgoing event in the same transaction as the order closes that gap. A separate relay publishes the record later. The relay can still publish twice, so subscribers should handle duplicate events.",
+    "terms": [
+      {
+        "term": "Transactional outbox",
+        "definition": "A durable collection of outgoing messages written in the same transaction as their related business changes."
+      },
+      {
+        "term": "Subscriber",
+        "definition": "A consumer that receives events it has registered interest in."
+      }
+    ],
+    "references": [
+      {
+        "title": "Background Jobs - Event Driven Triggers",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#event-driven-triggers",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Schedule Driven",
@@ -340,7 +936,25 @@
       "The current clock time each time it retries.",
       "The most recent successful email's subject."
     ],
-    "why": "A stable interval keeps retries tied to the correct reporting period even after the date changes."
+    "why": "A stable interval keeps retries tied to the correct reporting period even after the date changes.",
+    "detail": "Every five minutes and every day at 09:00 are different promises. Clock changes can skip or repeat a local time. Choose a time zone, define what happens after downtime, and decide whether overlapping runs can safely proceed. A ledger of completed reporting windows allows a restarted scheduler to identify a missing interval without guessing.",
+    "terms": [
+      {
+        "term": "Catch-up run",
+        "definition": "A later execution covering an interval missed while the scheduler was unavailable."
+      },
+      {
+        "term": "Overlap policy",
+        "definition": "The rule governing what happens when a new scheduled execution meets a still-running predecessor."
+      }
+    ],
+    "references": [
+      {
+        "title": "Schedule Driven - Background Jobs",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#schedule-driven-triggers",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Returning Results",
@@ -353,7 +967,25 @@
       "Keeping the original HTTP response open indefinitely.",
       "A progress indicator held in the client screen."
     ],
-    "why": "A durable identifier outlives the connection and maps a returning client to the correct stored result."
+    "why": "A durable identifier outlives the connection and maps a returning client to the correct stored result.",
+    "detail": "The status record should distinguish queued work, running work, final failure and completion. Save the output before exposing completion, or a client may follow a link to a file that doesn't exist yet. If each waiting client polls once a second, 10,000 waiting clients can create 10,000 status reads every second. A suggested retry delay limits that load.",
+    "terms": [
+      {
+        "term": "Polling",
+        "definition": "Repeatedly asking for the current state of an operation."
+      },
+      {
+        "term": "Webhook",
+        "definition": "An HTTP callback from a producer to a consumer when an event or result is ready."
+      }
+    ],
+    "references": [
+      {
+        "title": "Returning Results - Background Jobs",
+        "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#returning-results",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Domain Name System",
@@ -366,7 +998,25 @@
       "Every client must download the entire DNS zone before switching.",
       "DNS always routes by the lowest measured latency."
     ],
-    "why": "Time to live controls how long ordinary cached records may be reused. Changing an authoritative record does not instantly empty resolver caches."
+    "why": "Time to live controls how long ordinary cached records may be reused. Changing an authoritative record does not instantly empty resolver caches.",
+    "detail": "On a cache miss the recursive resolver normally follows referrals down the naming hierarchy until it locates an authoritative server for the domain. An A record supplies an IPv4 address and an AAAA record supplies an IPv6 address. For a planned migration, lower the old TTL early enough for older cached answers to expire before changing the address.",
+    "terms": [
+      {
+        "term": "Authoritative server",
+        "definition": "A DNS server that publishes records for a zone it serves."
+      },
+      {
+        "term": "Recursive resolver",
+        "definition": "A service that looks up DNS answers on a client's behalf and often caches them."
+      }
+    ],
+    "references": [
+      {
+        "title": "Getting started with Domain Name System",
+        "url": "https://github.com/donnemartin/system-design-primer#domain-name-system",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Content Delivery Networks",
@@ -379,7 +1029,30 @@
       "A private dashboard rendered for the signed-in user.",
       "A response containing a one-time password reset link."
     ],
-    "why": "The image is intentionally identical for everyone. Sharing personalized responses across users could expose private data."
+    "why": "The image is intentionally identical for everyone. Sharing personalized responses across users could expose private data.",
+    "detail": "Decide what makes two requests equivalent. A translated page needs a cache key that accounts for language if translations share a URL. Too few key dimensions can return the wrong representation. Too many, such as a unique tracking ID for every visitor, split identical content across many entries and reduce the benefit of caching.",
+    "terms": [
+      {
+        "term": "Cache key",
+        "definition": "The identifying inputs used to locate a cached representation."
+      },
+      {
+        "term": "Hit ratio",
+        "definition": "The fraction of eligible requests served using cached content."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to CDNs",
+        "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Brief about Content delivery network",
+        "url": "https://en.wikipedia.org/wiki/Content_delivery_network",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Push CDNs",
@@ -392,7 +1065,25 @@
       "The initial viewer must populate the asset from origin.",
       "The origin can change the video without publishing a new version."
     ],
-    "why": "Pre-positioning makes the first viewer less dependent on an origin fetch when a crowd arrives together."
+    "why": "Pre-positioning makes the first viewer less dependent on an origin fetch when a crowd arrives together.",
+    "detail": "Make the release order explicit. Publish the new assets, verify that the CDN can serve them, and only then publish the page that references them. Giving each version a distinct asset URL lets older pages keep loading the matching file. Retain old versions long enough for those pages and client caches to age out.",
+    "terms": [
+      {
+        "term": "Versioned asset",
+        "definition": "A file given a different identifier or URL whenever its contents change."
+      },
+      {
+        "term": "Invalidation",
+        "definition": "A request to remove or mark old cached content unusable before normal expiry."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to CDNs",
+        "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Pull CDNs",
@@ -405,7 +1096,25 @@
       "Every edge downloads every image on publication.",
       "The origin processes every request and sends a fresh image every time."
     ],
-    "why": "A cold edge needs the initial fetch. Reuse of that stored response speeds up later requests."
+    "why": "A cold edge needs the initial fetch. Reuse of that stored response speeds up later requests.",
+    "detail": "An origin can be overwhelmed when a popular object expires at many locations together. An edge can coalesce simultaneous misses for the same key, forwarding one fetch and sharing its result. A CDN can also send edge misses through a shared regional cache, lowering origin traffic at the cost of an extra hop on a miss.",
+    "terms": [
+      {
+        "term": "Request coalescing",
+        "definition": "Combining concurrent requests for the same missing item into one upstream request."
+      },
+      {
+        "term": "Origin shield",
+        "definition": "An intermediate cache that handles requests from multiple edge locations before they reach the origin."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to CDNs",
+        "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Load Balancers",
@@ -418,7 +1127,30 @@
       "A count of historical orders for that server.",
       "A check that its hostname is in DNS."
     ],
-    "why": "Readiness measures whether sending new work will succeed. Merely knowing the host exists misses application failures."
+    "why": "Readiness measures whether sending new work will succeed. Merely knowing the host exists misses application failures.",
+    "detail": "Consider what happens during a deployment. Stop assigning new work to an instance, let in-flight requests finish, then remove it. If HTTP connections are reused, the draining policy also needs to handle requests arriving on existing connections. Without a deadline, one long-lived stream could keep the retiring instance alive indefinitely.",
+    "terms": [
+      {
+        "term": "Backend pool",
+        "definition": "The group of eligible servers a load balancer can choose from."
+      },
+      {
+        "term": "Connection draining",
+        "definition": "A controlled retirement process that allows existing work to complete while limiting new work."
+      }
+    ],
+    "references": [
+      {
+        "title": "Scalability",
+        "url": "https://cs.fyi/guide/scalability-for-dummies",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NGINX Architecture",
+        "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "LB vs Reverse Proxy",
@@ -431,7 +1163,35 @@
       "TLS termination requires it to balance across at least two origins.",
       "It is a forward proxy because it maintains a connection to the origin."
     ],
-    "why": "The direction is defined by which side the proxy represents. A single origin is sufficient to proxy on behalf of the service."
+    "why": "The direction is defined by which side the proxy represents. A single origin is sufficient to proxy on behalf of the service.",
+    "detail": "A reverse proxy can create a new upstream connection and attach information about the original request. The backend then observes the proxy as its immediate peer. If the app uses forwarded client addresses for auditing or limits, configure which proxy supplies that information and how it replaces incoming client-provided values.",
+    "terms": [
+      {
+        "term": "Upstream",
+        "definition": "The server a proxy contacts to fulfill a request."
+      },
+      {
+        "term": "TLS termination",
+        "definition": "Ending a client's encrypted connection at a component that can then access the plaintext request."
+      }
+    ],
+    "references": [
+      {
+        "title": "Reverse Proxy vs Load Balancer",
+        "url": "https://www.nginx.com/resources/glossary/reverse-proxy-vs-load-balancer/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NGINX Architecture",
+        "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Reverse Proxy",
+        "url": "https://en.wikipedia.org/wiki/Reverse_proxy",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Load Balancing Algorithms",
@@ -444,7 +1204,30 @@
       "The total connections accepted since startup.",
       "The backend's position in a fixed rotation."
     ],
-    "why": "Active connections count the occupied slots now. Historical totals and fixed turns ignore streams that are still open."
+    "why": "Active connections count the occupied slots now. Historical totals and fixed turns ignore streams that are still open.",
+    "detail": "An IP-based hash can repeatedly send a client to the same server and improve local cache reuse. A large office may share one public IP, however, concentrating many users on one backend. Weights can reflect different machine sizes. For expensive mixed workloads, observe queue depth or latency to check whether your balancing signal really tracks work.",
+    "terms": [
+      {
+        "term": "Affinity",
+        "definition": "A preference to send related requests to the same backend."
+      },
+      {
+        "term": "Weighted round robin",
+        "definition": "Rotating through backends while assigning more turns to those configured with larger weights."
+      }
+    ],
+    "references": [
+      {
+        "title": "Types of Load Balancing Algorithms",
+        "url": "https://www.cloudflare.com/learning/performance/types-of-load-balancing-algorithms/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Weighted Round Robin",
+        "url": "https://www.jscape.com/blog/load-balancing-algorithms",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Layer 7 Load Balancing",
@@ -457,7 +1240,35 @@
       "Hash the destination TCP port alone.",
       "Rotate raw connections without reading application data."
     ],
-    "why": "The path is an HTTP field inside the encrypted stream. A layer with access to HTTP can make a path-based choice."
+    "why": "The path is an HTTP field inside the encrypted stream. A layer with access to HTTP can make a path-based choice.",
+    "detail": "A layer 7 proxy can route individual HTTP requests carried over the same client connection to different backend services. This helps when one browser opens a long-lived connection and asks for many resources. It also puts request parsing, certificate handling and routing rules on the critical path, so measure their cost and failure behavior.",
+    "terms": [
+      {
+        "term": "Header",
+        "definition": "Named HTTP metadata that describes a request or response, such as its content type."
+      },
+      {
+        "term": "Request routing",
+        "definition": "Choosing a destination using information available for an individual application request."
+      }
+    ],
+    "references": [
+      {
+        "title": "System Design Primer: layer 7 load balancing",
+        "url": "https://github.com/donnemartin/system-design-primer#layer-7-load-balancing",
+        "source": "Supplementary"
+      },
+      {
+        "title": "Reverse Proxy vs Load Balancer",
+        "url": "https://www.nginx.com/resources/glossary/reverse-proxy-vs-load-balancer/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NGINX Architecture",
+        "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Layer 4 Load Balancing",
@@ -470,7 +1281,25 @@
       "Choose a backend using a session cookie.",
       "Send requests with a particular HTTP path to a special pool."
     ],
-    "why": "Addresses, ports and connection state are available at the transport layer. Cookies and paths live inside application data."
+    "why": "Addresses, ports and connection state are available at the transport layer. Cookies and paths live inside application data.",
+    "detail": "A flow often stays bound to one backend so packets for a connection reach consistent transport state. Thousands of application requests multiplexed on a single long-lived connection may therefore all reach one backend. Adding instances usually helps new connections first. Existing long-lived traffic may need time to redistribute as clients reconnect.",
+    "terms": [
+      {
+        "term": "Five-tuple",
+        "definition": "The source and destination addresses, source and destination ports, and transport protocol identifying a flow."
+      },
+      {
+        "term": "Multiplexing",
+        "definition": "Carrying several independent logical exchanges over one underlying connection."
+      }
+    ],
+    "references": [
+      {
+        "title": "Layer 4 Load Balancing",
+        "url": "https://www.f5.com/glossary/layer-4-load-balancing",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Horizontal Scaling",
@@ -483,7 +1312,30 @@
       "Keep a separate private cart in each server's memory.",
       "Reduce the DNS TTL for API servers."
     ],
-    "why": "Each replica can load the same authoritative cart, so correctness no longer depends on which instance receives the next request."
+    "why": "Each replica can load the same authoritative cart, so correctness no longer depends on which instance receives the next request.",
+    "detail": "Adding instances takes time. If a new instance needs a minute to boot and fill its cache, a thirty-second burst may pass before reactive scaling helps. Keep headroom or pre-scale for predictable events. Before removing instances, drain active work and check whether the remaining pool can carry demand without immediately scaling back up.",
+    "terms": [
+      {
+        "term": "Autoscaling",
+        "definition": "Adjusting available capacity automatically in response to measured or anticipated demand."
+      },
+      {
+        "term": "Stateless instance",
+        "definition": "An instance that does not require its own persistent per-client state to correctly handle the next request."
+      }
+    ],
+    "references": [
+      {
+        "title": "Scalability",
+        "url": "https://cs.fyi/guide/scalability-for-dummies",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "NGINX Architecture",
+        "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Application Layer",
@@ -496,7 +1348,25 @@
       "Only in the browser's button visibility logic.",
       "Only in a cache key attached to the playlist."
     ],
-    "why": "Clients can issue requests directly. The component authorizing the state change must check the caller's rights."
+    "why": "Clients can issue requests directly. The component authorizing the state change must check the caller's rights.",
+    "detail": "Keep a business rule close to the state it protects. An API that checks inventory, waits, then separately writes a booking leaves time for a second caller to see the same item as free. The application can ask storage to reserve only if stock remains and use the result to decide whether to confirm or decline.",
+    "terms": [
+      {
+        "term": "Conditional write",
+        "definition": "A modification that succeeds only if a stated condition still holds when the change happens."
+      },
+      {
+        "term": "Business logic",
+        "definition": "The application's rules for valid actions and their effects, such as when to confirm an order."
+      }
+    ],
+    "references": [
+      {
+        "title": "Intro to architecting systems for scale",
+        "url": "https://lethain.com/introduction-to-architecting-systems-for-scale/",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Microservices",
@@ -509,7 +1379,35 @@
       "Two functions that always deploy together and share one transaction.",
       "Two files that use different naming conventions."
     ],
-    "why": "Independent ownership and capacity requirements can justify the operational costs of a network boundary."
+    "why": "Independent ownership and capacity requirements can justify the operational costs of a network boundary.",
+    "detail": "Check how often a proposed boundary would force two teams to change and deploy together. A good service exposes a contract that can evolve while older clients continue working. It also controls its own data changes. Letting callers update its tables directly bypasses that contract and makes a later schema change risky for several teams.",
+    "terms": [
+      {
+        "term": "Data ownership",
+        "definition": "Responsibility for deciding how a set of records is validated, changed and exposed."
+      },
+      {
+        "term": "Backward compatibility",
+        "definition": "The ability of existing clients to continue functioning after a service changes."
+      }
+    ],
+    "references": [
+      {
+        "title": "Introduction to Microservices",
+        "url": "https://aws.amazon.com/microservices/",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Microservices - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Microservices",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "Microservices",
+        "url": "https://martinfowler.com/articles/microservices.html",
+        "source": "roadmap.sh"
+      }
+    ]
   },
   {
     "title": "Service Discovery",
@@ -522,6 +1420,29 @@
       "Build each container IP into the checkout binary.",
       "Cache the very first container address indefinitely."
     ],
-    "why": "The registry decouples the calling service from short-lived addresses. Health and membership updates keep lookup results useful."
+    "why": "The registry decouples the calling service from short-lived addresses. Health and membership updates keep lookup results useful.",
+    "detail": "A client can ask a registry for instances and choose one itself. Alternatively, it can send requests to a stable proxy that performs discovery and selection. The first approach puts discovery logic in each client. The second centralizes it in the proxy layer. Either approach needs a policy for expired registrations and failed connections.",
+    "terms": [
+      {
+        "term": "Registry",
+        "definition": "A directory mapping logical service names to current endpoints."
+      },
+      {
+        "term": "Lease",
+        "definition": "A time-limited registration that an instance renews so stale entries eventually disappear."
+      }
+    ],
+    "references": [
+      {
+        "title": "Intro to Service Discovery",
+        "url": "https://github.com/donnemartin/system-design-primer#service-discovery",
+        "source": "roadmap.sh"
+      },
+      {
+        "title": "What is Service-oriented architecture?",
+        "url": "https://en.wikipedia.org/wiki/Service-oriented_architecture",
+        "source": "roadmap.sh"
+      }
+    ]
   }
 ]

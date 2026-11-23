@@ -11,6 +11,7 @@ import {
   Zap,
   Shuffle,
   Check,
+  ExternalLink,
 } from "lucide-react";
 import { chapters, concepts, inChapter } from "./curriculum";
 import { href, go, Empty } from "./ui";
@@ -29,7 +30,14 @@ export function ListPage({ kind, chapter, p, bookmark, startQuiz }) {
   const shown = pool.filter(
     (c) =>
       (section === "all" || c.chapter === section) &&
-      (c.title + " " + c.section + " " + c.lesson)
+      [
+        c.title,
+        c.section,
+        c.lesson,
+        c.detail,
+        ...c.terms.flatMap(({ term, definition }) => [term, definition]),
+      ]
+        .join(" ")
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   );
@@ -143,7 +151,6 @@ export function ListPage({ kind, chapter, p, bookmark, startQuiz }) {
   );
 }
 export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
-  const [reveal, setReveal] = useState(false);
   const ch = chapterFor(c.chapter),
     items = inChapter(ch.id),
     index = items.findIndex((x) => x.id === c.id),
@@ -179,28 +186,30 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
           <BookOpen size={16} /> FIELD NOTE
         </div>
         <p className="lead">{c.lesson}</p>
+        <p className="lesson-detail">{c.detail}</p>
         <div className="example">
           <h3>
             <Sprout size={18} /> In practice
           </h3>
           <p>{c.example}</p>
         </div>
+        <section className="lesson-terms" aria-label="Key terms">
+          <h2>Key terms</h2>
+          <dl>
+            {c.terms.map(({ term, definition }) => (
+              <div key={term}>
+                <dt>{term}</dt>
+                <dd>{definition}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       </article>
       <section className="panel recall">
         <div className="eyebrow mono">
           <Zap size={16} /> QUICK CHECK
         </div>
-        {reveal ? (
-          <Question key={c.id} c={c} onAnswer={onAnswer} />
-        ) : (
-          <>
-            <p>Ready to test this idea?</p>
-            <button className="button light" onClick={() => setReveal(true)}>
-              <Layers3 size={16} />
-              Show question
-            </button>
-          </>
-        )}
+        <Question key={c.id} c={c} onAnswer={onAnswer} />
       </section>
       <div className="lesson-footer">
         <button className="button light" onClick={shuffle}>
@@ -222,6 +231,25 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
               : "Mark studied & finish"}
         </button>
       </div>
+      <section className="lesson-references" aria-label="Free references">
+        <h2>Free references</h2>
+        <ul>
+          {c.references.map(({ title, url, source }) => (
+            <li key={url}>
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                <span>{title}</span>
+                <ExternalLink size={14} aria-hidden="true" />
+              </a>
+              <small>
+                {new URL(url).hostname.replace(/^www\./, "")} ·{" "}
+                {source === "roadmap.sh"
+                  ? "Via roadmap.sh"
+                  : "Additional reading"}
+              </small>
+            </li>
+          ))}
+        </ul>
+      </section>
     </>
   );
 }

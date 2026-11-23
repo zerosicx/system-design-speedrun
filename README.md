@@ -1,12 +1,12 @@
 # Stack Garden
 
-A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.sh/system-design). The curriculum contains 144 short lessons across ten freely accessible chapters. Each card pairs an explanation and example with a scenario question and answer rationale.
+A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.sh/system-design). The curriculum contains 144 short lessons across ten freely accessible chapters. Each lesson includes a worked explanation, an example, defined terminology, free references, and a visible scenario question with feedback after you answer. Lessons and key terms are searchable and work offline. External reading links require connectivity.
 
 ## Study
 
-Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. **Concept index** searches the entire guide. Use **Shuffle topic** to change subjects, or bookmark a lesson to revisit. The quiz room offers five-question mixed rounds, bookmarked questions, and questions you last missed.
+Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. **Concept index** searches the entire guide. Use **Shuffle topic** to change subjects, or bookmark a lesson to revisit. The quiz room lets you choose 5, 10, or 20 questions for mixed, bookmarked, and missed-question rounds. Smaller pools use every available card once.
 
-The first full pass contains approximately 7,250 words of notes and examples. At 150–200 words per minute that is roughly 36–49 minutes of reading, plus time for questions, breaks and reflection.
+The first full pass contains approximately 19,500 words of lessons, examples, and definitions. At 150–200 words per minute that is roughly 98–130 minutes of reading, plus time for questions, breaks and reflection.
 
 ## Install on a phone
 
@@ -35,7 +35,7 @@ Pushes to `main` run the curriculum check, build the app, and publish `dist/` to
 
 ## Curriculum and artwork
 
-Topic coverage was checked against the live roadmap on November 23, 2026. Related roadmap nodes are grouped into study chapters. Repeated cloud patterns share lessons, while concepts such as replication and sharding also have distinct applied examples. The original study text lives in `src/data/`. Each lesson stores the correct choice first in source data and shuffles choices for display. The [Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/patterns/) provides further reading on cloud design patterns.
+Topic coverage was checked against the live roadmap on November 23, 2026. Related roadmap nodes are grouped into study chapters. Repeated cloud patterns share lessons, while concepts such as replication and sharding also have distinct applied examples. Reading links were curated from the [roadmap topic files](https://github.com/kamranahmedse/developer-roadmap/tree/master/roadmaps/system-design/content). Supplementary references are identified in each lesson. The original study text lives in `src/data/`. Each lesson stores the correct choice first in source data and shuffles choices for display. The [Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/patterns/) provides further reading on cloud design patterns.
 
 The hero illustration and nine chapter tiles in `public/art/` were made with built-in ImageGen. The potted-sprout app icon was drawn as a pixel grid. DM Sans and Space Mono are bundled alongside their font licenses.
 

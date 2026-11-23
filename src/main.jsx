@@ -130,7 +130,10 @@ function App() {
   function start(pool) {
     if (!pool.length) return;
     feedback(p);
-    setQuiz({ items: randomOrder(pool).slice(0, 5), key: crypto.randomUUID() });
+    setQuiz({
+      items: randomOrder(pool).slice(0, p.quizSize),
+      key: crypto.randomUUID(),
+    });
     go("round");
   }
   const navProps = {
@@ -222,7 +225,13 @@ function App() {
               start={start}
             />
           ) : page === "quiz" ? (
-            <QuizRoom p={p} start={start} />
+            <QuizRoom
+              p={p}
+              start={start}
+              onSizeChange={(quizSize) =>
+                setP((current) => ({ ...current, quizSize }))
+              }
+            />
           ) : (
             <Garden p={p} shuffle={shuffle} />
           )}
