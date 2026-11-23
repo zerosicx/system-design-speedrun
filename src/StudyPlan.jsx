@@ -1,6 +1,7 @@
 import React from "react";
 import { BookOpen, Target } from "lucide-react";
 import { concepts } from "./curriculum";
+import { missedQuestions } from "./questionBank";
 import { href } from "./ui";
 
 export function StudyPlan({ p, start }) {
@@ -19,7 +20,7 @@ export function StudyPlan({ p, start }) {
         .split(/\s+/).length,
     0,
   );
-  const missed = concepts.filter((c) => p.missed.includes(c.id));
+  const missed = missedQuestions(p.missed);
   const next = unread[0] || concepts[0];
   return (
     <>

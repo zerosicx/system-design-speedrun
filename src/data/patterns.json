@@ -691,6 +691,10 @@
       {
         "term": "Cutover",
         "definition": "The point when production requests or ownership move to the replacement."
+      },
+      {
+        "term": "Strangler fig",
+        "definition": "A migration pattern that progressively routes pieces of an existing system’s work to its replacement."
       }
     ],
     "references": [
@@ -722,6 +726,10 @@
       {
         "term": "Resource limit",
         "definition": "A configured ceiling on a component's use of resources such as memory or CPU."
+      },
+      {
+        "term": "Sidecar",
+        "definition": "A supporting process deployed alongside an application instance to provide a separate capability."
       }
     ],
     "references": [
@@ -1249,6 +1257,10 @@
       {
         "term": "Isolation boundary",
         "definition": "A separation that limits how a failure or resource shortage spreads."
+      },
+      {
+        "term": "Bulkhead",
+        "definition": "Isolation of capacity into separate pools so exhaustion of one pool leaves others usable."
       }
     ],
     "references": [
@@ -1280,6 +1292,10 @@
       {
         "term": "Half-open state",
         "definition": "A trial period when a breaker admits limited calls to evaluate recovery."
+      },
+      {
+        "term": "Circuit breaker",
+        "definition": "A mechanism that temporarily stops calls to a failing dependency and later probes for recovery."
       }
     ],
     "references": [

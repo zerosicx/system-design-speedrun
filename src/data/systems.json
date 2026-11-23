@@ -1158,6 +1158,10 @@
       {
         "term": "Stub",
         "definition": "Generated or handwritten client code that encodes a method call and handles its response."
+      },
+      {
+        "term": "RPC",
+        "definition": "An interaction model in which a client invokes a named procedure in another process."
       }
     ],
     "references": [
@@ -1189,6 +1193,10 @@
       {
         "term": "Stateless request",
         "definition": "A request carrying enough context for processing without relying on an earlier conversational step stored on one server."
+      },
+      {
+        "term": "REST",
+        "definition": "An architectural style in which clients manipulate resources through representations and a uniform interface."
       }
     ],
     "references": [
@@ -1225,6 +1233,10 @@
       {
         "term": "Unary RPC",
         "definition": "A method invocation with one request message and one response message."
+      },
+      {
+        "term": "gRPC",
+        "definition": "An RPC framework that uses a service contract to generate clients and servers and supports unary and streaming calls."
       }
     ],
     "references": [
@@ -1256,6 +1268,10 @@
       {
         "term": "N+1 query problem",
         "definition": "One initial lookup followed by an additional lookup for each result."
+      },
+      {
+        "term": "GraphQL",
+        "definition": "A typed query language and execution model in which a client selects the fields it wants from a schema."
       }
     ],
     "references": [
@@ -1390,6 +1406,10 @@
       {
         "term": "Batching",
         "definition": "Combining several logical operations into one bounded request."
+      },
+      {
+        "term": "Chatty I/O",
+        "definition": "A task makes many small calls across an I/O boundary, paying the round-trip cost over and over."
       }
     ],
     "references": [
@@ -1545,6 +1565,10 @@
       {
         "term": "Starvation",
         "definition": "A workload repeatedly waiting while other work receives the available resources."
+      },
+      {
+        "term": "Noisy Neighbour",
+        "definition": "A workload consumes so much of a shared resource that other workloads slow down."
       }
     ],
     "references": [
@@ -1576,6 +1600,10 @@
       {
         "term": "Jitter",
         "definition": "Random variation in a delay that spreads otherwise synchronized attempts."
+      },
+      {
+        "term": "Retry storm",
+        "definition": "Many callers repeat failed requests, increasing load and causing further failures."
       }
     ],
     "references": [

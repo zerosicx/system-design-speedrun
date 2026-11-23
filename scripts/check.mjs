@@ -13,6 +13,7 @@ const sections = new Set([
   "Security",
 ]);
 const lessonIds = new Set();
+const glossary = new Map();
 let count = 0;
 for (const group of ["core", "systems", "patterns"]) {
   const cards = JSON.parse(
@@ -24,8 +25,10 @@ for (const group of ["core", "systems", "patterns"]) {
       assert.ok(c[k]?.trim(), group + " missing " + k);
     assert.ok(sections.has(c.section), c.section);
     assert.ok(c.terms.length > 0, c.title + " needs terminology");
-    for (const { term, definition } of c.terms)
+    for (const { term, definition } of c.terms) {
       assert.ok(term.trim() && definition.trim(), c.title);
+      if (!glossary.has(term)) glossary.set(term, definition);
+    }
     assert.ok(c.references.length > 0, c.title + " needs references");
     for (const { title, url, source } of c.references) {
       assert.equal(new URL(url).protocol, "https:");
@@ -95,3 +98,29 @@ console.log(
   assigned.size +
     " cloud example lesson mappings and four API approaches verified",
 );
+
+const termIds = new Set();
+for (const group of await readData("terminology-groups")) {
+  assert.ok(group.length >= 3, "Every term needs two alternative definitions");
+  const definitions = group.map((term) => glossary.get(term));
+  assert.ok(
+    definitions.every(Boolean),
+    "Missing glossary definition in " + group.join(", "),
+  );
+  assert.equal(
+    new Set(definitions).size,
+    group.length,
+    "Duplicate definition in group",
+  );
+  for (const term of group) {
+    const id = term
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-$/, "");
+    assert.ok(!termIds.has(id), "Repeated terminology question: " + term);
+    termIds.add(id);
+  }
+}
+assert.ok(termIds.size >= 20 && termIds.has("noisy-neighbour"));
+console.log(termIds.size + " terminology questions verified");

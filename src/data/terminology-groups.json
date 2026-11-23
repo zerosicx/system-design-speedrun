@@ -1,0 +1,43 @@
+[
+  ["Noisy Neighbour", "Retry storm", "Chatty I/O", "Cache stampede"],
+  ["ACID", "BASE", "Serializable isolation", "Conditional write"],
+  [
+    "Replication lag",
+    "Read-your-writes",
+    "Replication log",
+    "Point-in-time recovery"
+  ],
+  ["Primary key", "Secondary index", "Shard key", "Clustering key"],
+  ["Source of truth", "Change feed", "Write amplification", "Scatter-gather"],
+  ["Failover", "Warm standby", "Fencing", "Failure domain"],
+  [
+    "Recovery time objective (RTO)",
+    "Recovery point objective (RPO)",
+    "Error budget",
+    "Burn rate"
+  ],
+  ["Liveness probe", "Readiness probe", "Synthetic probe", "Audit trail"],
+  ["Cache key", "Eviction", "Invalidation", "TTL"],
+  ["Origin shield", "Edge location", "Versioned asset", "Request coalescing"],
+  ["Backend pool", "Connection draining", "Affinity", "Weighted round robin"],
+  ["Recursive resolver", "Authoritative server", "Reverse proxy", "Registry"],
+  ["Head-of-line blocking", "Multiplexing", "Framing", "Datagram"],
+  [
+    "Idempotency key",
+    "Request fingerprint",
+    "Correlation ID",
+    "Deadline propagation"
+  ],
+  ["Polling", "Webhook", "Transactional outbox", "Dead-letter queue"],
+  ["Visibility timeout", "Retention", "Acknowledgment", "Queue age"],
+  ["Load shedding", "Backoff", "Jitter", "Retry budget"],
+  ["Metric", "Trace", "Structured log", "Histogram"],
+  ["Span", "Cardinality", "Context propagation", "Measurement window"],
+  ["Principal", "Trust boundary", "Least privilege", "Signed URL"],
+  ["Stub", "Resolver", "Adapter", "Outbound proxy"],
+  ["Command", "Query", "Domain event", "Checkpoint"],
+  ["Functional requirement", "Constraint", "Interface contract", "Trade-off"],
+  ["p99 latency", "Peak load", "Saturation", "Headroom"],
+  ["Bulkhead", "Circuit breaker", "Strangler fig", "Sidecar"],
+  ["RPC", "gRPC", "REST", "GraphQL"]
+]

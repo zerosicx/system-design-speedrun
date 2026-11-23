@@ -4,7 +4,7 @@ A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.
 
 ## Study
 
-Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. **Concept index** searches the entire guide. Use **Shuffle topic** to change subjects, or bookmark a lesson to revisit. The quiz room lets you choose 5, 10, or 20 questions for mixed, bookmarked, and missed-question rounds. Smaller pools use every available card once.
+Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. **Concept index** searches the entire guide. Use **Shuffle topic** to change subjects, or bookmark a lesson to revisit. The quiz room lets you choose 5, 10, or 20 questions for mixed, terminology, bookmarked, and missed-question rounds. In terminology rounds, choose the definition of a system design term. Missed definitions are saved individually for review. Smaller pools use every available card once.
 
 Fifteen worked scenarios cover AWS and Azure implementations across the stack. Each includes a component flow, a design trade-off, and official documentation. The communication lessons compare RPC, gRPC, REST, and GraphQL through an order lookup. Both the walkthroughs and tables are available offline.
 

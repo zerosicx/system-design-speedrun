@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { byId } from "./curriculum";
 
+import { questionById } from "./questionBank";
+
 export const quizSizes = [5, 10, 20];
 
 const key = "stack-garden-v1";
@@ -21,7 +23,15 @@ function restore() {
     const result = { ...empty };
     for (const k of ["read", "saved", "missed"])
       result[k] = Array.isArray(data[k])
-        ? [...new Set(data[k].filter((id) => byId[id]))]
+        ? [
+            ...new Set(
+              data[k].filter(
+                (id) =>
+                  typeof id === "string" &&
+                  Object.hasOwn(k === "missed" ? questionById : byId, id),
+              ),
+            ),
+          ]
         : [];
     for (const k of ["correct", "attempts"])
       result[k] = Number.isSafeInteger(data[k]) && data[k] >= 0 ? data[k] : 0;
