@@ -28,7 +28,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Thirty classmates upload portraits at lunch. Their yearbook app freezes while it tries to resize every photo.",
+      "meaning": "A design pattern is a solution you can use again when the same problem comes up. Here students need to know their photo arrived right away. Resizing it can happen a little later.",
+      "steps": [
+        {
+          "from": "Class uploads",
+          "label": "overload",
+          "to": "Photo resizer",
+          "caption": "Resizing thirty photos together uses all the available workers. Uploaders stare at a spinner."
+        },
+        {
+          "from": "Upload service",
+          "label": "queues",
+          "to": "Resize jobs",
+          "caption": "The team saves each original and adds a resize job to a waiting list. Students can leave after upload."
+        },
+        {
+          "from": "Resize worker",
+          "label": "publishes",
+          "to": "Small portraits",
+          "caption": "The worker drains the list at a safe rate. The page shows a placeholder until the small portrait is ready."
+        }
+      ],
+      "technology": "A queue such as Amazon Simple Queue Service can hold the resize jobs between the upload service and its workers."
+    }
   },
   {
     "title": "Messaging",
@@ -59,7 +84,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/messaging",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shopper pays for a notebook while the shop's receipt sender is restarting.",
+      "meaning": "Messaging lets one program leave a piece of work or news for another program to pick up later.",
+      "steps": [
+        {
+          "from": "Checkout",
+          "label": "submits",
+          "to": "Receipt job",
+          "caption": "Checkout sends the order number to a durable queue after recording the sale."
+        },
+        {
+          "from": "Receipt worker",
+          "label": "receives",
+          "to": "Order number",
+          "caption": "When it comes back online, the worker takes the waiting job and uses the order number to prepare the receipt."
+        },
+        {
+          "from": "Receipt worker",
+          "label": "acknowledges",
+          "to": "Message queue",
+          "caption": "After sending the receipt, it tells the queue the job is finished. A crash before this signal can cause another delivery."
+        }
+      ],
+      "technology": "An Azure Service Bus queue supports explicit completion after a receiver has processed a message."
+    }
   },
   {
     "title": "Sequential Convoy",
@@ -95,7 +145,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sequential-convoy",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Your delivery app receives scans for hundreds of parcels. One parcel should never jump from delivered back to dispatched.",
+      "meaning": "Process related messages in their intended order while letting unrelated groups move independently.",
+      "steps": [
+        {
+          "from": "Scanner",
+          "label": "labels",
+          "to": "Parcel scans",
+          "caption": "Each scan carries its parcel number and place in that parcel's sequence."
+        },
+        {
+          "from": "Message queue",
+          "label": "groups",
+          "to": "Parcel 42 scans",
+          "caption": "The queue keeps the ordered updates for parcel 42 together. Another worker can handle parcel 99 at the same time."
+        },
+        {
+          "from": "Tracking worker",
+          "label": "applies",
+          "to": "Next scan",
+          "caption": "The worker applies dispatch before delivery. A missing earlier scan can pause this parcel while the others continue."
+        }
+      ],
+      "technology": "Azure Service Bus message sessions can use a parcel number to group a parcel's ordered updates."
+    }
   },
   {
     "title": "Scheduler Agent Supervisor",
@@ -126,7 +201,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/scheduler-agent-supervisor",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A podcast episode is stuck at “transcribing” because the program that submitted the recording stopped.",
+      "meaning": "A scheduler tracks the steps, an agent performs a step, and a supervisor notices when a step has taken too long.",
+      "steps": [
+        {
+          "from": "Scheduler",
+          "label": "assigns",
+          "to": "Transcription agent",
+          "caption": "The scheduler records that this episode needs a transcript and sets a deadline for the step."
+        },
+        {
+          "from": "Transcription agent",
+          "label": "submits",
+          "to": "Audio job",
+          "caption": "The agent records the provider's job reference. It stops before it can report the result."
+        },
+        {
+          "from": "Supervisor",
+          "label": "checks",
+          "to": "Provider job",
+          "caption": "After the deadline, the supervisor looks up the existing reference. It records the finished transcript or arranges recovery if the job failed."
+        }
+      ],
+      "technology": "A database table can hold step deadlines and provider references while a scheduled process checks for overdue work."
+    }
   },
   {
     "title": "Queue-Based Load Leveling",
@@ -157,7 +257,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/queue-based-load-leveling",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Six hundred students submit posters when the print shop opens. Its printers finish only thirty posters a minute.",
+      "meaning": "A queue absorbs a burst by holding jobs until the slower part of the system has room.",
+      "steps": [
+        {
+          "from": "Student uploads",
+          "label": "fill",
+          "to": "Print queue",
+          "caption": "The shop accepts each file and gives the student a job number. The file can wait safely."
+        },
+        {
+          "from": "Print worker",
+          "label": "takes",
+          "to": "Next poster",
+          "caption": "The worker takes a poster when the printer has a free slot. Printing speed sets the pace."
+        },
+        {
+          "from": "Waiting posters",
+          "label": "drain into",
+          "to": "Finished stack",
+          "caption": "With no new arrivals, the batch takes about twenty minutes to print. The last student sees a longer wait than the first."
+        }
+      ],
+      "technology": "An application can keep print job IDs in a durable queue and cap the number of active print workers."
+    }
   },
   {
     "title": "Publisher/Subscriber",
@@ -188,7 +313,40 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "One concert ticket sells. Admissions needs to issue a pass, and the accounts team needs to record the sale. How can both find out?",
+      "meaning": "With publish/subscribe, the sender announces an event once. Other parts of the app sign up for that kind of event. Each subscriber can receive its own copy.",
+      "steps": [
+        {
+          "from": "Ticket app",
+          "label": "Ticket sold",
+          "to": "Sale topic",
+          "caption": "The app publishes a small message with the sale ID. The topic is the named channel where sale announcements go."
+        },
+        {
+          "from": "Sale topic",
+          "label": "Copy of sale",
+          "to": "Admissions",
+          "caption": "Admissions receives its copy and issues a pass. The ticket app can carry on without waiting for the pass."
+        },
+        {
+          "from": "Sale topic",
+          "label": "Copy of sale",
+          "to": "Accounts",
+          "caption": "Accounts receives its own copy and records the sale. Either subscriber might finish first. The sale ID helps each team spot a repeated delivery."
+        }
+      ],
+      "technology": "An Amazon SNS topic can send the same sale announcement to separate Amazon SQS queues for admissions and accounts.",
+      "fork": {
+        "entry": "Ticket app",
+        "hub": "Sale topic",
+        "branches": [
+          "Admissions",
+          "Accounts"
+        ]
+      }
+    }
   },
   {
     "title": "Priority Queue",
@@ -219,7 +377,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A photo kiosk has a line of archive jobs when someone asks for an instant preview.",
+      "meaning": "A priority queue chooses waiting jobs by urgency. The priority decides which waiting job starts next.",
+      "steps": [
+        {
+          "from": "Photo kiosk",
+          "label": "tags",
+          "to": "Preview job",
+          "caption": "A live preview gets a higher priority than an archive export because a customer is waiting at the kiosk."
+        },
+        {
+          "from": "Dispatcher",
+          "label": "selects",
+          "to": "Preview job",
+          "caption": "When a worker becomes free, the dispatcher chooses the live preview ahead of queued exports."
+        },
+        {
+          "from": "Dispatcher",
+          "label": "reserves time for",
+          "to": "Archive jobs",
+          "caption": "The team reserves some worker time for older exports. An all-day stream of previews can no longer postpone them forever."
+        }
+      ],
+      "technology": "RabbitMQ priority queues let publishers attach a priority to messages for a compatible queue."
+    }
   },
   {
     "title": "Pipes and Filters",
@@ -250,7 +433,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/pipes-and-filters",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A voice memo needs clean audio, a transcript and timestamps. Only the transcription step keeps falling behind.",
+      "meaning": "Break a job into small stages. Each stage receives one clearly defined input and passes its result to the next.",
+      "steps": [
+        {
+          "from": "Decoder",
+          "label": "passes audio to",
+          "to": "Speech recognizer",
+          "caption": "The decoder turns the original memo into the audio format the recognizer expects."
+        },
+        {
+          "from": "Speech recognizer",
+          "label": "passes words to",
+          "to": "Timestamp stage",
+          "caption": "The recognizer produces words with timing data. More recognizer workers can help clear this bottleneck."
+        },
+        {
+          "from": "Timestamp stage",
+          "label": "produces",
+          "to": "Timed transcript",
+          "caption": "The last stage formats the timed words for playback. Each stage's output format tells the next stage what it can use."
+        }
+      ],
+      "technology": "Unix pipes demonstrate the same arrangement when one command's output becomes the next command's input."
+    }
   },
   {
     "title": "Competing Consumers",
@@ -281,7 +489,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A club uploads 200 photos after a picnic. Four workers are ready to make thumbnail images.",
+      "meaning": "Several workers share one queue. A free worker takes a waiting job, so they divide the batch among themselves.",
+      "steps": [
+        {
+          "from": "Upload service",
+          "label": "adds",
+          "to": "Photo jobs",
+          "caption": "Each original photo gets a separate job with its own identifier."
+        },
+        {
+          "from": "Shared queue",
+          "label": "hands work to",
+          "to": "Free workers",
+          "caption": "One worker takes photo 12 while another takes photo 13. A busy worker can finish its current photo first."
+        },
+        {
+          "from": "Worker 2",
+          "label": "finishes",
+          "to": "Photo 13",
+          "caption": "It saves the thumbnail and confirms completion. If confirmation is lost, the photo ID helps another worker reuse the result."
+        }
+      ],
+      "technology": "Amazon Simple Queue Service supports a fleet of workers polling the same queue."
+    }
   },
   {
     "title": "Choreography",
@@ -312,7 +545,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/choreography",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A hotel holds a room while a guest pays. If payment fails, the room must become available again.",
+      "meaning": "In choreography, each service responds to news from another service and publishes what happened next.",
+      "steps": [
+        {
+          "from": "Room service",
+          "label": "publishes",
+          "to": "Room held",
+          "caption": "It temporarily reserves room 12 and announces the hold with a booking number."
+        },
+        {
+          "from": "Payment service",
+          "label": "publishes",
+          "to": "Payment declined",
+          "caption": "Having seen the hold, the payment service attempts the charge and announces the result with the same booking number."
+        },
+        {
+          "from": "Room service",
+          "label": "releases",
+          "to": "Room 12",
+          "caption": "The decline tells the room service which hold to release. Both services can be traced through the booking number."
+        }
+      ],
+      "technology": "Two services can publish and subscribe to domain events through a message broker such as Apache Kafka."
+    }
   },
   {
     "title": "Claim Check",
@@ -343,7 +601,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/claim-check",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A podcast recording is too large to fit in a processing message.",
+      "meaning": "Store the file somewhere that handles large objects. Put a small reference in the message so the worker can collect it.",
+      "steps": [
+        {
+          "from": "Podcast editor",
+          "label": "uploads",
+          "to": "Recording store",
+          "caption": "The editor saves the full recording and waits for confirmation that it is available."
+        },
+        {
+          "from": "Upload service",
+          "label": "queues",
+          "to": "Recording reference",
+          "caption": "The job carries a storage key and version. Its size stays small even for a long episode."
+        },
+        {
+          "from": "Audio worker",
+          "label": "retrieves",
+          "to": "Saved recording",
+          "caption": "The worker uses the key to fetch the exact file. The store must keep it through the worker's retry window."
+        }
+      ],
+      "technology": "A queue message can carry an Amazon S3 object key while S3 holds the audio bytes."
+    }
   },
   {
     "title": "Async Request Reply",
@@ -374,7 +657,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/async-request-reply",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A tutor asks for a report that takes five minutes to prepare. Her phone loses its connection on the train.",
+      "meaning": "Accept a long task and give the caller a way to check on it. The task can continue after the first request ends.",
+      "steps": [
+        {
+          "from": "Tutor's phone",
+          "label": "requests",
+          "to": "Report service",
+          "caption": "The service records the job and returns a tracking link immediately."
+        },
+        {
+          "from": "Report worker",
+          "label": "updates",
+          "to": "Job record",
+          "caption": "The worker prepares the report and records the download location when it finishes."
+        },
+        {
+          "from": "Reconnected phone",
+          "label": "checks",
+          "to": "Tracking link",
+          "caption": "The tutor opens the same link later and receives the finished file. She avoids starting a second report."
+        }
+      ],
+      "technology": "A web endpoint can return status code 202, meaning accepted, with the address of the job's status page."
+    }
   },
   {
     "title": "Data Management",
@@ -405,7 +713,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/data-management",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A café manager wants today's takings at a glance and still needs to find individual receipts.",
+      "meaning": "Data management covers how a system records facts, finds them again and keeps different views of those facts consistent.",
+      "steps": [
+        {
+          "from": "Till",
+          "label": "records",
+          "to": "Individual sales",
+          "caption": "Each receipt captures the amount actually charged. A later menu change should leave that amount alone."
+        },
+        {
+          "from": "Summary job",
+          "label": "adds up",
+          "to": "Today's receipts",
+          "caption": "The job totals the receipts so the manager can open the dashboard quickly."
+        },
+        {
+          "from": "Manager",
+          "label": "checks",
+          "to": "Dated total",
+          "caption": "The dashboard shows when the total was calculated. The receipts can settle questions about sales made since then."
+        }
+      ],
+      "technology": "A relational database can store immutable sale amounts and calculate a daily total with a grouped query."
+    }
   },
   {
     "title": "Static Content Hosting",
@@ -436,7 +769,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/static-content-hosting",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Everyone playing a puzzle needs the same picture. Sending it through the game server on every visit takes time away from handling moves.",
+      "meaning": "Static hosting serves ready-made files directly from storage or a web server. The bytes stay the same for everyone requesting that file version.",
+      "steps": [
+        {
+          "from": "Game artist",
+          "label": "publishes",
+          "to": "Puzzle picture",
+          "caption": "The build uploads a picture under a name containing its version."
+        },
+        {
+          "from": "Puzzle page",
+          "label": "points to",
+          "to": "Picture address",
+          "caption": "The published page names the exact picture it needs. A newer page can point to a different version later."
+        },
+        {
+          "from": "Player's browser",
+          "label": "fetches",
+          "to": "Hosted picture",
+          "caption": "The browser downloads the file directly. The game server stays available to process moves."
+        }
+      ],
+      "technology": "An object store such as Azure Blob Storage can host a static website and its images."
+    }
   },
   {
     "title": "Sharding",
@@ -477,7 +835,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sharding",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "One database is running out of room for a workspace app's messages. Most searches stay inside a single team.",
+      "meaning": "Sharding spreads different groups of records across separate storage partitions. A chosen key determines which partition owns each record.",
+      "steps": [
+        {
+          "from": "Incoming message",
+          "label": "carries",
+          "to": "Team number",
+          "caption": "The message belongs to team 27. All writers use the same team key when placing messages."
+        },
+        {
+          "from": "Write service",
+          "label": "routes to",
+          "to": "Team 27 shard",
+          "caption": "The routing rule picks the database responsible for team 27 and saves the message there."
+        },
+        {
+          "from": "Team search",
+          "label": "reads",
+          "to": "Team 27 shard",
+          "caption": "Searching this team's history reaches just its partition. Searching across every team may have to query many partitions."
+        }
+      ],
+      "technology": "MongoDB sharded collections use a shard key to distribute records across shards."
+    }
   },
   {
     "title": "Materialized View",
@@ -508,7 +891,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/materialized-view",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A music app needs to show the most-played song in each city. Counting every listen when someone opens the chart feels slow.",
+      "meaning": "A materialized view stores the answer to a query so readers can fetch a prepared result.",
+      "steps": [
+        {
+          "from": "Music player",
+          "label": "records",
+          "to": "Song listens",
+          "caption": "Each listen contributes a song, a city and a time to the source data."
+        },
+        {
+          "from": "Hourly job",
+          "label": "builds",
+          "to": "City charts",
+          "caption": "The job groups listens and stores each city's ranking. Until the next refresh, the ranking reflects that earlier moment."
+        },
+        {
+          "from": "Chart screen",
+          "label": "reads",
+          "to": "Saved ranking",
+          "caption": "The screen opens the city's ready-made chart. A new hit may appear after the next refresh."
+        }
+      ],
+      "technology": "PostgreSQL supports materialized views and a refresh operation to recalculate their contents."
+    }
   },
   {
     "title": "Index Table",
@@ -539,7 +947,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/index-table",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A support agent knows the customer's email, but the help desk stores tickets by ticket number.",
+      "meaning": "An index table keeps a second lookup that turns a familiar search value into the key for the original record.",
+      "steps": [
+        {
+          "from": "Ticket service",
+          "label": "records",
+          "to": "Ticket 725",
+          "caption": "The main record contains the ticket text and the customer email."
+        },
+        {
+          "from": "Ticket service",
+          "label": "updates",
+          "to": "Email lookup",
+          "caption": "It adds ticket 725 to the list for this email. Edits to the email need to update this lookup too."
+        },
+        {
+          "from": "Support agent",
+          "label": "locates",
+          "to": "Ticket 725",
+          "caption": "The lookup supplies the ticket number. The app uses that number to fetch the full conversation."
+        }
+      ],
+      "technology": "A key-value store can hold email-to-ticket mappings in a separate table alongside the main ticket records."
+    }
   },
   {
     "title": "Event Sourcing",
@@ -575,7 +1008,32 @@
         "url": "https://www.youtube.com/watch?v=xPmQxYIi5fA&list=PLCl5BUbK0jXt5l18S5UNAoUc4eQ2PJDye",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A café customer's points fell from 100 to 70. They want to know what happened to the missing 30.",
+      "meaning": "Event sourcing keeps the ordered changes that explain a record. The current state follows from applying those changes in order.",
+      "steps": [
+        {
+          "from": "Purchase",
+          "label": "adds",
+          "to": "Earned 100 points",
+          "caption": "The loyalty service records the purchase's effect as an event in this customer's history."
+        },
+        {
+          "from": "Reward redemption",
+          "label": "adds",
+          "to": "Spent 30 points",
+          "caption": "A second event describes the redemption. The original purchase entry remains available."
+        },
+        {
+          "from": "Account page",
+          "label": "replays",
+          "to": "Point history",
+          "caption": "Applying plus 100 and minus 30 gives a balance of 70. The same entries explain how the balance changed."
+        }
+      ],
+      "technology": "An append-only event table can store each change with a customer ID and a sequence number."
+    }
   },
   {
     "title": "CQRS",
@@ -606,7 +1064,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two people see the last seat as available on a concert map and press Buy at the same time.",
+      "meaning": "Buying a seat changes a booking. Looking at the seat map only reads it. CQRS gives those two jobs separate paths through the app. Its full name is Command Query Responsibility Segregation.",
+      "steps": [
+        {
+          "from": "Seat map",
+          "label": "reads",
+          "to": "Availability view",
+          "caption": "The map reads a quick summary of open seats. It can still show a seat that somebody has just taken."
+        },
+        {
+          "from": "Buy button",
+          "label": "submits",
+          "to": "Reservation command",
+          "caption": "The booking service checks the authoritative seat record and allows only one successful reservation."
+        },
+        {
+          "from": "Confirmed booking",
+          "label": "updates",
+          "to": "Availability view",
+          "caption": "The successful change reaches the browsing view. People opening the refreshed map now see the seat as taken."
+        }
+      ],
+      "technology": "One web service can expose separate booking commands and seat-map queries even when both use one database."
+    }
   },
   {
     "title": "Cache-Aside",
@@ -637,7 +1120,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Hundreds of shoppers open the same product description during a sale.",
+      "meaning": "The application checks a fast temporary store first. When the value is missing, the application fetches it from the main store and fills the cache.",
+      "steps": [
+        {
+          "from": "First shopper",
+          "label": "requests",
+          "to": "Blue mug",
+          "caption": "The catalog checks the cache for this product. The description is missing."
+        },
+        {
+          "from": "Catalog service",
+          "label": "copies description into",
+          "to": "Product cache",
+          "caption": "It reads the main database, returns the description and saves a temporary copy for later visitors."
+        },
+        {
+          "from": "Next shopper",
+          "label": "reads from",
+          "to": "Product cache",
+          "caption": "The second visit uses the cached copy. The catalog needs a refresh or removal rule when the description changes."
+        }
+      ],
+      "technology": "Redis can hold product descriptions under product keys for an application using cache-aside."
+    }
   },
   {
     "title": "Design & Implementation",
@@ -668,7 +1176,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/category/design-implementation",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A store wants to replace its slow invoice downloader. Customers have saved links to old invoices.",
+      "meaning": "System design chooses responsibilities and boundaries. Implementation turns those choices into working code that meets the existing contract.",
+      "steps": [
+        {
+          "from": "Team",
+          "label": "defines",
+          "to": "Download contract",
+          "caption": "The team records the public link format, access checks and expected file for a paid invoice."
+        },
+        {
+          "from": "New downloader",
+          "label": "passes",
+          "to": "Contract checks",
+          "caption": "The replacement handles the same saved links. Checks cover unpaid and missing invoices as well as successful downloads."
+        },
+        {
+          "from": "Router",
+          "label": "directs users to",
+          "to": "New downloader",
+          "caption": "The team switches a small group first, then compares failures before moving everyone else."
+        }
+      ],
+      "technology": "A reverse proxy such as NGINX can keep the public download path stable while the backend changes."
+    }
   },
   {
     "title": "Strangler Fig",
@@ -703,7 +1236,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A library needs a better search page, but replacing its entire loans system this month is unrealistic.",
+      "meaning": "Replace a working system a feature at a time. A common entry point steers replaced features to their new home.",
+      "steps": [
+        {
+          "from": "Library gateway",
+          "label": "sends searches to",
+          "to": "Old library app",
+          "caption": "At first the old app handles both searching and checking out books."
+        },
+        {
+          "from": "Test searches",
+          "label": "exercise",
+          "to": "New search service",
+          "caption": "The team compares results for real titles and tricky spellings before changing the public route."
+        },
+        {
+          "from": "Library gateway",
+          "label": "switches search to",
+          "to": "New search service",
+          "caption": "Public searches now reach the replacement. Book loans keep using the old app until their own migration."
+        }
+      ],
+      "technology": "A path-based reverse proxy can direct the search path to a new service during a staged migration."
+    }
   },
   {
     "title": "Sidecar",
@@ -738,7 +1296,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sidecar",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An old web application writes logs to local files. The team wants searchable logs from every copy of the app.",
+      "meaning": "A sidecar is a small helper that runs next to a copy of your app. Here the helper collects log files. The team can make logs searchable without rewriting how the old app records them.",
+      "steps": [
+        {
+          "from": "Web application",
+          "label": "writes",
+          "to": "Local log file",
+          "caption": "The app keeps its existing file format and logging behavior."
+        },
+        {
+          "from": "Local collector",
+          "label": "reads",
+          "to": "New log entries",
+          "caption": "A helper running beside this copy follows the file and batches the new entries."
+        },
+        {
+          "from": "Local collector",
+          "label": "sends batches to",
+          "to": "Log service",
+          "caption": "Operators see events from every copy. Each helper also needs a share of its host's memory."
+        }
+      ],
+      "technology": "A Kubernetes Pod can run an application container and a log-collecting sidecar with access to the same volume."
+    }
   },
   {
     "title": "Leader Election",
@@ -769,7 +1352,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/leader-election",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Three workers are available at midnight, but only one should close the café's books.",
+      "meaning": "The workers choose one of their group to lead. Only that worker closes the books. If it stops, the others need a way to choose a replacement and prevent the old leader from closing the books again.",
+      "steps": [
+        {
+          "from": "Worker A",
+          "label": "acquires",
+          "to": "Leadership lease",
+          "caption": "It receives time-limited permission to coordinate closing, tagged with leadership term 7."
+        },
+        {
+          "from": "Expired lease",
+          "label": "passes leadership to",
+          "to": "Worker B",
+          "caption": "Worker A pauses long enough to lose its lease. Worker B gains term 8 and marks that term in the ledger."
+        },
+        {
+          "from": "Ledger",
+          "label": "rejects",
+          "to": "Late term 7",
+          "caption": "An old write from worker A arrives after term 8. Comparing the terms prevents that delayed write from changing the books."
+        }
+      ],
+      "technology": "A coordination store such as etcd can elect a leader, while the protected ledger can enforce increasing term numbers."
+    }
   },
   {
     "title": "Gateway Routing",
@@ -800,7 +1408,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-routing",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shop has separate teams for orders and photos, but customers use one familiar website address.",
+      "meaning": "A gateway routes each incoming request to the backend named by a rule, such as the beginning of the requested path.",
+      "steps": [
+        {
+          "from": "Shopper's phone",
+          "label": "requests",
+          "to": "Order history",
+          "caption": "The phone asks the shop's public address for the orders path."
+        },
+        {
+          "from": "Shop gateway",
+          "label": "routes to",
+          "to": "Orders service",
+          "caption": "A rule sends that path to the team responsible for order history."
+        },
+        {
+          "from": "Orders service",
+          "label": "returns",
+          "to": "Past orders",
+          "caption": "The gateway relays the result. The shopper can use the same address after the team moves its service."
+        }
+      ],
+      "technology": "NGINX can match a request path and forward it to the corresponding backend."
+    }
   },
   {
     "title": "Gateway Offloading",
@@ -831,7 +1464,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-offloading",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Five shop services all need to verify that a request carries a valid sign-in token.",
+      "meaning": "A gateway is the front door to these services. It can check a sign-in token once as a request enters, saving the services from repeating the same check. Each service still decides which actions the user may take.",
+      "steps": [
+        {
+          "from": "Order page",
+          "label": "sends token to",
+          "to": "Shop gateway",
+          "caption": "The gateway receives the signed-in shopper's request before it reaches an order worker."
+        },
+        {
+          "from": "Shop gateway",
+          "label": "checks",
+          "to": "Token signature",
+          "caption": "It verifies the shared identity information and forwards the trusted result over the protected internal connection."
+        },
+        {
+          "from": "Orders service",
+          "label": "checks",
+          "to": "Order ownership",
+          "caption": "The service applies the rule only it knows. A valid shopper identity still needs permission to see this order."
+        }
+      ],
+      "technology": "An API gateway can validate signed tokens while a downstream orders service enforces record-level authorization."
+    }
   },
   {
     "title": "Gateway Aggregation",
@@ -862,7 +1520,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-aggregation",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A commuter's phone needs profile details and recent trips for one screen. Its network connection is slow.",
+      "meaning": "A gateway can collect data from several services and return one combined response for a screen.",
+      "steps": [
+        {
+          "from": "Travel app",
+          "label": "requests",
+          "to": "Dashboard gateway",
+          "caption": "One request crosses the phone's network connection with the signed-in commuter's identity."
+        },
+        {
+          "from": "Dashboard gateway",
+          "label": "queries",
+          "to": "Profile and trips",
+          "caption": "The gateway asks the profile and trip services for their portions. Independent calls can run at the same time."
+        },
+        {
+          "from": "Dashboard gateway",
+          "label": "returns",
+          "to": "Combined dashboard",
+          "caption": "The commuter receives the pieces in one response. The gateway can mark trips temporarily unavailable if that call times out."
+        }
+      ],
+      "technology": "A small web endpoint can make concurrent backend calls and assemble their results into one response."
+    }
   },
   {
     "title": "External Config Store",
@@ -893,7 +1576,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/external-configuration-store",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A museum wants to extend ticket pickup from ten minutes to fifteen without shipping a new version of its booking app.",
+      "meaning": "Keep settings outside the code so the team can change them without shipping the whole program again. Each running copy of the app still needs to learn which settings are current.",
+      "steps": [
+        {
+          "from": "Museum operator",
+          "label": "updates",
+          "to": "Pickup setting",
+          "caption": "The new version sets the pickup window to fifteen minutes."
+        },
+        {
+          "from": "Booking worker",
+          "label": "loads",
+          "to": "Validated setting",
+          "caption": "It checks the new value is sensible and holds onto a known-good copy."
+        },
+        {
+          "from": "Next reservation",
+          "label": "uses",
+          "to": "Fifteen-minute window",
+          "caption": "The worker records the new deadline when it creates the reservation. Older reservations keep their recorded deadlines."
+        }
+      ],
+      "technology": "Azure App Configuration can store versioned application settings separately from deployed code."
+    }
   },
   {
     "title": "Compute Resource Consolidation",
@@ -924,7 +1632,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/compute-resource-consolidation",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A club pays for two mostly idle machines. One generates reports each afternoon and the other rebuilds search data late at night.",
+      "meaning": "Consolidation places compatible jobs on shared computing resources. The jobs need enough combined capacity when their schedules overlap.",
+      "steps": [
+        {
+          "from": "Team",
+          "label": "measures",
+          "to": "Both jobs",
+          "caption": "They compare busy times, memory and disk use to find out whether one host has room."
+        },
+        {
+          "from": "Daily scheduler",
+          "label": "runs",
+          "to": "Afternoon reports",
+          "caption": "The reports use the shared machine when the search job usually sleeps."
+        },
+        {
+          "from": "Night scheduler",
+          "label": "starts",
+          "to": "Search rebuild",
+          "caption": "The rebuild uses the same machine after reports finish. A late report could now compete for disk time."
+        }
+      ],
+      "technology": "A Linux scheduler can run both jobs on one host, with operating-system controls limiting their resource use."
+    }
   },
   {
     "title": "Backends for Frontend",
@@ -955,7 +1688,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A running watch needs today's distance. The runner's desktop dashboard needs a whole year's activity history.",
+      "meaning": "Give the watch and the desktop their own small server-side helpers. Each helper gathers just what its screen needs. Both can still read the same activity records.",
+      "steps": [
+        {
+          "from": "Running watch",
+          "label": "asks",
+          "to": "Watch backend",
+          "caption": "The watch requests a small summary that fits on its display."
+        },
+        {
+          "from": "Watch backend",
+          "label": "requests",
+          "to": "Today's distance",
+          "caption": "It asks the shared activity service for the fields needed for the watch."
+        },
+        {
+          "from": "Desktop backend",
+          "label": "requests",
+          "to": "Yearly history",
+          "caption": "The desktop gets a richer result from the same underlying service. Each backend can evolve with its own screen."
+        }
+      ],
+      "technology": "Two client-specific web endpoints can call a shared activity service while exposing different payloads."
+    }
   },
   {
     "title": "Anti-Corruption Layer",
@@ -986,7 +1744,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An old till records refunds as negative invoices. Your new finance app expects a refund with a link to the original sale.",
+      "meaning": "A translation layer sits between systems with different meanings for their data. It makes those differences explicit in one place.",
+      "steps": [
+        {
+          "from": "Old till",
+          "label": "sends",
+          "to": "Negative invoice",
+          "caption": "The record carries minus ten dollars and a reference to the original purchase."
+        },
+        {
+          "from": "Billing adapter",
+          "label": "creates",
+          "to": "Refund record",
+          "caption": "The adapter maps the old convention to a ten-dollar refund and keeps the purchase reference."
+        },
+        {
+          "from": "Finance app",
+          "label": "applies",
+          "to": "Translated refund",
+          "caption": "The app updates its books using its normal refund rules. An ambiguous legacy record can be sent for review."
+        }
+      ],
+      "technology": "A service adapter with contract tests can translate both ordinary and unusual legacy records into the new model."
+    }
   },
   {
     "title": "Ambassador",
@@ -1017,7 +1800,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/ambassador",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An old desktop program must call a service whose network address keeps changing. Rebuilding the program for every move is expensive.",
+      "meaning": "An ambassador is a helper that makes outbound network calls on an application's behalf. The application talks to a stable local address.",
+      "steps": [
+        {
+          "from": "Desktop program",
+          "label": "calls",
+          "to": "Local helper",
+          "caption": "The program uses the same local address for every lookup."
+        },
+        {
+          "from": "Local helper",
+          "label": "locates",
+          "to": "Remote service",
+          "caption": "The helper resolves the current destination and opens the outgoing connection."
+        },
+        {
+          "from": "Local helper",
+          "label": "returns",
+          "to": "Lookup result",
+          "caption": "The program gets its answer through the local connection. If the helper stops, those calls need a recovery path."
+        }
+      ],
+      "technology": "Envoy can run as a local outbound proxy that forwards an application's calls upstream."
+    }
   },
   {
     "title": "Reliability Patterns",
@@ -1048,7 +1856,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/framework/resiliency/reliability-patterns",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A student sees “seat reserved,” then the booking worker restarts. Opening the page again should still show the seat.",
+      "meaning": "Reliability patterns help a system keep its promises when something goes wrong. First identify exactly what success promises the user.",
+      "steps": [
+        {
+          "from": "Booking worker",
+          "label": "records",
+          "to": "Seat reservation",
+          "caption": "The worker saves the reservation where another worker can recover it."
+        },
+        {
+          "from": "Booking worker",
+          "label": "confirms to",
+          "to": "Student",
+          "caption": "Only after the save succeeds does the student see confirmation with a booking reference."
+        },
+        {
+          "from": "Replacement worker",
+          "label": "retrieves",
+          "to": "Saved booking",
+          "caption": "The first worker stops. The replacement can use the booking reference to show the same seat."
+        }
+      ],
+      "technology": "A database transaction can make the reservation durable before the web server sends its confirmation."
+    }
   },
   {
     "title": "Availability",
@@ -1079,7 +1912,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A train search takes a whole minute to return trains. By then, the commuter has walked to the wrong platform.",
+      "meaning": "Decide what people need to be able to do. Then count how often they can actually do it. A service can be running while the feature its users came for is broken.",
+      "steps": [
+        {
+          "from": "Travel team",
+          "label": "defines",
+          "to": "Search promise",
+          "caption": "Eligible searches must return a usable timetable within two seconds."
+        },
+        {
+          "from": "Request monitor",
+          "label": "counts",
+          "to": "98 timely searches",
+          "caption": "In a sample of 100 eligible searches, 98 meet the promise. Two answers arrive too late."
+        },
+        {
+          "from": "Weekly report",
+          "label": "shows",
+          "to": "98 percent success",
+          "caption": "The team counts the two late searches as misses even if their servers stayed running throughout."
+        }
+      ],
+      "technology": "An application can count successful searches under a duration threshold using request metrics in Prometheus."
+    }
   },
   {
     "title": "Deployment Stamps",
@@ -1110,7 +1968,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A school platform wants to try a new timetable feature without risking the school day for every district.",
+      "meaning": "A stamp is a complete copy of the service for a group of customers. The team can update the copy used by one school district first and watch how the new timetable works there.",
+      "steps": [
+        {
+          "from": "District directory",
+          "label": "assigns",
+          "to": "Pilot district",
+          "caption": "It maps this district to the stack reserved for the pilot group."
+        },
+        {
+          "from": "Release team",
+          "label": "updates",
+          "to": "Pilot stamp",
+          "caption": "Only the pilot stack gets the new timetable code and the storage changes it needs."
+        },
+        {
+          "from": "Other districts",
+          "label": "keep using",
+          "to": "Existing stamps",
+          "caption": "When a pilot error appears, their timetables still work. The team can repair the pilot before rolling the release further."
+        }
+      ],
+      "technology": "Infrastructure templates can create repeatable sets of application and storage resources for each stamp."
+    }
   },
   {
     "title": "Geodes",
@@ -1141,7 +2024,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/geodes",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A traveler opens her itinerary far from home. She still wants it to load quickly if the usual region goes offline.",
+      "meaning": "Imagine several regions that can each run the itinerary service. The traveler can use a nearby one. If that region goes down, another region needs her trip data and enough room to handle her request.",
+      "steps": [
+        {
+          "from": "Traveler's phone",
+          "label": "reaches",
+          "to": "Sydney region",
+          "caption": "The nearby region serves her itinerary using locally accessible data."
+        },
+        {
+          "from": "Sydney region",
+          "label": "shares changes with",
+          "to": "Melbourne region",
+          "caption": "Updates reach the alternate region under the service's chosen replication rules. A recent edit might briefly lag."
+        },
+        {
+          "from": "Traffic router",
+          "label": "selects",
+          "to": "Melbourne region",
+          "caption": "When Sydney is unavailable, the healthy Melbourne copy handles the request with the data it has."
+        }
+      ],
+      "technology": "Regional application deployments, replicated data and health-aware traffic routing can implement the geode pattern."
+    }
   },
   {
     "title": "Health Endpoint Monitoring",
@@ -1172,7 +2080,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/health-endpoint-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A fresh copy of a book search app has started, but it is still loading its search index.",
+      "meaning": "A health endpoint answers a small, specific question about an instance, such as whether it is ready to receive customers.",
+      "steps": [
+        {
+          "from": "Readiness probe",
+          "label": "checks",
+          "to": "New search copy",
+          "caption": "The probe calls a readiness endpoint while the index loads. The endpoint reports that the copy needs more time."
+        },
+        {
+          "from": "Traffic router",
+          "label": "uses",
+          "to": "Ready copies",
+          "caption": "Existing copies continue answering searches. The new process can finish starting without taking customer requests."
+        },
+        {
+          "from": "Ready search copy",
+          "label": "joins",
+          "to": "Serving pool",
+          "caption": "Once its index is loaded, the endpoint reports ready. The router can now include this copy."
+        }
+      ],
+      "technology": "Kubernetes supports readiness probes to decide which Pods are ready to receive traffic through a Service."
+    }
   },
   {
     "title": "Throttling",
@@ -1203,7 +2136,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/throttling",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A single class requests forty large exports at once. Other classes still need a responsive gradebook.",
+      "meaning": "Throttling limits how much work a caller can start over time or at the same moment, keeping scarce capacity available.",
+      "steps": [
+        {
+          "from": "Class A",
+          "label": "starts",
+          "to": "Two exports",
+          "caption": "The service permits two running exports per class. It tracks how many slots class A holds."
+        },
+        {
+          "from": "Third export",
+          "label": "receives",
+          "to": "Wait response",
+          "caption": "The service asks this caller to try later. Class B still has access to its own export slots."
+        },
+        {
+          "from": "Finished export",
+          "label": "frees",
+          "to": "Class A slot",
+          "caption": "Class A can start its next export after a running one finishes. Long jobs occupy a slot for their whole run."
+        }
+      ],
+      "technology": "A per-class semaphore can cap concurrent jobs, and a web endpoint can return status code 429 when a limit is reached."
+    }
   },
   {
     "title": "High Availability",
@@ -1234,7 +2192,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A ticket kiosk has two servers in one cabinet. One tripped power circuit can still take both offline.",
+      "meaning": "High availability keeps a service running across expected failures by providing independent working paths and a way to switch to one.",
+      "steps": [
+        {
+          "from": "Ticket team",
+          "label": "separates",
+          "to": "Serving copies",
+          "caption": "They place copies on independent power supplies and check that either can reach the necessary ticket data."
+        },
+        {
+          "from": "Health monitor",
+          "label": "detects",
+          "to": "First copy offline",
+          "caption": "The first supply fails, so its copy stops answering health checks."
+        },
+        {
+          "from": "Traffic router",
+          "label": "uses",
+          "to": "Surviving copy",
+          "caption": "The second copy takes requests. The team must leave it enough spare capacity for the extra customers."
+        }
+      ],
+      "technology": "Availability zones can provide distinct infrastructure failure boundaries for redundant application deployments."
+    }
   },
   {
     "title": "Bulkhead",
@@ -1269,7 +2252,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A slow recommendation service uses up every available worker. Shoppers with items in their baskets still need to pay.",
+      "meaning": "A bulkhead sets aside separate resources for different kinds of work so trouble in one group has a boundary.",
+      "steps": [
+        {
+          "from": "Shop service",
+          "label": "reserves",
+          "to": "Two worker pools",
+          "caption": "It assigns separate workers to suggestions and checkout, with a fixed maximum for each."
+        },
+        {
+          "from": "Slow suggestions",
+          "label": "fill",
+          "to": "Suggestion pool",
+          "caption": "All suggestion workers are waiting on a slow provider. Additional suggestion requests must wait or fail quickly."
+        },
+        {
+          "from": "Checkout pool",
+          "label": "serves",
+          "to": "Paying shopper",
+          "caption": "The checkout workers are still free to process payments, assuming their own dependencies are healthy."
+        }
+      ],
+      "technology": "Separate bounded thread or connection pools can isolate independent request paths within one service."
+    }
   },
   {
     "title": "Circuit Breaker",
@@ -1304,7 +2312,32 @@
         "url": "https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A map provider is down. Every delivery order spends ten seconds waiting for a map that never loads.",
+      "meaning": "A circuit breaker remembers repeated dependency failures. It temporarily blocks normal calls and later tests whether the dependency has recovered.",
+      "steps": [
+        {
+          "from": "Delivery app",
+          "label": "observes",
+          "to": "Repeated map timeouts",
+          "caption": "The breaker records timeouts until the configured failure threshold is reached."
+        },
+        {
+          "from": "Open breaker",
+          "label": "returns",
+          "to": "Saved address",
+          "caption": "New orders show the saved address promptly. Workers can move on while the map provider recovers."
+        },
+        {
+          "from": "Trial request",
+          "label": "tests",
+          "to": "Map provider",
+          "caption": "After a cooldown the breaker admits a limited test. A healthy result can allow normal calls again."
+        }
+      ],
+      "technology": "Resilience4j provides a circuit breaker with closed, open and half-open states for Java applications."
+    }
   },
   {
     "title": "Resiliency",
@@ -1335,7 +2368,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/well-architected/reliability/design-patterns",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A journal app loses its main copy of a notebook. Yesterday's backup exists, but the writer needs this morning's entries too.",
+      "meaning": "Resiliency is the ability to keep useful work going or recover it after disruption. Recovery time and recovered data are separate things to measure.",
+      "steps": [
+        {
+          "from": "Journal team",
+          "label": "sets",
+          "to": "Recovery targets",
+          "caption": "They choose how long restoration may take and how many minutes of recent edits they can afford to lose."
+        },
+        {
+          "from": "Backup drill",
+          "label": "restores",
+          "to": "Test notebook",
+          "caption": "The team restores a recent backup into a fresh environment and opens the notebook."
+        },
+        {
+          "from": "Tester",
+          "label": "compares",
+          "to": "Last recovered entry",
+          "caption": "They check the entry's time and the total minutes spent restoring. Those measurements show which target needs attention."
+        }
+      ],
+      "technology": "A scheduled backup plus a timed restore test can verify that a real record is readable after recovery."
+    }
   },
   {
     "title": "Compensating Transaction",
@@ -1371,7 +2429,32 @@
         "url": "https://en.wikipedia.org/wiki/Compensating_transaction",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A travel app books a train, then discovers the guest's hotel is full. The train company has already issued the ticket.",
+      "meaning": "Sometimes the first action has already happened when the next one fails. The travel app can ask the train company to cancel or refund the issued ticket. That follow-up action is called compensation.",
+      "steps": [
+        {
+          "from": "Booking service",
+          "label": "reserves",
+          "to": "Train ticket",
+          "caption": "The train company confirms a real ticket and returns its reference."
+        },
+        {
+          "from": "Hotel service",
+          "label": "declines",
+          "to": "Room request",
+          "caption": "The package cannot be completed. The travel app records that the train step needs a follow-up."
+        },
+        {
+          "from": "Travel app",
+          "label": "requests",
+          "to": "Ticket cancellation",
+          "caption": "It uses the reference to cancel under the operator's refund policy. It records the outcome so a restart can resume safely."
+        }
+      ],
+      "technology": "A workflow engine can persist a cancellation step and retry it with a stable reference if the partner is briefly unavailable."
+    }
   },
   {
     "title": "Retry",
@@ -1402,7 +2485,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shopper presses Pay. The bank may have charged the card, but its reply gets lost.",
+      "meaning": "Retry means making another attempt when a failure might be temporary. Repeated attempts at the same action need a shared identity when money or other side effects are involved.",
+      "steps": [
+        {
+          "from": "Checkout",
+          "label": "submits",
+          "to": "Charge 51",
+          "caption": "It asks a payment provider that supports duplicate-safe requests to charge the order with key 51."
+        },
+        {
+          "from": "First reply",
+          "label": "misses",
+          "to": "Checkout deadline",
+          "caption": "The shopper's connection times out. Checkout still cannot tell whether the provider charged the card."
+        },
+        {
+          "from": "Checkout",
+          "label": "reuses",
+          "to": "Charge key 51",
+          "caption": "After a short delay it resends the same operation key. The provider can recognize a completed charge and return its original result."
+        }
+      ],
+      "technology": "Stripe supports idempotency keys that associate eligible repeated requests with their initial result."
+    }
   },
   {
     "title": "Security",
@@ -1433,7 +2541,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/framework/security/security-patterns",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A student taps a private notebook link that belongs to another classmate. Both students have valid school accounts.",
+      "meaning": "Security protects information and actions from unauthorized use. A service needs to know both who is asking and what that person is allowed to do.",
+      "steps": [
+        {
+          "from": "Student's session",
+          "label": "identifies",
+          "to": "Signed-in reader",
+          "caption": "The notes service verifies the session and obtains the reader's account identity."
+        },
+        {
+          "from": "Notes service",
+          "label": "checks",
+          "to": "Notebook access list",
+          "caption": "It compares that identity with the notebook's owner and permitted collaborators."
+        },
+        {
+          "from": "Access decision",
+          "label": "protects",
+          "to": "Private notebook",
+          "caption": "This reader has no entry, so the service refuses access before returning any note text."
+        }
+      ],
+      "technology": "A server-side authorization check can compare the session identity with a notebook membership table on every read."
+    }
   },
   {
     "title": "Federated Identity",
@@ -1464,7 +2597,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/federated-identity",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A student already has a campus account. The library app wants her to use it without collecting her campus password.",
+      "meaning": "Federated identity lets an app trust a separate identity provider to confirm who signed in. The app still decides what that identity may do.",
+      "steps": [
+        {
+          "from": "Library app",
+          "label": "redirects to",
+          "to": "Campus sign-in",
+          "caption": "The student signs in with the campus provider. The library app never needs the campus password."
+        },
+        {
+          "from": "Campus provider",
+          "label": "confirms",
+          "to": "Student identity",
+          "caption": "Through the sign-in flow the library receives a signed identity token intended for this app."
+        },
+        {
+          "from": "Library app",
+          "label": "opens",
+          "to": "Student account",
+          "caption": "It checks the token's issuer, signature, audience and lifetime, then looks up this student's library permissions."
+        }
+      ],
+      "technology": "OpenID Connect is a sign-in protocol that lets a relying application obtain verified identity information from a provider."
+    }
   },
   {
     "title": "Gatekeeper",
@@ -1495,7 +2653,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/gatekeeper",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A document converter is expensive to run. Broken or oversized submissions should be stopped before a converter starts.",
+      "meaning": "A gatekeeper is a controlled entry point that checks requests before letting them reach a protected backend.",
+      "steps": [
+        {
+          "from": "Student",
+          "label": "submits",
+          "to": "Conversion request",
+          "caption": "The request first reaches the upload gateway, the only public entry to the service."
+        },
+        {
+          "from": "Gateway",
+          "label": "checks",
+          "to": "Size and permission",
+          "caption": "The gateway verifies the caller and enforces its allowed size. A rejected request never occupies a conversion worker."
+        },
+        {
+          "from": "Approved request",
+          "label": "reaches",
+          "to": "Private converter",
+          "caption": "Only requests through the trusted route reach the backend. The worker still checks the file format before processing."
+        }
+      ],
+      "technology": "A gateway with ingress controls and a private worker service can enforce this entry boundary."
+    }
   },
   {
     "title": "Valet Key",
@@ -1526,6 +2709,31 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/valet-key",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A musician needs to upload one new song from her phone. Giving her the studio's storage account credentials would grant far too much access.",
+      "meaning": "A valet key is a temporary credential for one limited job. The client takes it directly to the service holding the resource.",
+      "steps": [
+        {
+          "from": "Musician's phone",
+          "label": "requests",
+          "to": "Upload permission",
+          "caption": "The studio app checks that the musician may add a track to this album."
+        },
+        {
+          "from": "Studio app",
+          "label": "issues",
+          "to": "Scoped upload link",
+          "caption": "The signed link allows an upload to one new object for a short period. The app keeps its broader storage credentials private."
+        },
+        {
+          "from": "Musician's phone",
+          "label": "uploads to",
+          "to": "Track storage",
+          "caption": "The song goes directly into storage using the link. The studio can verify the uploaded media before publishing it."
+        }
+      ],
+      "technology": "An Amazon S3 presigned upload link can authorize a PUT operation for a specific object and expiration time."
+    }
   }
 ]

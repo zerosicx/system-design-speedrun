@@ -86,6 +86,15 @@ export const concepts = chapters.flatMap((chapter) =>
         const cloudExample = exampleByLesson.get(id);
         const hasComparison = comparisonLessons.has(id);
         const searchText = [
+          item.story.intro,
+          item.story.meaning,
+          ...item.story.steps.flatMap((step) => [
+            step.from,
+            step.label,
+            step.to,
+            step.caption,
+          ]),
+          item.story.technology,
           item.title,
           item.section,
           item.lesson,

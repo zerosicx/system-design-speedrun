@@ -21,6 +21,7 @@
   --muted: #627066;
   --line: #dce1d8;
   --paper: #fafaf6;
+  --reading-size: 1.0625rem;
   --mono: "Space Mono", monospace;
 }
 * {
@@ -779,26 +780,10 @@ select {
 .quiz-panel {
   max-width: 900px;
 }
-.reading .lead {
-  font-size: clamp(1.12rem, 2vw, 1.4rem);
-  line-height: 1.6;
-  margin: 12px 0 20px;
-}
-.example {
-  background: #eef3e6;
-  padding: 18px 20px;
-  border-radius: 10px;
-}
-.example h3,
 .install-state {
   display: flex;
   gap: 7px;
   align-items: center;
-}
-.example h3 {
-  font-size: 1rem;
-  letter-spacing: 0;
-  margin-bottom: 7px;
 }
 .recall,
 .lesson-footer {
@@ -1279,10 +1264,6 @@ footer a {
   margin-top: 17px;
 }
 
-.lesson-detail {
-  margin: 0 0 20px;
-  max-width: 75ch;
-}
 .lesson-terms {
   margin-top: 24px;
 }
@@ -1493,4 +1474,253 @@ footer a {
   .api-table th {
     padding: 9px 5px;
   }
+}
+
+/* Keep lesson prose and its labels on one reading scale, including on phones. */
+.lesson-view,
+.quiz-panel {
+  font-size: var(--reading-size);
+}
+.lesson-view
+  :is(
+    h2,
+    h3,
+    summary,
+    dt,
+    dd,
+    p,
+    .component-path li,
+    .example-source,
+    .api-table caption,
+    .api-table th,
+    .api-table code,
+    .api-table td,
+    .walk-controls button
+  ),
+.quiz-panel .question,
+.answer,
+.explanation {
+  font-size: var(--reading-size);
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+.lesson-view .story-intro,
+.story-meaning,
+.story-tech,
+.walk-caption,
+.more-notes p {
+  max-width: 68ch;
+}
+.story-meaning,
+.more-notes p {
+  margin-top: 12px;
+}
+.lesson-walk {
+  margin: 18px 0;
+  border: 1px solid #cfdbc8;
+  border-radius: 10px;
+  background: #f1f4e9;
+  padding: clamp(12px, 2vw, 22px);
+}
+.walk-top,
+.walk-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.walk-top {
+  justify-content: space-between;
+}
+.walk-controls {
+  margin-top: 14px;
+}
+.walk-controls .button {
+  min-height: 44px;
+}
+.walk-controls button[aria-pressed="true"] {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+.walk-flow {
+  display: grid;
+  grid-template: "left label right" auto "left wire right" auto / minmax(
+      0,
+      1fr
+    ) minmax(5em, 0.8fr) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 10px;
+  max-width: 650px;
+  margin: 18px auto;
+}
+.landmark,
+.connection-pool li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: #fffef9;
+  border: 1.5px solid #b9cbb3;
+  color: var(--forest);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.landmark {
+  min-height: 80px;
+}
+.landmark.left {
+  grid-area: left;
+}
+.landmark.right {
+  grid-area: right;
+}
+.landmark svg {
+  color: var(--green);
+}
+.walk-label {
+  grid-area: label;
+  align-self: end;
+  text-align: center;
+  font-weight: 700;
+  color: #355d43;
+  overflow-wrap: anywhere;
+}
+.walk-wire {
+  grid-area: wire;
+  align-self: start;
+  height: 2px;
+  background: var(--green);
+  position: relative;
+  margin: 5px 3px 0;
+}
+.walk-wire::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border: solid var(--green);
+  border-width: 2px 2px 0 0;
+  transform: rotate(45deg);
+}
+.walk-wire.reverse {
+  transform: scaleX(-1);
+}
+.connection-pool {
+  margin: 16px 0;
+}
+.connection-pool ol {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 6px 0 0;
+}
+.connection-pool .available-for-profile {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+.more-notes {
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.more-notes summary {
+  cursor: pointer;
+  color: var(--green);
+  font-weight: 700;
+  padding: 8px 0;
+  min-height: 44px;
+}
+.more-notes summary svg {
+  vertical-align: middle;
+  margin: 0 3px;
+}
+.more-notes summary:focus-visible {
+  outline: 3px solid #b98930;
+  outline-offset: 3px;
+}
+@media (max-width: 530px) {
+  .walk-flow {
+    grid-template: "label label label" auto "left wire right" auto / minmax(
+        0,
+        1fr
+      ) 32px minmax(0, 1fr);
+    gap: 7px;
+  }
+  .walk-wire {
+    align-self: center;
+    margin: 0 2px;
+  }
+  .landmark {
+    padding: 7px;
+  }
+  .connection-pool ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.walk-fork {
+  max-width: 480px;
+  margin: 16px auto;
+  text-align: center;
+}
+.walk-fork > .landmark {
+  width: fit-content;
+  min-width: 110px;
+  max-width: 100%;
+  margin: auto;
+}
+.walk-fork .landmark {
+  min-height: 42px;
+  flex-direction: row;
+  padding: 6px 10px;
+}
+.walk-fork .landmark svg {
+  flex-shrink: 0;
+}
+.walk-fork .current-node {
+  border: 2px solid var(--green);
+  background: #e0edd7;
+}
+.walk-fork > svg {
+  display: block;
+  margin: auto;
+}
+.walk-fork .fork-trunk {
+  width: 40px;
+  height: 26px;
+}
+.walk-fork .fork-edges {
+  width: 100%;
+  height: 36px;
+}
+.walk-fork path {
+  fill: none;
+  stroke: #7f917c;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+.walk-fork .current-edge {
+  stroke: var(--green);
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+.fork-destinations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.fork-transfer {
+  margin-top: 8px;
+  color: var(--green);
+  font-weight: 700;
 }

@@ -37,7 +37,32 @@
         "url": "https://www.youtube.com/watch?v=kKjm4ehYiMs",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two people tap the last window seat on the same train. Whose ticket is valid?",
+      "meaning": "A database keeps records and can enforce rules about which changes are allowed together.",
+      "steps": [
+        {
+          "from": "Ticket app",
+          "label": "Claim seat 12A",
+          "to": "Booking database",
+          "caption": "Mina's request asks the database to claim seat 12A and create her ticket together."
+        },
+        {
+          "from": "Booking database",
+          "label": "Commit booking",
+          "to": "Mina’s ticket",
+          "caption": "Both changes succeed. The database keeps the booking even after the app restarts."
+        },
+        {
+          "from": "Ticket app",
+          "label": "Try seat 12A",
+          "to": "Seat rule",
+          "caption": "Leo's request arrives for the same train and seat. A rule allowing only one booking rejects it."
+        }
+      ],
+      "technology": "In PostgreSQL, a transaction groups the changes, and a unique constraint can protect each train-and-seat pair."
+    }
   },
   {
     "title": "SQL vs NoSQL",
@@ -82,7 +107,32 @@
         "url": "https://www.ibm.com/blog/sql-vs-nosql/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shop needs yesterday’s sales by supplier and a one-tap view of a saved cart. Which records does each screen need?",
+      "meaning": "If the shop keeps sales and suppliers in separate tables, a SQL query can match them up. A document database can keep a whole cart in one record. Start with what the screen needs to show.",
+      "steps": [
+        {
+          "from": "Sales report",
+          "label": "Match supplier IDs",
+          "to": "Order tables",
+          "caption": "Each item names its supplier. Joining the records lets the report total sales by supplier."
+        },
+        {
+          "from": "Cart screen",
+          "label": "Look up cart",
+          "to": "Cart document",
+          "caption": "The screen already knows the cart ID. One document can hold the small list of items it needs."
+        },
+        {
+          "from": "Checkout",
+          "label": "Check purchase rules",
+          "to": "Database choice",
+          "caption": "Now ask whether charging credit and reducing stock must succeed together. Inspect the selected engine's transaction guarantees."
+        }
+      ],
+      "technology": "PostgreSQL supports joins across tables, and MongoDB can store a cart document and also supports multi-document transactions."
+    }
   },
   {
     "title": "Replication",
@@ -122,7 +172,32 @@
         "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Jin updates their display name. Their profile saves, but the nearby server still shows the old name.",
+      "meaning": "Replication copies stored changes between servers. A copy updated in the background can briefly lag behind the original.",
+      "steps": [
+        {
+          "from": "Profile app",
+          "label": "Save new name",
+          "to": "Primary database",
+          "caption": "The primary records Jin's new name and confirms the save."
+        },
+        {
+          "from": "Nearby copy",
+          "label": "Serve old name",
+          "to": "Profile page",
+          "caption": "A read reaches the copy before the change arrives. It still returns the old name."
+        },
+        {
+          "from": "Primary database",
+          "label": "Send name change",
+          "to": "Nearby copy",
+          "caption": "The copy applies the change. Later reads there can see the new name too."
+        }
+      ],
+      "technology": "With a PostgreSQL read replica, the app can read from the primary immediately after a profile edit."
+    }
   },
   {
     "title": "Sharding",
@@ -167,7 +242,40 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/sharding",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A library keeps millions of book records. Its catalogue is outgrowing one database. How can it split the work and still find a book?",
+      "meaning": "Sharding means dividing records between databases. Each database holds a slice called a shard. A rule tells the app which slice to use for each record.",
+      "steps": [
+        {
+          "from": "Library app",
+          "label": "Book 42",
+          "to": "Routing rule",
+          "caption": "The app wants book 42. In this small example, even book numbers belong on one shard and odd numbers on the other."
+        },
+        {
+          "from": "Routing rule",
+          "label": "Even number",
+          "to": "Shard A",
+          "caption": "42 is even. The app can ask Shard A directly, without searching both databases."
+        },
+        {
+          "from": "Routing rule",
+          "label": "Odd number",
+          "to": "Shard B",
+          "caption": "For book 43, the app asks Shard B. A search by author is harder because one author’s books can be on both shards."
+        }
+      ],
+      "technology": "MongoDB uses a shard key to decide where documents belong. A book number is one possible key; the even-or-odd rule here illustrates splitting records.",
+      "fork": {
+        "entry": "Library app",
+        "hub": "Routing rule",
+        "branches": [
+          "Shard A",
+          "Shard B"
+        ]
+      }
+    }
   },
   {
     "title": "Federation",
@@ -198,7 +306,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#federation",
         "source": "Supplementary"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Payroll runs a report while warehouse staff scan deliveries. These two parts of the business work with different records.",
+      "meaning": "Federation separates databases by responsibility. Each owns one kind of data and can handle its own workload.",
+      "steps": [
+        {
+          "from": "Payroll app",
+          "label": "Save payslip",
+          "to": "Payroll database",
+          "caption": "The pay run writes employee payment records to its own database."
+        },
+        {
+          "from": "Warehouse scanner",
+          "label": "Save delivery",
+          "to": "Stock database",
+          "caption": "Scanning a pallet updates stock in a separate database. That database handles warehouse traffic."
+        },
+        {
+          "from": "Cost report",
+          "label": "Combine summaries",
+          "to": "Report table",
+          "caption": "A cost report needs wages and stock totals, so a reporting job assembles summaries from both owners."
+        }
+      ],
+      "technology": "Two PostgreSQL databases can hold the payroll and stock records, with a reporting job reading agreed exports."
+    }
   },
   {
     "title": "Denormalization",
@@ -229,7 +362,32 @@
         "url": "https://en.wikipedia.org/wiki/Denormalization",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Nora’s news feed shows an author name on every post. Reading 30 posts could mean asking for 30 names.",
+      "meaning": "Denormalization stores a useful extra copy to make a common read cheaper. You must decide what happens when the original changes.",
+      "steps": [
+        {
+          "from": "Author profile",
+          "label": "Copy display name",
+          "to": "New post",
+          "caption": "At publication, the app saves the author's display name beside the post."
+        },
+        {
+          "from": "Feed screen",
+          "label": "Read post cards",
+          "to": "Post table",
+          "caption": "The feed can now get text and names in one read."
+        },
+        {
+          "from": "Renamed profile",
+          "label": "Refresh old names",
+          "to": "Saved posts",
+          "caption": "If posts should show the current name, the app must update those copies after a rename."
+        }
+      ],
+      "technology": "A PostgreSQL post row can store both an author ID and a copied display name for a busy feed."
+    }
   },
   {
     "title": "SQL Tuning",
@@ -264,7 +422,32 @@
         "url": "https://docs.oracle.com/en/database/oracle/oracle-database/26/tgsql/introduction-to-sql-tuning.html#GUID-B653E5F3-F078-4BBC-9516-B892960046A2",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A library search takes two seconds to find three books by ISBN. Where is the time going?",
+      "meaning": "SQL tuning means measuring how the database runs a query and changing the work it does.",
+      "steps": [
+        {
+          "from": "Slow search",
+          "label": "Inspect plan",
+          "to": "Query plan",
+          "caption": "The plan shows the engine checked every shelf record to find three matches."
+        },
+        {
+          "from": "Book table",
+          "label": "Index ISBN",
+          "to": "ISBN index",
+          "caption": "An index builds a lookup path from ISBN to matching rows. New books now need an index update too."
+        },
+        {
+          "from": "Same search",
+          "label": "Measure again",
+          "to": "Query plan",
+          "caption": "Run the same lookup with realistic data. Compare rows examined and time before keeping the change."
+        }
+      ],
+      "technology": "PostgreSQL's EXPLAIN ANALYZE reports what a query actually did when it ran."
+    }
   },
   {
     "title": "RDBMS",
@@ -309,7 +492,32 @@
         "url": "https://www.mongodb.com/nosql-explained/nosql-vs-sql",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A school sees an enrollment for student 77, but there is no student 77. How can the store reject that mistake?",
+      "meaning": "A relational database management system keeps linked tables and checks rules such as which student an enrollment can reference.",
+      "steps": [
+        {
+          "from": "Student form",
+          "label": "Create student",
+          "to": "Students table",
+          "caption": "The school registers student 25. The table gives that student a unique ID."
+        },
+        {
+          "from": "Enrollment form",
+          "label": "Reference student 25",
+          "to": "Enrollments table",
+          "caption": "The new enrollment names an existing student, so the database accepts it."
+        },
+        {
+          "from": "Enrollment form",
+          "label": "Reference student 77",
+          "to": "Foreign key check",
+          "caption": "A foreign key requires a matching student row. The second request fails before an orphan enrollment can appear."
+        }
+      ],
+      "technology": "A PostgreSQL foreign key can connect the student ID in enrollments to the primary key in students."
+    }
   },
   {
     "title": "Key-Value Store",
@@ -340,7 +548,32 @@
         "url": "https://en.wikipedia.org/wiki/Key%E2%80%93value_database",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A visitor returns with session ID k42. The app needs just the saved session for that ID.",
+      "meaning": "A key-value store associates a unique key with a value. Knowing the key gives the app a direct lookup.",
+      "steps": [
+        {
+          "from": "Sign-in service",
+          "label": "Save session",
+          "to": "Session store",
+          "caption": "The service stores the visitor's session details under k42."
+        },
+        {
+          "from": "Browser",
+          "label": "Present k42",
+          "to": "Web app",
+          "caption": "The browser sends the session ID with its next request."
+        },
+        {
+          "from": "Web app",
+          "label": "Fetch k42",
+          "to": "Session store",
+          "caption": "The store returns the matching value without searching other visitors. Finding sessions by city would need a different lookup."
+        }
+      ],
+      "technology": "Redis can hold session records under keys and expire them after a chosen lifetime."
+    }
   },
   {
     "title": "Document Store",
@@ -371,7 +604,32 @@
         "url": "https://en.wikipedia.org/wiki/Document-oriented_database",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A recipe screen always shows the ingredient list with the instructions. It would be handy to load them together.",
+      "meaning": "A document store keeps related values, including lists and nested fields, in one record that an app can retrieve by ID.",
+      "steps": [
+        {
+          "from": "Recipe editor",
+          "label": "Save recipe",
+          "to": "Recipe document",
+          "caption": "The editor places the curry's ingredients and steps inside one record."
+        },
+        {
+          "from": "Cooking screen",
+          "label": "Read curry",
+          "to": "Recipe document",
+          "caption": "One document read gives the screen what it needs to start cooking."
+        },
+        {
+          "from": "New review",
+          "label": "Save separately",
+          "to": "Reviews collection",
+          "caption": "Reviews can grow for years. Storing them separately keeps the recipe itself small."
+        }
+      ],
+      "technology": "MongoDB can embed a recipe's ingredient array and keep reviews in a separate collection."
+    }
   },
   {
     "title": "Wide Column Store",
@@ -402,7 +660,32 @@
         "url": "https://www.read.seas.harvard.edu/~kohler/class/cs239-w08/chang06bigtable.pdf",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A gardener asks for sensor 8’s temperatures from lunchtime yesterday. There are millions of readings for the whole farm.",
+      "meaning": "A wide-column store can arrange related readings together. In Cassandra, one key selects a group and another orders the rows within it.",
+      "steps": [
+        {
+          "from": "Sensor 8",
+          "label": "Choose device-day",
+          "to": "Yesterday’s group",
+          "caption": "Each reading carries a device ID and date. Together they identify a small group of readings."
+        },
+        {
+          "from": "New reading",
+          "label": "Order by time",
+          "to": "Timed rows",
+          "caption": "The reading's timestamp determines its position within that group."
+        },
+        {
+          "from": "Garden chart",
+          "label": "Read lunchtime range",
+          "to": "Timed rows",
+          "caption": "The chart selects sensor 8's day and a time range. A farm-wide search needs a different access plan."
+        }
+      ],
+      "technology": "An Apache Cassandra table can use device and date as its partition key and time as its clustering column."
+    }
   },
   {
     "title": "Graph Databases",
@@ -442,7 +725,32 @@
         "url": "https://www.youtube.com/watch?v=qI_g07C_Q5I",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Lea wants a mentor someone she knows can introduce. A list of names alone does not reveal the introductions.",
+      "meaning": "A graph database stores people or things and the relationships joining them. A search can follow those relationships one step at a time.",
+      "steps": [
+        {
+          "from": "Lea",
+          "label": "Knows",
+          "to": "Ari",
+          "caption": "The database follows a connection from Lea and finds Ari."
+        },
+        {
+          "from": "Ari",
+          "label": "Mentors with",
+          "to": "Mei",
+          "caption": "A second relationship leads from Ari to Mei, a mentor."
+        },
+        {
+          "from": "Two-hop search",
+          "label": "Return introduction",
+          "to": "Lea’s screen",
+          "caption": "The app shows Lea the route through Ari. A limit of two steps keeps the search focused."
+        }
+      ],
+      "technology": "Neo4j can match a path made of person nodes and named relationships."
+    }
   },
   {
     "title": "NoSQL",
@@ -482,20 +790,45 @@
         "url": "https://www.mongodb.com/nosql-explained/nosql-vs-sql",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An app stores activity counts for readers in two cities. One city sees 98 likes while the other already sees 100.",
+      "meaning": "NoSQL is a family of databases using data shapes such as documents or key-value pairs. The chosen database and settings determine when readers see updates.",
+      "steps": [
+        {
+          "from": "Like button",
+          "label": "Save new count",
+          "to": "Local region",
+          "caption": "One region accepts a new count of 100 under the app's chosen update policy."
+        },
+        {
+          "from": "Distant region",
+          "label": "Read local copy",
+          "to": "Count of 98",
+          "caption": "This app allows an older local answer while the two regions exchange changes."
+        },
+        {
+          "from": "Local region",
+          "label": "Propagate changes",
+          "to": "Count of 100",
+          "caption": "When updates finish traveling and writes settle, both copies agree. A payment balance may need stricter rules."
+        }
+      ],
+      "technology": "Azure Cosmos DB offers several consistency levels, so the app explicitly chooses how fresh a regional read must be."
+    }
   },
   {
     "title": "Caching",
     "section": "Caching",
     "lesson": "A cache keeps reusable data closer to the work that needs it. Decide what makes an entry fresh, how it expires, and what happens when many requests miss at once.",
     "example": "A menu cache cuts database traffic at lunch. A short expiry makes new prices visible sooner but increases misses.",
-    "question": "What must be true before caching a shared result under one key?",
+    "question": "The café updates the soup price to $9 in its database. Why might the menu still show $8?",
     "answers": [
-      "Every requester of that key may receive the same result",
-      "The result never changes after its first read",
-      "All clients are connected to the same server"
+      "The cache still has a copy of the old price.",
+      "Each visitor gets a different database table.",
+      "A database always rounds prices down."
     ],
-    "why": "A shared key declares that its cached value is appropriate for every matching request.",
+    "why": "Updating the database does not automatically replace a cached value. Removing the old copy makes the next lookup fetch the new price.",
     "detail": "A 95% hit rate at 10,000 reads per second leaves the origin handling about 500 reads per second. If the cache restarts empty, the origin may suddenly receive all 10,000. Coalescing concurrent misses for the same key lets one request fetch while the others wait. Randomizing expiry times across keys can keep a whole batch from expiring together.",
     "terms": [
       {
@@ -527,7 +860,38 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Maya opens the café menu to check the price of soup. When Jo opens the same menu, does the app need to ask the database for the price again?",
+      "meaning": "A cache is a place to keep a copy of data handy when you expect to need it again.",
+      "steps": [
+        {
+          "from": "Menu app",
+          "label": "Price?",
+          "to": "Cache",
+          "caption": "The app asks the cache for the soup price. The cache has no copy yet, so this is a cache miss."
+        },
+        {
+          "from": "Database",
+          "label": "Return $8",
+          "to": "Menu app",
+          "caption": "The app reads the original price from the database, where the café keeps its menu. The database sends back $8."
+        },
+        {
+          "from": "Menu app",
+          "label": "Store $8",
+          "to": "Cache",
+          "caption": "The app saves a copy of the $8 price and shows Maya the menu. The original stays in the database."
+        },
+        {
+          "from": "Cache",
+          "label": "Return $8",
+          "to": "Menu app",
+          "caption": "Jo opens the same menu and the cache returns $8. This cache hit lets the app skip the database lookup."
+        }
+      ],
+      "technology": "The café could keep its menu in PostgreSQL and use Redis for the temporary copies."
+    }
   },
   {
     "title": "Refresh Ahead",
@@ -558,7 +922,32 @@
         "url": "https://www.enjoyalgorithms.com/blog/refresh-ahead-caching-pattern",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The ferry countdown freezes every time the timetable copy expires. Building a fresh copy takes two seconds.",
+      "meaning": "Refresh ahead means fetching a replacement before a popular cached item expires, so the next reader can find it ready.",
+      "steps": [
+        {
+          "from": "Timetable cache",
+          "label": "Near expiry",
+          "to": "Refresh worker",
+          "caption": "The busy pier's timetable has five seconds left. A background job starts preparing a replacement."
+        },
+        {
+          "from": "Refresh worker",
+          "label": "Fetch times",
+          "to": "Ferry database",
+          "caption": "The worker asks for the latest times while riders still use the current copy."
+        },
+        {
+          "from": "Refresh worker",
+          "label": "Replace copy",
+          "to": "Timetable cache",
+          "caption": "Two seconds later the new timetable is ready. The next rider can read it immediately."
+        }
+      ],
+      "technology": "A scheduled worker can check popular Redis entries and replace their values shortly before expiry."
+    }
   },
   {
     "title": "Write-behind",
@@ -589,7 +978,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#write-behind-write-back",
         "source": "Supplementary"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A game counts applause after a concert. Saving every clap to slow storage makes the button feel sluggish.",
+      "meaning": "Write-behind accepts a change into a fast buffer and writes it to the permanent store later. An accepted change needs protection until it reaches that store.",
+      "steps": [
+        {
+          "from": "Clap button",
+          "label": "Add one clap",
+          "to": "Write buffer",
+          "caption": "The buffer accepts the clap and the game updates the visible count."
+        },
+        {
+          "from": "Write buffer",
+          "label": "Group claps",
+          "to": "Pending batch",
+          "caption": "The game collects 50 changes so one batch can replace many small writes."
+        },
+        {
+          "from": "Pending batch",
+          "label": "Save counts",
+          "to": "Game database",
+          "caption": "The worker saves the batch. If the only buffer had disappeared before this point, accepted claps could have vanished."
+        }
+      ],
+      "technology": "A game can batch counter changes before writing to PostgreSQL and keep a durable log if those changes must survive a crash."
+    }
   },
   {
     "title": "Write-through",
@@ -620,7 +1034,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#write-through",
         "source": "Supplementary"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The bakery changes the name of a cake. The next visitor should see the new name from the fast copy.",
+      "meaning": "Write-through handles a change through the cache and waits for the backing store before it reports success.",
+      "steps": [
+        {
+          "from": "Bakery editor",
+          "label": "Rename cake",
+          "to": "Write-through cache",
+          "caption": "The editor sends the new name through the cache's write path."
+        },
+        {
+          "from": "Write-through cache",
+          "label": "Persist name",
+          "to": "Menu database",
+          "caption": "The write waits for the menu database to confirm the new name. Slow storage makes the editor wait too."
+        },
+        {
+          "from": "Write-through cache",
+          "label": "Confirm change",
+          "to": "Bakery editor",
+          "caption": "After the store and cached value have been updated successfully, the editor gets confirmation and later reads can use the copy."
+        }
+      ],
+      "technology": "A write-through layer can coordinate writes to Redis and PostgreSQL and invalidate a copy if its update fails."
+    }
   },
   {
     "title": "Cache Aside",
@@ -651,7 +1090,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A library app checks its shelf of recent book descriptions. Nobody has opened this book yet.",
+      "meaning": "In cache-aside, the application decides what to do on a miss. It fetches the original and fills the cache itself.",
+      "steps": [
+        {
+          "from": "Library app",
+          "label": "Look up ISBN",
+          "to": "Book cache",
+          "caption": "There is no description under this ISBN, so the application takes over."
+        },
+        {
+          "from": "Book database",
+          "label": "Send description",
+          "to": "Library app",
+          "caption": "The app fetches the authoritative description for that book."
+        },
+        {
+          "from": "Library app",
+          "label": "Fill cache",
+          "to": "Book cache",
+          "caption": "The app saves the result under the ISBN. After an edit, it can evict that copy so the next reader fetches the new text."
+        }
+      ],
+      "technology": "A library service can implement cache-aside with Redis for copies and PostgreSQL for book records."
+    }
   },
   {
     "title": "Client Caching",
@@ -682,7 +1146,32 @@
         "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Alex opens a museum guide twice. Should the phone download the same floor map on both visits?",
+      "meaning": "Client caching lets a browser store a response on the visitor's device and reuse it according to the server's rules.",
+      "steps": [
+        {
+          "from": "Museum server",
+          "label": "Send floor map",
+          "to": "Phone browser",
+          "caption": "The map has a versioned filename and permission to reuse the response for a day."
+        },
+        {
+          "from": "First visit",
+          "label": "Keep map",
+          "to": "Browser cache",
+          "caption": "The phone saves the response under that map's URL."
+        },
+        {
+          "from": "Second visit",
+          "label": "Read local map",
+          "to": "Browser cache",
+          "caption": "An hour later the URL still matches and the copy is fresh. The phone can show it without another map request."
+        }
+      ],
+      "technology": "A web server can send a Cache-Control max-age with a hashed asset filename that changes when the map changes."
+    }
   },
   {
     "title": "CDN Caching",
@@ -718,7 +1207,32 @@
         "url": "https://en.wikipedia.org/wiki/Content_delivery_network",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Fans in Sydney keep opening an album cover stored across the ocean. The same image makes the long trip again and again.",
+      "meaning": "A content delivery network, or CDN, can cache a shared file at an edge location close to visitors.",
+      "steps": [
+        {
+          "from": "Sydney fan",
+          "label": "Request cover",
+          "to": "Sydney edge",
+          "caption": "The nearby edge checks for a reusable copy of the public cover."
+        },
+        {
+          "from": "Music origin",
+          "label": "Send cover",
+          "to": "Sydney edge",
+          "caption": "On the first miss, the edge fetches the image from the original server and keeps a copy."
+        },
+        {
+          "from": "Sydney edge",
+          "label": "Serve saved cover",
+          "to": "Next fan",
+          "caption": "The next fan gets the cover from the nearby edge while the copy remains fresh."
+        }
+      ],
+      "technology": "CloudFront can serve an album cover from an edge cache while Amazon S3 holds the original object."
+    }
   },
   {
     "title": "Web Server Caching",
@@ -749,7 +1263,32 @@
         "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Every visitor asks for the same festival lineup, and the web app builds the same HTML each time.",
+      "meaning": "A web server or a server in front of it can cache the finished response and serve it to later visitors.",
+      "steps": [
+        {
+          "from": "First visitor",
+          "label": "Request lineup",
+          "to": "Web proxy",
+          "caption": "The proxy checks for an already-rendered lineup. Its cache is empty."
+        },
+        {
+          "from": "Festival app",
+          "label": "Return HTML",
+          "to": "Web proxy",
+          "caption": "The app renders the public lineup once. The proxy saves the response for a short time."
+        },
+        {
+          "from": "Web proxy",
+          "label": "Serve saved HTML",
+          "to": "Next visitor",
+          "caption": "The next request arrives before expiry, so the web app skips rebuilding the page."
+        }
+      ],
+      "technology": "NGINX can use its proxy cache for a public lineup page while passing personal account requests to the app."
+    }
   },
   {
     "title": "Database Caching",
@@ -785,7 +1324,32 @@
         "url": "https://www.prisma.io/dataguide/managing-databases/introduction-database-caching",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Looking up a word in a giant dictionary is slower the first time than the second. The query text stays exactly the same.",
+      "meaning": "A database can keep recently used chunks of stored data in memory so later queries avoid another disk read.",
+      "steps": [
+        {
+          "from": "First lookup",
+          "label": "Need index page",
+          "to": "Database memory",
+          "caption": "The engine looks for a small chunk of the dictionary index. That chunk is absent from memory."
+        },
+        {
+          "from": "Disk",
+          "label": "Load page",
+          "to": "Database memory",
+          "caption": "It reads the page from storage and keeps a copy in the database's memory."
+        },
+        {
+          "from": "Second lookup",
+          "label": "Reuse page",
+          "to": "Database memory",
+          "caption": "The engine still runs the query, but the needed page is already in memory."
+        }
+      ],
+      "technology": "PostgreSQL uses shared buffers to hold database pages, and its query plan can report buffer hits and reads."
+    }
   },
   {
     "title": "Application Caching",
@@ -816,7 +1380,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#application-caching",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A parcel shop asks for the same shipping quote many times. How can it reuse the answer without mixing up heavy and light parcels?",
+      "meaning": "Application caching saves a value the app computed under a key that represents the inputs that affect it.",
+      "steps": [
+        {
+          "from": "Quote form",
+          "label": "Enter details",
+          "to": "Shipping app",
+          "caption": "The parcel weighs 2 kg and travels from Sydney to Perth with a chosen carrier."
+        },
+        {
+          "from": "Shipping app",
+          "label": "Save priced route",
+          "to": "Quote cache",
+          "caption": "After getting the price, the app keys the result by route, carrier and weight."
+        },
+        {
+          "from": "Next parcel",
+          "label": "Match inputs",
+          "to": "Quote cache",
+          "caption": "A matching parcel can reuse the quote. A 5 kg parcel needs a different key."
+        }
+      ],
+      "technology": "A shipping service can share Redis quote entries across application instances and expire them when rates change."
+    }
   },
   {
     "title": "Asynchronism",
@@ -857,7 +1446,32 @@
         "url": "https://www.youtube.com/watch?v=1KRYH75wgy4",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Tara uploads a photo on a bus. Making six thumbnails takes longer than saving the photo.",
+      "meaning": "Asynchronous work lets the caller move on while another part of the system finishes a job. The app must show which part has actually finished.",
+      "steps": [
+        {
+          "from": "Photo app",
+          "label": "Accept upload",
+          "to": "Job record",
+          "caption": "The app saves the photo and a durable job ID. Tara sees a pending thumbnail."
+        },
+        {
+          "from": "Image worker",
+          "label": "Build thumbnails",
+          "to": "Image store",
+          "caption": "A background worker builds the six sizes while Tara continues browsing."
+        },
+        {
+          "from": "Image worker",
+          "label": "Mark ready",
+          "to": "Job record",
+          "caption": "The app can now show the thumbnail. A failed job would need a separate status."
+        }
+      ],
+      "technology": "An HTTP upload endpoint can return 202 Accepted and a status URL that the photo app can check."
+    }
   },
   {
     "title": "Back Pressure",
@@ -888,7 +1502,32 @@
         "url": "https://mechanical-sympathy.blogspot.com/2012/05/apply-back-pressure-when-overloaded.html",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A video player receives frames faster than it can display them. Its memory is filling up.",
+      "meaning": "Back pressure is a signal from a busy receiver telling the sender to slow down or pause.",
+      "steps": [
+        {
+          "from": "Video producer",
+          "label": "Send frames",
+          "to": "Player buffer",
+          "caption": "The producer fills the buffer faster than the player can drain it."
+        },
+        {
+          "from": "Player buffer",
+          "label": "Pause intake",
+          "to": "Video producer",
+          "caption": "The receiver signals that there is no space for more frames. The producer pauses."
+        },
+        {
+          "from": "Player buffer",
+          "label": "Request more",
+          "to": "Video producer",
+          "caption": "Playback frees space, so the receiver asks for another small batch."
+        }
+      ],
+      "technology": "Node.js streams expose back pressure when a write returns false and signal when writing can resume with a drain event."
+    }
   },
   {
     "title": "Task Queues",
@@ -919,7 +1558,32 @@
         "url": "https://docs.celeryq.dev/en/stable/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Eva requests a large PDF. She wants to close the tab without losing the job.",
+      "meaning": "A task queue holds work instructions until a worker can carry them out and confirm completion.",
+      "steps": [
+        {
+          "from": "Report app",
+          "label": "Enqueue report 51",
+          "to": "Task queue",
+          "caption": "The app saves a task with report ID 51 before telling Eva it was accepted."
+        },
+        {
+          "from": "Task queue",
+          "label": "Deliver report task",
+          "to": "PDF worker",
+          "caption": "An available worker takes the task and creates the PDF under that report ID."
+        },
+        {
+          "from": "PDF worker",
+          "label": "Acknowledge completion",
+          "to": "Task queue",
+          "caption": "The worker confirms after saving the file. Using the same report ID helps if an interrupted attempt is delivered again."
+        }
+      ],
+      "technology": "A Celery worker can consume queued PDF-generation tasks and save results under stable report IDs."
+    }
   },
   {
     "title": "Message Queues",
@@ -960,7 +1624,32 @@
         "url": "https://kafka.apache.org/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Email delivery is paused for maintenance. Customers can still place orders if their receipt requests have somewhere to wait.",
+      "meaning": "A message queue holds messages until a receiver is ready, letting senders and receivers work at different times.",
+      "steps": [
+        {
+          "from": "Checkout",
+          "label": "Send receipt request",
+          "to": "Durable queue",
+          "caption": "Checkout records a message with the order ID in a queue configured to retain it."
+        },
+        {
+          "from": "Queue backlog",
+          "label": "Wait for worker",
+          "to": "Email restored",
+          "caption": "While email is offline, retained receipt requests accumulate."
+        },
+        {
+          "from": "Durable queue",
+          "label": "Deliver waiting request",
+          "to": "Mail worker",
+          "caption": "The worker resumes, sends the receipt, and acknowledges processing. It should recognize a duplicate if delivery repeats."
+        }
+      ],
+      "technology": "Amazon SQS can keep receipt messages for a configured retention period until consumers process them."
+    }
   },
   {
     "title": "Idempotent Operations",
@@ -991,7 +1680,32 @@
         "url": "https://developer.mozilla.org/en-US/docs/Glossary/Idempotent",
         "source": "Supplementary"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A payment succeeds, but the reply disappears. Tapping pay again should not charge Ana twice.",
+      "meaning": "An idempotent operation has the same intended effect when repeated. A payment service can remember a stable request ID and its result.",
+      "steps": [
+        {
+          "from": "Checkout app",
+          "label": "Pay with key A",
+          "to": "Payment service",
+          "caption": "The app creates one key for Ana's intended payment."
+        },
+        {
+          "from": "Payment service",
+          "label": "Record charge result",
+          "to": "Payment record",
+          "caption": "The service associates the key with the charge and its result. The reply to the phone is lost."
+        },
+        {
+          "from": "Checkout app",
+          "label": "Retry key A",
+          "to": "Payment service",
+          "caption": "The service recognizes the matching request and returns the recorded result without another charge."
+        }
+      ],
+      "technology": "Stripe's API accepts an idempotency key on payment-related POST requests so a caller can safely retry the same intent."
+    }
   },
   {
     "title": "Communication",
@@ -1032,7 +1746,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#remote-procedure-call-rpc",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A ticket app asks another server to hold seat 4. The connection breaks before the reply arrives.",
+      "meaning": "Communication between services needs an agreed message format and rules for handling a missing answer.",
+      "steps": [
+        {
+          "from": "Ticket app",
+          "label": "Hold seat 4",
+          "to": "Seat service",
+          "caption": "The request includes reservation ID R6 so the two services can refer to the same action."
+        },
+        {
+          "from": "Seat service",
+          "label": "Record hold",
+          "to": "Reservation R6",
+          "caption": "The seat is held, but the reply disappears on the way back."
+        },
+        {
+          "from": "Ticket app",
+          "label": "Check R6",
+          "to": "Seat service",
+          "caption": "The caller asks about R6 and learns that the hold succeeded, avoiding a second reservation."
+        }
+      ],
+      "technology": "An HTTP API can expose a reservation status URL keyed by the original reservation ID."
+    }
   },
   {
     "title": "HTTP",
@@ -1068,7 +1807,32 @@
         "url": "https://www.nginx.com/resources/glossary/http/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A weather app needs today’s forecast. How does it ask the server a question the server understands?",
+      "meaning": "HTTP defines request methods, addresses, headers and responses so clients and servers can exchange information.",
+      "steps": [
+        {
+          "from": "Weather app",
+          "label": "GET forecast",
+          "to": "Forecast server",
+          "caption": "The app sends GET for a URL identifying Sydney's forecast, asking to read it."
+        },
+        {
+          "from": "Forecast server",
+          "label": "Return 200",
+          "to": "Weather app",
+          "caption": "A 200 status says the request succeeded, and the response body carries the temperatures."
+        },
+        {
+          "from": "Weather app",
+          "label": "Show forecast",
+          "to": "Today’s screen",
+          "caption": "The app reads the returned values and displays them. A missing location would need a different response."
+        }
+      ],
+      "technology": "The browser's fetch API can issue a GET and expose the HTTP status and JSON response."
+    }
   },
   {
     "title": "TCP",
@@ -1104,7 +1868,32 @@
         "url": "https://gafferongames.com/post/udp_vs_tcp/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Chat sends the word HELLO. The receiver's first read contains only HE.",
+      "meaning": "TCP delivers an ordered stream of bytes. The receiving app needs its own rule for telling where one message ends.",
+      "steps": [
+        {
+          "from": "Chat sender",
+          "label": "Prefix length 5",
+          "to": "TCP stream",
+          "caption": "The chat protocol puts the message length before the five letters."
+        },
+        {
+          "from": "TCP stream",
+          "label": "Deliver HE",
+          "to": "Chat receiver",
+          "caption": "The receiver sees that two letters are too few. It keeps the partial message."
+        },
+        {
+          "from": "TCP stream",
+          "label": "Deliver LLO",
+          "to": "Chat receiver",
+          "caption": "Five letters have now arrived in order, so the receiver can show HELLO."
+        }
+      ],
+      "technology": "A Node.js TCP socket can buffer incoming chunks until its application protocol has a complete message."
+    }
   },
   {
     "title": "UDP",
@@ -1135,7 +1924,32 @@
         "url": "https://gafferongames.com/post/udp_vs_tcp/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "During a voice call, one sound packet arrives after the conversation has already moved on.",
+      "meaning": "UDP sends separate packets called datagrams. The network can lose or reorder them, so the app decides what to do.",
+      "steps": [
+        {
+          "from": "Mic sender",
+          "label": "Send audio 8",
+          "to": "Network",
+          "caption": "The caller labels a short piece of sound with a number. Packet 8 is delayed."
+        },
+        {
+          "from": "Network",
+          "label": "Deliver audio 9",
+          "to": "Voice player",
+          "caption": "The player receives the next piece first and uses its timing information for playback."
+        },
+        {
+          "from": "Late packet 8",
+          "label": "Miss deadline",
+          "to": "Voice player",
+          "caption": "The deadline for packet 8 passes. Skipping the late sound keeps the call from falling further behind."
+        }
+      ],
+      "technology": "A real-time audio protocol such as RTP can carry sequence numbers and timestamps over UDP."
+    }
   },
   {
     "title": "RPC",
@@ -1170,7 +1984,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#remote-procedure-call-rpc",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shop screen calls getDeliveryDate as though it were a nearby function. The delivery service lives on another machine.",
+      "meaning": "A remote procedure call, or RPC, sends a named operation and its inputs to another process and receives a result or error.",
+      "steps": [
+        {
+          "from": "Shop screen",
+          "label": "Call delivery method",
+          "to": "RPC client",
+          "caption": "The client packages the destination and item ID into a request."
+        },
+        {
+          "from": "RPC client",
+          "label": "Send request",
+          "to": "Delivery service",
+          "caption": "The service receives the message and computes the date. The call now depends on the network as well as code."
+        },
+        {
+          "from": "Delivery service",
+          "label": "Return date",
+          "to": "Shop screen",
+          "caption": "The screen displays the result if it arrives before its deadline, or shows an estimate-unavailable state."
+        }
+      ],
+      "technology": "A gRPC client stub can expose a delivery method and set a deadline on its remote call."
+    }
   },
   {
     "title": "REST",
@@ -1210,7 +2049,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#representational-state-transfer-rest",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The library wants a stable address for each book loan. Different clients should be able to read the same loan.",
+      "meaning": "REST organizes an interface around identifiable resources. The request describes an action on a resource using agreed operations such as HTTP GET.",
+      "steps": [
+        {
+          "from": "Library app",
+          "label": "Request loan 42",
+          "to": "Loan URL",
+          "caption": "GET /loans/42 identifies one loan and asks to retrieve its current representation."
+        },
+        {
+          "from": "Loan service",
+          "label": "Return due date",
+          "to": "Library app",
+          "caption": "The response describes the loan, including which book it covers and when it is due."
+        },
+        {
+          "from": "Reader refresh",
+          "label": "GET again",
+          "to": "Loan URL",
+          "caption": "Using the same URL retrieves the current representation after a librarian extends the loan."
+        }
+      ],
+      "technology": "A web API can return JSON at GET /loans/42 and check the reader's permission on each request."
+    }
   },
   {
     "title": "gRPC",
@@ -1245,7 +2109,32 @@
         "url": "https://grpc.io/docs/what-is-grpc/introduction/",
         "source": "Supplementary"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A dashboard needs a stream of readings from a sensor service. Both teams need to agree on what a reading contains.",
+      "meaning": "gRPC lets services define named calls and typed messages in a shared contract, often a Protocol Buffers file.",
+      "steps": [
+        {
+          "from": "Service contract",
+          "label": "Define reading",
+          "to": "Generated clients",
+          "caption": "The contract names the method and assigns field numbers to device ID and temperature. Tools generate client code from it."
+        },
+        {
+          "from": "Dashboard client",
+          "label": "Subscribe to sensor",
+          "to": "Sensor service",
+          "caption": "The client starts a streaming method for sensor 8."
+        },
+        {
+          "from": "Sensor service",
+          "label": "Stream readings",
+          "to": "Dashboard client",
+          "caption": "The server can send multiple readings on the same call. New fields need fresh numbers so older clients can still decode messages."
+        }
+      ],
+      "technology": "A .proto service definition can declare a server-streaming gRPC method returning a sequence of Reading messages."
+    }
   },
   {
     "title": "GraphQL",
@@ -1290,7 +2179,32 @@
         "url": "https://www.redhat.com/en/topics/api/what-is-graphql",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A phone bookshop needs a title and cover image. The desktop shop also wants an author biography.",
+      "meaning": "GraphQL lets a client name the fields it needs from a schema, which is the API's description of available types and fields.",
+      "steps": [
+        {
+          "from": "Phone client",
+          "label": "Select two fields",
+          "to": "GraphQL API",
+          "caption": "The phone asks for title and cover URL for the book."
+        },
+        {
+          "from": "GraphQL API",
+          "label": "Resolve requested fields",
+          "to": "Book records",
+          "caption": "Functions called resolvers obtain the requested values. Nested fields may require extra reads."
+        },
+        {
+          "from": "GraphQL API",
+          "label": "Return chosen fields",
+          "to": "Phone client",
+          "caption": "The result contains the requested fields. A desktop client can request a different selection from the same API."
+        }
+      ],
+      "technology": "A GraphQL server can batch author lookups made by several book resolvers during one request."
+    }
   },
   {
     "title": "Performance Antipatterns",
@@ -1321,7 +2235,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The lunch rush makes checkout slow. Adding another web server yesterday barely changed the wait.",
+      "meaning": "A performance antipattern is a repeated design choice that creates unnecessary work or waiting under load.",
+      "steps": [
+        {
+          "from": "Slow checkout",
+          "label": "Measure wait",
+          "to": "Request trace",
+          "caption": "A trace breaks one checkout into timed steps. Most time is spent waiting for a database connection."
+        },
+        {
+          "from": "Request trace",
+          "label": "Count open connections",
+          "to": "Pool dashboard",
+          "caption": "The pool is full of idle clients that each request opened and kept. The database has no spare slots."
+        },
+        {
+          "from": "Checkout team",
+          "label": "Reuse clients",
+          "to": "Repeat load test",
+          "caption": "The team tests a shared connection pool under the same demand and checks whether the wait shrinks."
+        }
+      ],
+      "technology": "An OpenTelemetry trace and a database connection-pool metric can reveal where a slow request really waits."
+    }
   },
   {
     "title": "Busy Database",
@@ -1352,7 +2291,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/busy-database/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The orders database is busy drawing invoice PDFs. Meanwhile, simple purchases queue behind it.",
+      "meaning": "A busy database antipattern occurs when work that belongs elsewhere consumes resources needed to store and query data.",
+      "steps": [
+        {
+          "from": "Invoice request",
+          "label": "Run renderer",
+          "to": "Orders database",
+          "caption": "The database spends processor time arranging fonts and graphics while checkouts wait."
+        },
+        {
+          "from": "Orders database",
+          "label": "Return invoice rows",
+          "to": "PDF worker",
+          "caption": "The app changes the flow so the database returns just the invoice data."
+        },
+        {
+          "from": "PDF worker",
+          "label": "Render invoice",
+          "to": "Finished PDF",
+          "caption": "A separate worker draws the document. The database can use more of its time for orders."
+        }
+      ],
+      "technology": "A PostgreSQL query can supply invoice rows to a PDF-generation worker running outside the database."
+    }
   },
   {
     "title": "Busy Frontend",
@@ -1383,7 +2347,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/busy-front-end/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "One upload starts an expensive video resize. Suddenly other visitors' pages take ages to open.",
+      "meaning": "A busy frontend happens when heavy work uses the same resources as the process that serves interactive requests.",
+      "steps": [
+        {
+          "from": "Uploader",
+          "label": "Start resize",
+          "to": "Web process",
+          "caption": "The web process uses its processor for the resize and has less capacity for page requests."
+        },
+        {
+          "from": "Web process",
+          "label": "Queue resize",
+          "to": "Worker queue",
+          "caption": "The app records the job and can send the uploader a pending response."
+        },
+        {
+          "from": "Resize worker",
+          "label": "Process video",
+          "to": "Output file",
+          "caption": "A separately sized worker builds the file while the web process continues serving visitors."
+        }
+      ],
+      "technology": "A web app can use a separate worker process to run FFmpeg instead of running encodes inside its request-serving process."
+    }
   },
   {
     "title": "Chatty I/O",
@@ -1418,7 +2407,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/chatty-io/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A bookshelf loads one author at a time for 30 books. Each answer is tiny, but the page still drags.",
+      "meaning": "Chatty I/O means making many small trips across a slow boundary, such as a network connection.",
+      "steps": [
+        {
+          "from": "Bookshelf page",
+          "label": "Fetch book list",
+          "to": "Book service",
+          "caption": "The list includes 30 author IDs."
+        },
+        {
+          "from": "Book service",
+          "label": "Ask individually",
+          "to": "Author store",
+          "caption": "One request per author pays the network round-trip cost repeatedly. Several books even share an author."
+        },
+        {
+          "from": "Book service",
+          "label": "Batch distinct IDs",
+          "to": "Author store",
+          "caption": "The revised service looks up the needed authors together and matches names back to books."
+        }
+      ],
+      "technology": "A SQL query using a bounded list of author IDs can replace a loop issuing a separate query for each book."
+    }
   },
   {
     "title": "Extraneous Fetching",
@@ -1449,7 +2463,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/extraneous-fetching/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A contact picker displays twenty names, yet opening it downloads every full profile photo.",
+      "meaning": "Extraneous fetching means loading rows or fields that the caller immediately throws away.",
+      "steps": [
+        {
+          "from": "Contact picker",
+          "label": "Request all profiles",
+          "to": "Profile database",
+          "caption": "The database returns names, photos and biography text for every contact."
+        },
+        {
+          "from": "Profile response",
+          "label": "Discard extra fields",
+          "to": "Contact picker",
+          "caption": "The screen displays only twenty names. The extra bytes have already crossed the network."
+        },
+        {
+          "from": "Contact picker",
+          "label": "Request twenty names",
+          "to": "Profile database",
+          "caption": "The improved query selects only IDs and names for the visible page. Photos can wait until a profile opens."
+        }
+      ],
+      "technology": "A SQL SELECT can choose just id and name and apply a page boundary before transferring results."
+    }
   },
   {
     "title": "Improper Instantiation",
@@ -1480,7 +2519,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/improper-instantiation/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Every weather lookup opens a brand-new connection to the same provider. Setup takes longer than the forecast lookup.",
+      "meaning": "Some things are expensive to set up and safe to use again. Creating a new one for every request can leave your app spending most of its time getting ready to work.",
+      "steps": [
+        {
+          "from": "First forecast",
+          "label": "Build new client",
+          "to": "Provider connection",
+          "caption": "The new client opens a connection and completes setup before asking for the forecast."
+        },
+        {
+          "from": "Next forecast",
+          "label": "Build another client",
+          "to": "Another connection",
+          "caption": "Creating a fresh client repeats setup even though the app contacts the same provider."
+        },
+        {
+          "from": "Shared client",
+          "label": "Reuse connection",
+          "to": "Provider connection",
+          "caption": "The app keeps a supported reusable client and supplies each request's own details. Later lookups can borrow existing connections."
+        }
+      ],
+      "technology": "Java's HttpClient can be reused for multiple requests so its connection pool can be reused as well."
+    }
   },
   {
     "title": "Monolithic Persistence",
@@ -1511,7 +2575,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/monolithic-persistence/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A month-end report scans every order. Shoppers using the same database start waiting to pay.",
+      "meaning": "Here the report and checkout both depend on the same database. When one store handles every kind of job, a long report can slow down something as small as buying one item.",
+      "steps": [
+        {
+          "from": "Sales report",
+          "label": "Scan order history",
+          "to": "Checkout database",
+          "caption": "Large scans compete with small checkout updates for the same resources."
+        },
+        {
+          "from": "Checkout database",
+          "label": "Copy order changes",
+          "to": "Reporting store",
+          "caption": "A background feed builds a separate copy shaped for reporting."
+        },
+        {
+          "from": "Sales report",
+          "label": "Scan reporting copy",
+          "to": "Reporting store",
+          "caption": "The report leaves checkout capacity alone. Recent purchases might take a little time to appear in reports."
+        }
+      ],
+      "technology": "A team can keep purchases in PostgreSQL and copy changes into an analytical warehouse such as Amazon Redshift."
+    }
   },
   {
     "title": "No Caching",
@@ -1542,20 +2631,45 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/no-caching/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A shop rebuilds its public category list for every visitor. The list changes only once a day.",
+      "meaning": "The no-caching antipattern is repeatedly loading or computing a reusable answer when serving a recent copy would meet the need.",
+      "steps": [
+        {
+          "from": "First visitor",
+          "label": "Build category list",
+          "to": "Catalog database",
+          "caption": "The app reads and sorts the categories for the home page."
+        },
+        {
+          "from": "Next visitor",
+          "label": "Repeat same work",
+          "to": "Catalog database",
+          "caption": "The list is unchanged, but the database repeats all the work."
+        },
+        {
+          "from": "Home page",
+          "label": "Reuse short-lived copy",
+          "to": "Category cache",
+          "caption": "With a cache, later visitors reuse the list and the app refreshes it after edits or expiry."
+        }
+      ],
+      "technology": "A Redis entry for the public category list can serve many web instances until the app invalidates it."
+    }
   },
   {
     "title": "Noisy Neighbor",
     "section": "Observability",
     "lesson": "Tenants or workloads sharing a finite resource can interfere with one another. Quotas, workload pools, and isolation can bound the impact of a burst.",
     "example": "One customer's batch export uses every database connection. Per-tenant concurrency limits preserve access for others at the cost of slower bulk exports.",
-    "question": "One tenant's burst makes everyone wait for a shared connection pool. Which control protects other tenants?",
+    "question": "Sam’s export is limited to three of the four connections. What happens when Jo opens her profile?",
     "answers": [
-      "A per-tenant concurrency limit",
-      "A longer timeout for every tenant",
-      "A faster retry loop for the loudest tenant"
+      "Jo can use the fourth connection while the export continues.",
+      "Jo still has to wait for all of the export work to finish.",
+      "The database creates four new connections for Jo."
     ],
-    "why": "A concurrency limit caps how much shared capacity one tenant can occupy.",
+    "why": "The limit keeps one of the existing connections available. Sam’s export may take longer, but Jo can use the app while it runs.",
     "detail": "A global limit of 100 active queries keeps the database within capacity but still allows one tenant to claim all 100 slots. Add per-tenant limits or a fair scheduler, and decide whether spare capacity can be borrowed. Monitor delay by tenant because a healthy fleet-wide median can hide severe starvation for smaller customers.",
     "terms": [
       {
@@ -1577,7 +2691,26 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/noisy-neighbor/noisy-neighbor",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Sam exports a year of orders while Jo opens her profile. Her page usually loads right away, but today it just spins.",
+      "meaning": "A database connection lets the app talk to the database. This app has four. When one job uses so many that another person has to wait, engineers call the first job a noisy neighbour.",
+      "steps": [
+        {
+          "from": "Sam’s export",
+          "label": "Uses all four",
+          "to": "Jo waits",
+          "caption": "Sam's export uses all four connections. Jo's profile can load only after one becomes free."
+        },
+        {
+          "from": "Sam’s export",
+          "label": "Uses only three",
+          "to": "Jo gets fourth",
+          "caption": "With the export limited to three connections, Jo uses the fourth to load her profile while the export keeps running."
+        }
+      ],
+      "technology": "If the app uses PostgreSQL, the limit can live in the export worker, the part of the app that builds Sam's file."
+    }
   },
   {
     "title": "Retry Storm",
@@ -1612,7 +2745,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A concert site briefly goes offline. When everyone retries at once, it falls over again.",
+      "meaning": "A retry storm happens when repeated attempts add so much traffic that a struggling service cannot recover.",
+      "steps": [
+        {
+          "from": "Ticket service",
+          "label": "Return busy",
+          "to": "Waiting phones",
+          "caption": "A burst of requests exhausts the service. Many phones receive a temporary failure together."
+        },
+        {
+          "from": "Waiting phones",
+          "label": "Retry together",
+          "to": "Ticket service",
+          "caption": "If every phone retries after exactly one second, the same burst returns."
+        },
+        {
+          "from": "Waiting phones",
+          "label": "Spread later attempts",
+          "to": "Recovering service",
+          "caption": "Increasing delays with a small random variation spread requests over time. A retry limit prevents endless attempts."
+        }
+      ],
+      "technology": "An HTTP client can respect Retry-After and use capped exponential backoff with random jitter for safe retries."
+    }
   },
   {
     "title": "Synchronous I/O",
@@ -1643,7 +2801,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A photo server has plenty of idle processor time, yet every request handler is waiting for a file download.",
+      "meaning": "Synchronous, blocking I/O keeps a worker occupied while it waits for input or output. Nonblocking I/O can free the worker to handle other ready tasks.",
+      "steps": [
+        {
+          "from": "Photo handler",
+          "label": "Wait for file",
+          "to": "Object storage",
+          "caption": "With a blocking read, the worker remains occupied until the file arrives."
+        },
+        {
+          "from": "New photo request",
+          "label": "Wait for worker",
+          "to": "Request queue",
+          "caption": "When all workers are waiting, later requests queue even while the processor is idle."
+        },
+        {
+          "from": "Async handler",
+          "label": "Resume on arrival",
+          "to": "Photo response",
+          "caption": "With nonblocking reads, the runtime can handle other work while a download is pending. Limits still protect storage from too many simultaneous reads."
+        }
+      ],
+      "technology": "Python's asyncio can await an asynchronous storage client while the event loop services other ready tasks."
+    }
   },
   {
     "title": "Monitoring",
@@ -1678,7 +2861,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Customers say checkout is failing. The team needs to know when it started and which step broke.",
+      "meaning": "Monitoring collects observations from a running app so a team can detect trouble and follow the evidence.",
+      "steps": [
+        {
+          "from": "Checkout requests",
+          "label": "Count failures",
+          "to": "Error chart",
+          "caption": "The chart shows failed purchases rising just after noon."
+        },
+        {
+          "from": "Failed purchase",
+          "label": "Follow timed steps",
+          "to": "Request trace",
+          "caption": "A trace follows the request across services and shows the payment call ended in an error."
+        },
+        {
+          "from": "Payment service",
+          "label": "Read event details",
+          "to": "Structured log",
+          "caption": "A log attached to that request records the upstream error code. The team now knows where to investigate."
+        }
+      ],
+      "technology": "OpenTelemetry can attach the same trace ID to a checkout trace and related service logs."
+    }
   },
   {
     "title": "Health Monitoring",
@@ -1709,7 +2917,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#health-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A new search server has started, but its book index is still loading. Sending readers there now would fail.",
+      "meaning": "Health monitoring checks what a component can do. Being alive and being ready to serve visitors are different questions.",
+      "steps": [
+        {
+          "from": "Search process",
+          "label": "Answer alive",
+          "to": "Liveness check",
+          "caption": "The process can respond while its index loads, so restarting it would interrupt useful startup work."
+        },
+        {
+          "from": "Readiness check",
+          "label": "Test search",
+          "to": "Warming index",
+          "caption": "Search results are unavailable while warming up. The router keeps user requests elsewhere."
+        },
+        {
+          "from": "Ready index",
+          "label": "Pass readiness",
+          "to": "Traffic router",
+          "caption": "Once search works, the readiness check passes and the router can include the new server."
+        }
+      ],
+      "technology": "Kubernetes lets a service use readiness probes for traffic and liveness probes to detect instances that need restarting."
+    }
   },
   {
     "title": "Availability Monitoring",
@@ -1740,7 +2973,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#availability-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Every server light is green, but customers say the sign-in button sends them back to the login page.",
+      "meaning": "Availability monitoring measures whether users can complete an important action successfully within an agreed time.",
+      "steps": [
+        {
+          "from": "Test visitor",
+          "label": "Attempt sign-in",
+          "to": "Login service",
+          "caption": "A scheduled test signs in using a dedicated test account."
+        },
+        {
+          "from": "Login service",
+          "label": "Return login page",
+          "to": "Test visitor",
+          "caption": "The server responds, but the test never reaches the account page. It counts this journey as failed."
+        },
+        {
+          "from": "Journey results",
+          "label": "Count successes",
+          "to": "Availability chart",
+          "caption": "The chart measures successful sign-ins out of eligible attempts. Regional tests can reveal where sign-in fails."
+        }
+      ],
+      "technology": "A synthetic browser check can sign in and verify the account screen instead of checking only for an HTTP 200."
+    }
   },
   {
     "title": "Performance Monitoring",
@@ -1771,7 +3029,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#performance-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Most searches feel instant, but a few students wait seconds for results. The average looks fine.",
+      "meaning": "Performance monitoring measures how long work takes, how much gets done, and where requests start waiting.",
+      "steps": [
+        {
+          "from": "Search service",
+          "label": "Time each search",
+          "to": "Duration samples",
+          "caption": "The service measures each completed search so the slow cases stay visible."
+        },
+        {
+          "from": "Duration samples",
+          "label": "Group by speed",
+          "to": "Latency histogram",
+          "caption": "The measurements are grouped into time ranges, such as under 100 ms or over one second."
+        },
+        {
+          "from": "Latency histogram",
+          "label": "Inspect slow edge",
+          "to": "Search dashboard",
+          "caption": "The 99th percentile is a time at or below which about 99% of searches finished. Compare it with traffic to investigate the slow tail."
+        }
+      ],
+      "technology": "A Prometheus histogram can record search latency and support a dashboard estimate of the 99th percentile."
+    }
   },
   {
     "title": "Security Monitoring",
@@ -1802,7 +3085,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#security-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Someone keeps trying to remove project members from an account they cannot administer. The support team needs a trustworthy record.",
+      "meaning": "Security monitoring tracks important access decisions so a team can spot unusual activity and reconstruct what happened.",
+      "steps": [
+        {
+          "from": "Member settings",
+          "label": "Attempt removal",
+          "to": "Access check",
+          "caption": "The app checks whether the current account can remove a project member."
+        },
+        {
+          "from": "Access check",
+          "label": "Record denial",
+          "to": "Audit log",
+          "caption": "The log records the account, action, resource, time and outcome. It leaves passwords and private tokens out."
+        },
+        {
+          "from": "Audit monitor",
+          "label": "Group repeated denials",
+          "to": "Review queue",
+          "caption": "A cluster of denied removals can be sent for review with enough context to investigate."
+        }
+      ],
+      "technology": "An application can write access-controlled audit logs and alert when sensitive denied actions rise unusually fast."
+    }
   },
   {
     "title": "Usage Monitoring",
@@ -1833,7 +3141,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#usage-monitoring",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A lesson gets hundreds of opens, but the teacher wants to know how many learners finish it.",
+      "meaning": "Usage monitoring tracks meaningful actions in the product. Choose events that answer the question you actually have.",
+      "steps": [
+        {
+          "from": "Learner",
+          "label": "Start lesson",
+          "to": "Start event",
+          "caption": "The app records a start with a lesson attempt ID."
+        },
+        {
+          "from": "Learner",
+          "label": "Finish lesson",
+          "to": "Completion event",
+          "caption": "Finishing records an event with the same attempt ID. A repeated upload should count only once."
+        },
+        {
+          "from": "Matched events",
+          "label": "Calculate completion rate",
+          "to": "Teacher dashboard",
+          "caption": "The dashboard divides completed attempts by started attempts for the chosen group and time window."
+        }
+      ],
+      "technology": "A product analytics pipeline can join lesson-start and lesson-complete events by attempt ID."
+    }
   },
   {
     "title": "Instrumentation",
@@ -1873,7 +3206,32 @@
         "url": "https://opentelemetry.io/docs/concepts/what-is-opentelemetry",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A checkout page slowed down after a release, but its code records only total time. Which operation got slower?",
+      "meaning": "Instrumentation means adding a way to observe something inside the code. Timing the payment call separately lets you see whether that call accounts for the slow checkout.",
+      "steps": [
+        {
+          "from": "Checkout handler",
+          "label": "Start timer",
+          "to": "Checkout span",
+          "caption": "A span is one timed piece of work. The handler starts a span for the whole checkout."
+        },
+        {
+          "from": "Checkout span",
+          "label": "Time tax call",
+          "to": "Tax span",
+          "caption": "A smaller span records how much time was spent getting the tax amount."
+        },
+        {
+          "from": "Tax span",
+          "label": "Link timings",
+          "to": "Trace viewer",
+          "caption": "The linked timings show the tax call used most of the checkout's time. Other requests can be compared the same way."
+        }
+      ],
+      "technology": "An OpenTelemetry SDK can create a checkout span and carry its trace context into the tax service."
+    }
   },
   {
     "title": "Visualization & Alerts",
@@ -1904,6 +3262,31 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/monitoring#visualize-data-and-raise-alerts",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A busy shopping site has dozens of charts. Which change is serious enough to wake someone at night?",
+      "meaning": "A visualization helps people inspect data, while an alert asks someone to act when an important condition holds.",
+      "steps": [
+        {
+          "from": "Checkout results",
+          "label": "Plot failures",
+          "to": "Time chart",
+          "caption": "The chart shows failures by time and region, making the start of the problem visible."
+        },
+        {
+          "from": "Alert rule",
+          "label": "Check sustained harm",
+          "to": "Purchase failures",
+          "caption": "A brief blip may disappear. A sustained failure rate high enough to threaten the purchase objective meets the paging rule."
+        },
+        {
+          "from": "Alert manager",
+          "label": "Page owner",
+          "to": "On-call engineer",
+          "caption": "The page links to the regional chart and the checkout runbook so the responder can begin in the right place."
+        }
+      ],
+      "technology": "Grafana can display checkout failures and route a matching alert to the team's notification channel."
+    }
   }
 ]

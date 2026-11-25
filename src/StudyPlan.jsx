@@ -10,9 +10,15 @@ export function StudyPlan({ p, start }) {
     (n, c) =>
       n +
       [
-        c.lesson,
-        c.detail,
-        c.example,
+        c.story.intro,
+        c.story.meaning,
+        ...c.story.steps.flatMap((step) => [
+          step.from,
+          step.label,
+          step.to,
+          step.caption,
+        ]),
+        c.story.technology,
         ...c.terms.flatMap((t) => [t.term, t.definition]),
       ]
         .join(" ")
@@ -38,10 +44,10 @@ export function StudyPlan({ p, start }) {
         <h2>Read the field guide</h2>
         <p>
           {unread.length} lessons left. At 150–200 words per minute, the
-          remaining core notes, examples, and key terms take about{" "}
+          remaining stories, diagrams, and key terms take about{" "}
           {Math.ceil(words / 200)}–{Math.ceil(words / 150)} minutes of reading.
-          Allow extra time for cloud walkthroughs, comparison tables, breaks,
-          and questions.
+          Allow extra time for technical notes, cloud examples, comparisons,
+          breaks, and questions.
         </p>
         <p>
           Try a ten-minute reading block. Bookmark anything you couldn’t explain

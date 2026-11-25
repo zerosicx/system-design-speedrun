@@ -38,7 +38,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Mina writes her grocery list on a train. She closes the app as the train enters a tunnel. Will the list be there when she reopens it?",
+      "meaning": "Start designing by naming one action someone takes and what they should be able to rely on afterward.",
+      "steps": [
+        {
+          "from": "Mina",
+          "label": "types",
+          "to": "Grocery list",
+          "caption": "The screen shows “rice,” but text on a screen can disappear when the app closes."
+        },
+        {
+          "from": "List editor",
+          "label": "saves locally",
+          "to": "Phone storage",
+          "caption": "If the promise is “open it again offline,” the phone needs a lasting copy."
+        },
+        {
+          "from": "Reopened app",
+          "label": "loads from",
+          "to": "Phone storage",
+          "caption": "Reading that copy fulfills the promise even while the train has no signal."
+        }
+      ],
+      "technology": "A browser app can use IndexedDB, storage kept on the device, to reopen a locally saved list."
+    }
   },
   {
     "title": "What is System Design?",
@@ -74,7 +99,32 @@
         "url": "https://www.crio.do/blog/a-comprehensive-guide-to-system-design/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two friends tap “book” on the last seat at a pottery class. What should happen on their screens?",
+      "meaning": "System design decides which parts of a product do which jobs, how they exchange information and who gets the final say when requests collide.",
+      "steps": [
+        {
+          "from": "Both phones",
+          "label": "request",
+          "to": "Seat 8",
+          "caption": "Each phone saw the same free seat before either friend tapped."
+        },
+        {
+          "from": "Booking service",
+          "label": "tries to reserve",
+          "to": "Seat record",
+          "caption": "The service asks storage to claim seat 8 only if it is still free. One request wins."
+        },
+        {
+          "from": "Booking service",
+          "label": "replies separately",
+          "to": "Both phones",
+          "caption": "One friend receives a booking number. The other can pick a different class."
+        }
+      ],
+      "technology": "A SQL database can enforce a unique booking for each class and seat even when two web servers handle the requests."
+    }
   },
   {
     "title": "How to approach System Design?",
@@ -115,7 +165,32 @@
         "url": "https://www.youtube.com/watch?v=ZgdS0EUmn70",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A school wants a photo wall for sports day. Before drawing servers, find out what will happen at the finish line.",
+      "meaning": "Start with a user's action, estimate the busiest moment, sketch its path, then test the sketch against one likely problem.",
+      "steps": [
+        {
+          "from": "Teacher",
+          "label": "describes rush",
+          "to": "Photo uploads",
+          "caption": "The class expects 10 photos each second just after a race finishes."
+        },
+        {
+          "from": "10 photos/s",
+          "label": "at 2 MB each",
+          "to": "20 MB/s",
+          "caption": "The upload path must accept about 20 megabytes every second during that rush."
+        },
+        {
+          "from": "Upload sketch",
+          "label": "tested against",
+          "to": "Finish-line burst",
+          "caption": "Try that rate and check where photos wait. The slowest part tells you what needs changing."
+        }
+      ],
+      "technology": "A load test can send sample photos to an upload endpoint at the estimated peak rate and time completed uploads."
+    }
   },
   {
     "title": "Performance vs Scalability",
@@ -151,7 +226,32 @@
         "url": "https://blog.professorbeekums.com/performance-vs-scalability/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Your search page feels snappy at home. Will it still feel snappy when the whole class searches together?",
+      "meaning": "Performance describes how a system behaves at one workload. Scalability describes how much extra work it can handle when you give it more resources.",
+      "steps": [
+        {
+          "from": "One server",
+          "label": "serves",
+          "to": "100 searches/s",
+          "caption": "At this load almost every search finishes within your 200-millisecond target."
+        },
+        {
+          "from": "Two servers",
+          "label": "tested at",
+          "to": "190 searches/s",
+          "caption": "Almost every search still meets the same target. Added capacity handles nearly twice the work."
+        },
+        {
+          "from": "Two servers",
+          "label": "tested at",
+          "to": "250 searches/s",
+          "caption": "Requests start queuing at the shared database. Adding web servers alone has a limit."
+        }
+      ],
+      "technology": "A load test can record completed requests per second alongside the percentage finishing within 200 milliseconds."
+    }
   },
   {
     "title": "Latency vs Throughput",
@@ -187,7 +287,32 @@
         "url": "https://www.youtube.com/watch?v=3HIV4MnLGCw",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A photo printer groups orders into batches. More prints leave the shop each minute, yet your own print takes longer.",
+      "meaning": "Latency is the time one item takes from start to finish. Throughput is how many items finish in a period.",
+      "steps": [
+        {
+          "from": "One-photo mode",
+          "label": "prints",
+          "to": "60 photos/min",
+          "caption": "In this example a photo with an idle printer finishes in one second."
+        },
+        {
+          "from": "Batch of 10",
+          "label": "prints in",
+          "to": "5 seconds",
+          "caption": "Sending ten together saves setup work. With full batches the printer can finish 120 per minute."
+        },
+        {
+          "from": "First arrival",
+          "label": "waits for",
+          "to": "Other 9 photos",
+          "caption": "If it waits four seconds to fill the batch, its print takes nine seconds from arrival to completion."
+        }
+      ],
+      "technology": "A worker can record a job's arrival and completion times and count all completed jobs per minute."
+    }
   },
   {
     "title": "Availability vs Consistency",
@@ -228,7 +353,32 @@
         "url": "https://www.youtube.com/watch?v=_RbsFXWRZ10&t=1s",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two kiosk screens show the last picnic table. The link between kiosks breaks just before two families tap reserve.",
+      "meaning": "A kiosk could confirm a booking from its own copy, even while the other kiosk is offline. But if both confirm the last table, one family will lose it. A booking system may make someone wait so it can keep that promise.",
+      "steps": [
+        {
+          "from": "North kiosk",
+          "label": "loses contact",
+          "to": "South kiosk",
+          "caption": "Each still has an earlier record saying the table is free."
+        },
+        {
+          "from": "Both kiosks",
+          "label": "can display",
+          "to": "Picnic map",
+          "caption": "A slightly old map is still useful to visitors browsing the park."
+        },
+        {
+          "from": "South kiosk",
+          "label": "pauses",
+          "to": "Reservation",
+          "caption": "Only the north site can confirm a reservation in this design. The south kiosk cannot safely promise the table."
+        }
+      ],
+      "technology": "A booking API can return cached park information while requiring a reachable reservation database before issuing a confirmation."
+    }
   },
   {
     "title": "CAP Theorem",
@@ -264,7 +414,32 @@
         "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A lamp switch in one building changes from off to on. A screen in another building loses its network link at that exact moment.",
+      "meaning": "CAP stands for consistency, availability, and partition tolerance. A partition is a break in communication. While the link is broken, the east screen has a choice. It can answer now and risk showing an old value, or wait to check what the west side saved.",
+      "steps": [
+        {
+          "from": "West switch",
+          "label": "saves",
+          "to": "Lamp on",
+          "caption": "The west system confirms the change before anyone asks the east screen."
+        },
+        {
+          "from": "Broken link",
+          "label": "blocks update",
+          "to": "East copy",
+          "caption": "From the east side, the history looks identical to one in which nobody touched the switch."
+        },
+        {
+          "from": "East screen",
+          "label": "must decide",
+          "to": "Answer or wait",
+          "caption": "Answering “off” can be stale. Waiting for a link that never recovers would leave the request unanswered."
+        }
+      ],
+      "technology": "You can demonstrate CAP with two value stores by pausing messages between them, writing to one and then reading from the other."
+    }
   },
   {
     "title": "AP - Availability + Partition Tolerance",
@@ -300,7 +475,32 @@
         "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "You add tea to a shared list on a flight. Your flatmate adds bread from home before your phone reconnects.",
+      "meaning": "An availability-first design accepts changes on reachable copies during a network split and defines how those changes will be combined later.",
+      "steps": [
+        {
+          "from": "Phone copy",
+          "label": "adds",
+          "to": "Tea",
+          "caption": "The phone saves a local addition and tells you it succeeded while offline."
+        },
+        {
+          "from": "Home copy",
+          "label": "adds",
+          "to": "Bread",
+          "caption": "Your flatmate gets a successful response without waiting for your phone."
+        },
+        {
+          "from": "Reconnected copies",
+          "label": "merge additions",
+          "to": "Tea and bread",
+          "caption": "Each addition carries its own identity, so both copies can keep both items after exchanging changes."
+        }
+      ],
+      "technology": "An offline list app can store additions under distinct IDs in IndexedDB and merge matching IDs when devices synchronize."
+    }
   },
   {
     "title": "CP - Consistency + Partition Tolerance",
@@ -336,7 +536,32 @@
         "url": "https://www.youtube.com/watch?v=k-Yaq8AHlFA",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Three servers keep the official count of remaining concert seats. One loses contact with the other two.",
+      "meaning": "A consistency-first design lets only servers with enough agreement confirm changes during a split. A customer reaching an isolated server may need to try again.",
+      "steps": [
+        {
+          "from": "Three voters",
+          "label": "split into",
+          "to": "Pair and singleton",
+          "caption": "The pair can still exchange votes. The third server cannot tell whether its peers are down or merely unreachable."
+        },
+        {
+          "from": "Connected pair",
+          "label": "commits",
+          "to": "Seat reservation",
+          "caption": "Two votes form a majority of three and can confirm the next change under the voting protocol."
+        },
+        {
+          "from": "Isolated server",
+          "label": "withholds",
+          "to": "Confirmation",
+          "caption": "Its old seat count cannot establish who owns a remaining seat. It must avoid confirming a competing reservation."
+        }
+      ],
+      "technology": "An etcd cluster uses the Raft voting protocol and needs a majority of members to commit new writes."
+    }
   },
   {
     "title": "Consistency Patterns",
@@ -367,7 +592,32 @@
         "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Ari changes their profile picture and refreshes. One screen still shows the old photo, while another already shows the new one.",
+      "meaning": "A consistency pattern states what a reader is allowed to see when copies of information change at different times.",
+      "steps": [
+        {
+          "from": "Ari's edit",
+          "label": "creates",
+          "to": "Version 4",
+          "caption": "The editing service gives Ari a marker for the version it just saved."
+        },
+        {
+          "from": "Ari's refresh",
+          "label": "asks for",
+          "to": "Version 4 or later",
+          "caption": "The app passes that marker along so Ari can see their own successful edit."
+        },
+        {
+          "from": "Other viewer",
+          "label": "reads",
+          "to": "Version 3",
+          "caption": "The product allows other viewers to see an older picture until their nearby copy catches up."
+        }
+      ],
+      "technology": "A read API can accept a minimum-version token and use a server that has already applied that version."
+    }
   },
   {
     "title": "Weak Consistency",
@@ -398,7 +648,32 @@
         "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "You watch a teammate's cursor move across a drawing. An old position arrives after a newer one.",
+      "meaning": "Weak consistency gives readers limited promises about which updates they will observe or how soon. For a moving pointer, seeing a useful recent position may be enough.",
+      "steps": [
+        {
+          "from": "Drawing tablet",
+          "label": "sends",
+          "to": "Position 42",
+          "caption": "Each update contains the cursor's current position and a rising sequence number."
+        },
+        {
+          "from": "Viewer",
+          "label": "receives first",
+          "to": "Position 43",
+          "caption": "The viewer can draw the newest known position before update 42 arrives."
+        },
+        {
+          "from": "Late position 42",
+          "label": "discarded by",
+          "to": "Viewer",
+          "caption": "Moving backward would look jumpy. The app can safely skip this intermediate point."
+        }
+      ],
+      "technology": "A live cursor service can keep the largest sequence number seen from each participant and ignore older position packets."
+    }
   },
   {
     "title": "Eventual Consistency",
@@ -429,7 +704,32 @@
         "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two book clubs share a reading list. One club's tablet misses a new title while its Wi-Fi is down.",
+      "meaning": "Eventually consistent copies can show different answers for a while. If changes stop and the copies can exchange and reconcile their updates, they come to agree.",
+      "steps": [
+        {
+          "from": "Library server",
+          "label": "adds",
+          "to": "Book C",
+          "caption": "Its list is now A, B and C. The disconnected tablet still shows A and B."
+        },
+        {
+          "from": "Tablet",
+          "label": "requests missing",
+          "to": "List changes",
+          "caption": "After reconnecting, the tablet tells the server the last change it received."
+        },
+        {
+          "from": "Library server",
+          "label": "delivers",
+          "to": "Book C",
+          "caption": "With the missing addition applied and no more edits, the two lists match."
+        }
+      ],
+      "technology": "A sync service can keep a numbered change log and replay recent entries when a device reconnects."
+    }
   },
   {
     "title": "Strong Consistency",
@@ -460,7 +760,32 @@
         "url": "https://cs.fyi/guide/consistency-patterns-week-strong-eventual/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An organizer closes registration. A visitor who clicks the link afterward must see that registration is closed.",
+      "meaning": "Once the app confirms that registration is closed, the next visitor should see “closed.” That promise, even if the visitor asks a different server, is one form of strong consistency. Engineers call it linearizability.",
+      "steps": [
+        {
+          "from": "Organizer",
+          "label": "sets",
+          "to": "Registration closed",
+          "caption": "The app waits for the authoritative store to confirm the change."
+        },
+        {
+          "from": "Saved change",
+          "label": "precedes",
+          "to": "Visitor lookup",
+          "caption": "The visitor starts checking registration after the organizer sees confirmation."
+        },
+        {
+          "from": "Trusted read",
+          "label": "returns",
+          "to": "Closed",
+          "caption": "An old server showing “open” cannot answer this lookup unless it verifies its information is current."
+        }
+      ],
+      "technology": "An etcd client can use a linearizable read for a registration flag when callers need the latest completed value."
+    }
   },
   {
     "title": "Availability Patterns",
@@ -496,7 +821,32 @@
         "url": "https://www.youtube.com/watch?v=LdvduBxZRLs",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "One of two kitchens at a festival loses power. Can the other kitchen still serve the lunch crowd?",
+      "meaning": "Availability patterns keep a service useful through failures. Backup capacity helps only when the surviving route and the things it depends on still work.",
+      "steps": [
+        {
+          "from": "Kitchen A",
+          "label": "loses",
+          "to": "Power",
+          "caption": "Its order terminal stops accepting lunch orders."
+        },
+        {
+          "from": "Order desk",
+          "label": "routes to",
+          "to": "Kitchen B",
+          "caption": "The surviving kitchen needs its own working power supply and enough spare capacity."
+        },
+        {
+          "from": "Kitchen B",
+          "label": "offers",
+          "to": "Short lunch menu",
+          "caption": "Dropping slow dishes can keep basic service available during the outage."
+        }
+      ],
+      "technology": "A web service can route to a second availability zone and temporarily omit a slow recommendations feature."
+    }
   },
   {
     "title": "Fail-Over",
@@ -532,7 +882,32 @@
         "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "The server recording race results freezes halfway through a meet. A second server has a copy of the scores.",
+      "meaning": "Failover transfers a job to a replacement after a failure. For a job with one writer, the old server must lose its ability to change the official record before another takes over.",
+      "steps": [
+        {
+          "from": "Race monitor",
+          "label": "detects",
+          "to": "Unresponsive writer",
+          "caption": "Missing checks start the recovery process. Silence by itself does not prove the old server is dead."
+        },
+        {
+          "from": "Coordinator",
+          "label": "revokes",
+          "to": "Old write authority",
+          "caption": "Storage rejects writes carrying the previous authority token, even if the old server wakes up."
+        },
+        {
+          "from": "Standby server",
+          "label": "becomes",
+          "to": "Results writer",
+          "caption": "The new writer receives a valid token and the scorer reconnects to it."
+        }
+      ],
+      "technology": "A storage service can require an increasing fencing token on writes and reject any token older than the current writer's."
+    }
   },
   {
     "title": "Active - Active",
@@ -568,7 +943,32 @@
         "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two regions already answer traffic for a language-learning app. What happens to the waiting line if one region drops out?",
+      "meaning": "In active-active operation, multiple locations serve real users at the same time. The surviving location needs room for traffic that used to go elsewhere.",
+      "steps": [
+        {
+          "from": "Region A",
+          "label": "handles",
+          "to": "60 requests/s",
+          "caption": "It can serve at most 100 per second in this example."
+        },
+        {
+          "from": "Region B",
+          "label": "also handles",
+          "to": "60 requests/s",
+          "caption": "Another 100-per-second region serves the other half of 120 requests each second."
+        },
+        {
+          "from": "Region A fails",
+          "label": "shifts load to",
+          "to": "Region B",
+          "caption": "The survivor receives 120 requests each second but can finish only 100. Without relief the queue grows by 20 per second."
+        }
+      ],
+      "technology": "A regional load test can send the combined peak traffic to one pool to check its failure capacity."
+    }
   },
   {
     "title": "Active - Passive",
@@ -604,7 +1004,32 @@
         "url": "https://www.serverion.com/uncategorized/active-passive-vs-active-active-failover/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A gallery sells tickets from one location while a second ticket service waits on standby. How long will a switch actually take?",
+      "meaning": "One ticket service does the work while another waits to take over. The backup may need time to start enough servers or load the latest ticket data.",
+      "steps": [
+        {
+          "from": "Ticket service",
+          "label": "copies bookings to",
+          "to": "Standby",
+          "caption": "The standby has a recent booking record but serves no ordinary ticket traffic."
+        },
+        {
+          "from": "Primary fault",
+          "label": "triggers",
+          "to": "Standby promotion",
+          "caption": "The replacement first needs authority to issue tickets and enough capacity for visitors."
+        },
+        {
+          "from": "Ticket desk",
+          "label": "switches to",
+          "to": "New primary",
+          "caption": "A successful purchase shows that the recovery path works from a customer's perspective."
+        }
+      ],
+      "technology": "A database failover drill can time a real test purchase and check which pre-failure bookings survived on the promoted standby."
+    }
   },
   {
     "title": "Replication",
@@ -640,7 +1065,32 @@
         "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A recipe app says your edit was saved. Then its storage server fails before another server receives the change.",
+      "meaning": "Replication keeps copies of data on multiple machines. The point at which a system says “saved” determines what the user can rely on after a failure.",
+      "steps": [
+        {
+          "from": "Recipe writer",
+          "label": "stores",
+          "to": "New recipe",
+          "caption": "The first machine has the edit on its own storage."
+        },
+        {
+          "from": "Recipe writer",
+          "label": "acknowledges",
+          "to": "Cook's phone",
+          "caption": "In this asynchronous design it responds before checking whether a second machine has saved the edit."
+        },
+        {
+          "from": "Writer fails",
+          "label": "leaves",
+          "to": "Older replica",
+          "caption": "The promoted copy still has yesterday's recipe. Waiting for a second durable copy before acknowledging would change this particular outcome."
+        }
+      ],
+      "technology": "A database can ship a continuous change log to a standby and expose how far behind that standby is."
+    }
   },
   {
     "title": "Master - Slave",
@@ -676,7 +1126,32 @@
         "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Sam changes a parcel address and sees the old address on refresh. Their read reached a different database server.",
+      "meaning": "Also called primary-replica, this setup has one database server accept writes. Other servers copy its changes and can serve reads as the product allows.",
+      "steps": [
+        {
+          "from": "Sam's phone",
+          "label": "updates",
+          "to": "Primary database",
+          "caption": "The primary saves Unit 7 and confirms the edit."
+        },
+        {
+          "from": "Read replica",
+          "label": "still shows",
+          "to": "Unit 5",
+          "caption": "The copy has not applied the newest change yet."
+        },
+        {
+          "from": "Sam's refresh",
+          "label": "reads from",
+          "to": "Primary database",
+          "caption": "Routing this read to the server that accepted the edit shows Unit 7 immediately."
+        }
+      ],
+      "technology": "An application using PostgreSQL can send profile updates to the primary and use a read replica for less time-sensitive lookups."
+    }
   },
   {
     "title": "Master - Master",
@@ -712,7 +1187,32 @@
         "url": "https://www.enjoyalgorithms.com/blog/introduction-to-database-replication-system-design",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two cafés can rename the same drink while their systems are disconnected. What name will the shared menu show later?",
+      "meaning": "Also called multi-leader replication, this lets several locations accept writes and copy them to one another. Conflicting changes need an explicit rule.",
+      "steps": [
+        {
+          "from": "East café",
+          "label": "renames drink",
+          "to": "Iced cocoa",
+          "caption": "The east location commits this name before it can send the change west."
+        },
+        {
+          "from": "West café",
+          "label": "renames drink",
+          "to": "Cold cocoa",
+          "caption": "The west location independently changes the same menu entry."
+        },
+        {
+          "from": "Menu sync",
+          "label": "finds",
+          "to": "Competing names",
+          "caption": "Both cafés accepted a real edit. The app can preserve both versions for a manager to resolve."
+        }
+      ],
+      "technology": "A multi-site menu service can assign ownership of each drink to one café to reduce concurrent changes to the same record."
+    }
   },
   {
     "title": "Availability in Numbers",
@@ -748,7 +1248,32 @@
         "url": "https://uptime.is/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A music app completed 9,980 of 10,000 song-start requests this morning. Did it meet its goal?",
+      "meaning": "Decide what counts as success, then divide the number of successes by the number of attempts. For this app, success could mean a song actually starts within two seconds.",
+      "steps": [
+        {
+          "from": "10,000 starts",
+          "label": "include",
+          "to": "9,980 successes",
+          "caption": "Define success as playback beginning within the chosen time limit."
+        },
+        {
+          "from": "9,980 ÷ 10,000",
+          "label": "equals",
+          "to": "99.8%",
+          "caption": "Count requests using the same definition and window as the goal."
+        },
+        {
+          "from": "99.9% goal",
+          "label": "allows",
+          "to": "10 failures",
+          "caption": "Twenty starts failed, so the service used twice the allowed failures in this window."
+        }
+      ],
+      "technology": "An API counter can record all eligible starts and the subset that begin playback within the target time."
+    }
   },
   {
     "title": "99.9% Availability - three 9s",
@@ -784,7 +1309,32 @@
         "url": "https://uptime.is/99.9",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Your club promises its ticket page will be up 99.9% of a 30-day month. Is there room for a 40-minute outage?",
+      "meaning": "Three nines leaves one thousandth of the measurement window unavailable. For a time-based target, convert the window into minutes before calculating the allowance.",
+      "steps": [
+        {
+          "from": "30 days",
+          "label": "contain",
+          "to": "43,200 minutes",
+          "caption": "Multiply 30 days by 24 hours and 60 minutes an hour."
+        },
+        {
+          "from": "43,200 minutes",
+          "label": "times 0.001",
+          "to": "43.2 minutes",
+          "caption": "That is the full downtime allowance for this particular month."
+        },
+        {
+          "from": "43.2-minute budget",
+          "label": "minus 40 minutes",
+          "to": "3.2 minutes",
+          "caption": "Another four-minute outage in the same window would put the club over its target."
+        }
+      ],
+      "technology": "A time-based uptime report can total failed intervals during the 30-day window and compare their length with 43.2 minutes."
+    }
   },
   {
     "title": "99.99% Availability - four 9s",
@@ -820,7 +1370,32 @@
         "url": "https://uptime.is/99.99",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A payment team promises four nines of uptime. One five-minute interruption might sound tiny over an entire month.",
+      "meaning": "Four nines leaves one ten-thousandth of the measured time for outages. A small change in the percentage gives you far less recovery time.",
+      "steps": [
+        {
+          "from": "30 days",
+          "label": "contain",
+          "to": "43,200 minutes",
+          "caption": "Use a full 30-day interval to make the comparison precise."
+        },
+        {
+          "from": "43,200 minutes",
+          "label": "times 0.0001",
+          "to": "4.32 minutes",
+          "caption": "Four nines leaves about four minutes and nineteen seconds for the whole window."
+        },
+        {
+          "from": "5-minute outage",
+          "label": "exceeds allowance by",
+          "to": "0.68 minutes",
+          "caption": "The interruption alone is about 41 seconds over budget, even if everything else ran perfectly."
+        }
+      ],
+      "technology": "A payment uptime dashboard can show remaining seconds alongside the percentage so operators can see the cost of a slow recovery."
+    }
   },
   {
     "title": "Availability in Parallel vs Sequence",
@@ -861,7 +1436,32 @@
         "url": "https://uptime.is/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A bike locker needs a working lock and a working reader. Would a second reader help if the lock still jams?",
+      "meaning": "Required parts in sequence must all work. Interchangeable parts in parallel need only one working path. Simple probability calculations assume the failures are independent.",
+      "steps": [
+        {
+          "from": "99% lock",
+          "label": "requires",
+          "to": "99% reader",
+          "caption": "With independent failures, success is 0.99 × 0.99, or 98.01%."
+        },
+        {
+          "from": "Two 99% readers",
+          "label": "both fail",
+          "to": "0.01% of time",
+          "caption": "If either reader can open the lock, both must fail to lose the reader function. Multiply 0.01 by 0.01."
+        },
+        {
+          "from": "99% lock",
+          "label": "requires",
+          "to": "99.99% reader pair",
+          "caption": "With perfect switching and independent failures, the whole locker reaches about 98.99%. The single lock still matters."
+        }
+      ],
+      "technology": "A dependency diagram for a checkout flow can distinguish mandatory steps from redundant servers that can each perform the same step."
+    }
   },
   {
     "title": "Background Jobs",
@@ -892,7 +1492,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A teacher asks a school app to export a year of photos. The export takes too long to keep the page waiting.",
+      "meaning": "A background job records work now and lets a separate process do it later. The request can finish once the system can keep its promise to do the work.",
+      "steps": [
+        {
+          "from": "Teacher",
+          "label": "requests",
+          "to": "Photo export",
+          "caption": "The app creates job 27 and saves it in a durable queue, a waiting list that survives a restart."
+        },
+        {
+          "from": "API",
+          "label": "returns",
+          "to": "Receipt 27",
+          "caption": "The teacher can leave the page while the export waits for a worker."
+        },
+        {
+          "from": "Worker",
+          "label": "completes",
+          "to": "Export 27",
+          "caption": "The worker stores the file and marks the job ready. A repeated attempt uses the same job ID."
+        }
+      ],
+      "technology": "An export worker can read jobs from a database table and write each completed file under its job ID."
+    }
   },
   {
     "title": "Event-Driven",
@@ -923,7 +1548,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#event-driven-triggers",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A library wants a newly returned book to appear on the shelf screen and notify the next reader. The returns desk should finish quickly.",
+      "meaning": "An event announces a fact that already happened. Interested programs receive that fact and perform their own jobs.",
+      "steps": [
+        {
+          "from": "Returns desk",
+          "label": "records",
+          "to": "Book returned",
+          "caption": "The library records the return and an outgoing event together so the announcement can survive a restart."
+        },
+        {
+          "from": "Event publisher",
+          "label": "delivers to",
+          "to": "Shelf display",
+          "caption": "The shelf display updates its view when it receives the event for that book."
+        },
+        {
+          "from": "Same event",
+          "label": "also reaches",
+          "to": "Hold notifier",
+          "caption": "A separate program checks the waiting list. It tracks the event ID to avoid notifying the same reader twice."
+        }
+      ],
+      "technology": "A returns service can save an event beside the return in one database transaction, then publish it from the saved record."
+    }
   },
   {
     "title": "Schedule Driven",
@@ -954,7 +1604,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#schedule-driven-triggers",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A reading app sends a weekly recap every Monday morning. A restart just after nine should not send one reader two recaps.",
+      "meaning": "A schedule triggers work at a chosen time or interval. Each run needs a clear period to cover so delayed runs and retries can be handled correctly.",
+      "steps": [
+        {
+          "from": "Monday schedule",
+          "label": "starts",
+          "to": "Last week's recap",
+          "caption": "The scheduler passes the previous week's dates and the reader's ID to the job."
+        },
+        {
+          "from": "Recap worker",
+          "label": "records",
+          "to": "Week and reader",
+          "caption": "Those two values identify one recap even if the worker runs on Tuesday."
+        },
+        {
+          "from": "Restarted scheduler",
+          "label": "checks",
+          "to": "Recorded recap",
+          "caption": "The system reuses the same job identity and avoids starting a second send for the same completed recap."
+        }
+      ],
+      "technology": "A scheduled worker can use a database uniqueness constraint on reader ID and week, and pass that key to a delivery service that supports deduplication."
+    }
   },
   {
     "title": "Returning Results",
@@ -985,7 +1660,32 @@
         "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/background-jobs#returning-results",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Nico requests a PDF report on their phone, then loses signal. On reconnecting, the app should find the same report.",
+      "meaning": "A slow request can return a job receipt first. The client then uses that receipt to look up progress and retrieve the finished result.",
+      "steps": [
+        {
+          "from": "Report API",
+          "label": "issues",
+          "to": "Job 91",
+          "caption": "The API responds that it accepted the request and gives Nico a status address for job 91."
+        },
+        {
+          "from": "Report worker",
+          "label": "updates",
+          "to": "Job 91",
+          "caption": "The worker saves the finished PDF before changing the status to ready."
+        },
+        {
+          "from": "Nico's phone",
+          "label": "reopens",
+          "to": "Job 91",
+          "caption": "The status endpoint checks Nico's access and returns the file link, even though the original connection ended."
+        }
+      ],
+      "technology": "An HTTP API can return 202 Accepted with a status URL and serve the completed PDF after the user signs back in."
+    }
   },
   {
     "title": "Domain Name System",
@@ -1016,7 +1716,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#domain-name-system",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "You type the school newspaper's name into a browser. How does your phone know which computer to contact?",
+      "meaning": "The Domain Name System, or DNS, looks up records for names. A resolver does the lookup for your device and can reuse a recent answer.",
+      "steps": [
+        {
+          "from": "Phone",
+          "label": "asks",
+          "to": "DNS resolver",
+          "caption": "The phone needs an address for the newspaper's hostname before it opens a connection."
+        },
+        {
+          "from": "Resolver",
+          "label": "looks up",
+          "to": "Address record",
+          "caption": "On a cache miss, the resolver follows the naming hierarchy to the server responsible for the name."
+        },
+        {
+          "from": "Resolver",
+          "label": "returns",
+          "to": "Server address",
+          "caption": "The phone uses that address to connect. The resolver may reuse the answer for the record's allowed lifetime."
+        }
+      ],
+      "technology": "An A record maps a hostname to an IPv4 address, and its time-to-live value tells ordinary resolvers how long to cache it."
+    }
   },
   {
     "title": "Content Delivery Networks",
@@ -1052,7 +1777,32 @@
         "url": "https://en.wikipedia.org/wiki/Content_delivery_network",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Readers in several countries open the same large photo. Sending every copy from the photographer's server makes distant readers wait.",
+      "meaning": "A content delivery network, or CDN, can keep copies on servers close to readers. Requests for the same public file can reuse those copies.",
+      "steps": [
+        {
+          "from": "First reader",
+          "label": "requests",
+          "to": "Nearby CDN server",
+          "caption": "The server checks for a usable cached copy of the photo."
+        },
+        {
+          "from": "CDN server",
+          "label": "fetches from",
+          "to": "Photo origin",
+          "caption": "On a miss it asks the original file server for the image and can store a copy under the photo URL."
+        },
+        {
+          "from": "Second reader",
+          "label": "gets",
+          "to": "Cached photo",
+          "caption": "A reader reaching the same cache can receive the photo without a new trip to the origin."
+        }
+      ],
+      "technology": "A CDN can cache a public image at a versioned URL and leave private account pages outside its shared cache."
+    }
   },
   {
     "title": "Push CDNs",
@@ -1083,7 +1833,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A festival will reveal a trailer at noon. The first crowd should get the file without waiting for it to move from the studio.",
+      "meaning": "With push distribution, the publisher supplies files to CDN storage before people request them. The release process decides what to place and when.",
+      "steps": [
+        {
+          "from": "Film studio",
+          "label": "uploads",
+          "to": "Trailer v2",
+          "caption": "The studio sends the finished file to CDN storage before announcing the release."
+        },
+        {
+          "from": "Release team",
+          "label": "checks",
+          "to": "Published copies",
+          "caption": "The team verifies the promised locations can serve this version before making the viewing link public."
+        },
+        {
+          "from": "Noon audience",
+          "label": "requests",
+          "to": "Trailer v2",
+          "caption": "Prepared locations can serve immediately, even if one location ends up with very few viewers."
+        }
+      ],
+      "technology": "A release script can upload versioned media to a push CDN's storage and publish the new viewing link after verifying delivery."
+    }
   },
   {
     "title": "Pull CDNs",
@@ -1114,7 +1889,32 @@
         "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A wildlife archive has thousands of bird photos. A small town might only look up one local species.",
+      "meaning": "With a pull CDN, a cache fetches a file from its source when it needs the file. Actual requests determine which files get stored at each location.",
+      "steps": [
+        {
+          "from": "Birdwatcher",
+          "label": "requests",
+          "to": "Heron photo",
+          "caption": "The local CDN cache has no copy of the heron yet."
+        },
+        {
+          "from": "Local cache",
+          "label": "pulls from",
+          "to": "Archive server",
+          "caption": "The first request pays the extra trip to retrieve the file and can populate the local cache."
+        },
+        {
+          "from": "Next birdwatcher",
+          "label": "loads from",
+          "to": "Local cache",
+          "caption": "While the copy is fresh, the nearby cache handles the request and the archive avoids another transfer."
+        }
+      ],
+      "technology": "A CDN distribution with an object-storage origin can fill a regional cache on the first request for each public image."
+    }
   },
   {
     "title": "Load Balancers",
@@ -1150,7 +1950,40 @@
         "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two servers can search the same library catalogue. When Maya looks up a book, who decides which server gets her search?",
+      "meaning": "A load balancer is the front door for a group of servers. The app sends its request to one address. The load balancer picks a server that can take the work.",
+      "steps": [
+        {
+          "from": "Library app",
+          "label": "Search for frogs",
+          "to": "Load balancer",
+          "caption": "Maya searches for books about frogs. Her app knows the library’s address. It never needs the address of either server."
+        },
+        {
+          "from": "Load balancer",
+          "label": "First search",
+          "to": "Server A",
+          "caption": "Both servers are ready. In this example the load balancer takes turns, so Maya’s search goes to Server A."
+        },
+        {
+          "from": "Load balancer",
+          "label": "Next search",
+          "to": "Server B",
+          "caption": "Jo searches for cookbooks. This time Server B gets the work. Both readers still see the same catalogue."
+        }
+      ],
+      "technology": "An AWS Application Load Balancer can take turns sending web requests to healthy servers. This turn-taking rule is called round robin.",
+      "fork": {
+        "entry": "Library app",
+        "hub": "Load balancer",
+        "branches": [
+          "Server A",
+          "Server B"
+        ]
+      }
+    }
   },
   {
     "title": "LB vs Reverse Proxy",
@@ -1191,7 +2024,32 @@
         "url": "https://en.wikipedia.org/wiki/Reverse_proxy",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A cinema site has one ticket server behind its public web address. Next month it will need a second ticket server.",
+      "meaning": "A reverse proxy receives a request on behalf of a service and forwards it. Load balancing is the job of choosing among available destinations.",
+      "steps": [
+        {
+          "from": "Cinema visitor",
+          "label": "contacts",
+          "to": "Reverse proxy",
+          "caption": "The proxy handles the public connection for the cinema."
+        },
+        {
+          "from": "Reverse proxy",
+          "label": "forwards to",
+          "to": "Only ticket server",
+          "caption": "The proxy already performs its role with just one destination."
+        },
+        {
+          "from": "Expanded proxy",
+          "label": "chooses between",
+          "to": "Two ticket servers",
+          "caption": "Once it distributes requests across the pair, the same component performs load balancing too."
+        }
+      ],
+      "technology": "An NGINX reverse proxy can forward to one upstream server or select from a configured upstream group."
+    }
   },
   {
     "title": "Load Balancing Algorithms",
@@ -1227,7 +2085,32 @@
         "url": "https://www.jscape.com/blog/load-balancing-algorithms",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Two servers stream story time to classrooms. One class listens for a minute while another stays connected for an hour.",
+      "meaning": "A balancing algorithm is the rule for picking a destination. The rule should use a signal that reflects the work each server is already doing.",
+      "steps": [
+        {
+          "from": "Server A",
+          "label": "holds",
+          "to": "8 streams",
+          "caption": "Suppose each live stream occupies one equal-sized slot for as long as its class listens."
+        },
+        {
+          "from": "Server B",
+          "label": "holds",
+          "to": "2 streams",
+          "caption": "Although the two servers may have started a similar number of streams, B has more free slots now."
+        },
+        {
+          "from": "Least-connections rule",
+          "label": "chooses",
+          "to": "Server B",
+          "caption": "Sending the next stream to B brings its count to three. This rule works here because each connection has a similar cost."
+        }
+      ],
+      "technology": "NGINX supports a least-connections policy for upstream groups when active connection counts reflect server load."
+    }
   },
   {
     "title": "Layer 7 Load Balancing",
@@ -1268,7 +2151,40 @@
         "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A workshop website sends video uploads and booking requests to different teams, all under one hostname.",
+      "meaning": "A layer 7 balancer understands application information such as an HTTP request path. It can use that information to choose the service that handles a request.",
+      "steps": [
+        {
+          "from": "Browser",
+          "label": "HTTPS request",
+          "to": "Workshop gateway",
+          "caption": "Your browser connects to the workshop site. The gateway opens the encrypted request and reads the path, the part of the address after the site name."
+        },
+        {
+          "from": "Workshop gateway",
+          "label": "/videos/intro",
+          "to": "Video service",
+          "caption": "The path starts with /videos, so the gateway sends this request to the servers that handle uploads."
+        },
+        {
+          "from": "Workshop gateway",
+          "label": "/bookings/new",
+          "to": "Booking service",
+          "caption": "When you reserve a seat, the path starts with /bookings. The same site address now leads to a different service."
+        }
+      ],
+      "technology": "AWS Application Load Balancer and Azure Application Gateway both let teams write rules based on the path in a web address.",
+      "fork": {
+        "entry": "Browser",
+        "hub": "Workshop gateway",
+        "branches": [
+          "Video service",
+          "Booking service"
+        ]
+      }
+    }
   },
   {
     "title": "Layer 4 Load Balancing",
@@ -1299,7 +2215,32 @@
         "url": "https://www.f5.com/glossary/layer-4-load-balancing",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Weather sensors send encrypted readings over long-lived connections. The collecting servers hold the keys needed to read them.",
+      "meaning": "A layer 4 balancer assigns network connections using information such as addresses and ports. It can forward encrypted bytes to a server without opening the messages inside.",
+      "steps": [
+        {
+          "from": "Sensor",
+          "label": "opens TCP to",
+          "to": "Collector endpoint",
+          "caption": "TCP establishes the connection that will carry this sensor's readings."
+        },
+        {
+          "from": "Balancer",
+          "label": "assigns flow",
+          "to": "Collector B",
+          "caption": "It uses connection information to select a collector. The collector handles the encryption session."
+        },
+        {
+          "from": "Later readings",
+          "label": "stay with",
+          "to": "Collector B",
+          "caption": "Messages on that established connection continue to the same collector. A new connection can go elsewhere."
+        }
+      ],
+      "technology": "A network load balancer with a TCP listener can pass the sensor's encrypted stream through to its collector."
+    }
   },
   {
     "title": "Horizontal Scaling",
@@ -1335,7 +2276,32 @@
         "url": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A maths practice app gets busy just before a test. Adding a second web server should let either one answer a student's next question.",
+      "meaning": "Horizontal scaling means adding more machines to share the work. If the next request goes to a different machine, that machine still needs a way to find the user’s data.",
+      "steps": [
+        {
+          "from": "Student",
+          "label": "saves answer on",
+          "to": "Server A",
+          "caption": "Server A records the answer in shared storage that both servers can read."
+        },
+        {
+          "from": "Next request",
+          "label": "lands on",
+          "to": "Server B",
+          "caption": "The balancer can now assign work to B as well as A."
+        },
+        {
+          "from": "Server B",
+          "label": "reads",
+          "to": "Saved answer",
+          "caption": "B resumes the same exercise from shared storage. The student's progress survives the change of server."
+        }
+      ],
+      "technology": "A stateless web API can run in several containers backed by one durable progress store."
+    }
   },
   {
     "title": "Application Layer",
@@ -1366,7 +2332,32 @@
         "url": "https://lethain.com/introduction-to-architecting-systems-for-scale/",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "Lena shares a playlist with a friend. Only Lena is allowed to remove a song.",
+      "meaning": "The application layer runs rules about what a user is allowed to do and what should happen as a result. The rule must run where the user cannot bypass it.",
+      "steps": [
+        {
+          "from": "Friend's phone",
+          "label": "requests",
+          "to": "Song removal",
+          "caption": "Being able to send a request does not prove the friend owns the playlist."
+        },
+        {
+          "from": "Playlist service",
+          "label": "checks",
+          "to": "Owner record",
+          "caption": "The service checks the signed-in identity against the playlist's permitted editors."
+        },
+        {
+          "from": "Playlist service",
+          "label": "returns",
+          "to": "Permission denied",
+          "caption": "The song stays in the playlist because the service rejected the change before writing it."
+        }
+      ],
+      "technology": "A server-side API handler can authorize the caller and apply an allowed edit within a database transaction."
+    }
   },
   {
     "title": "Microservices",
@@ -1407,7 +2398,32 @@
         "url": "https://martinfowler.com/articles/microservices.html",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "An audiobook shop needs more workers to encode sound files, while its billing service is nearly idle.",
+      "meaning": "Microservices split a product into services with distinct responsibilities that can be deployed separately. Each service owns the meaning and changes of its own data.",
+      "steps": [
+        {
+          "from": "Publisher",
+          "label": "uploads book to",
+          "to": "Catalog service",
+          "caption": "The catalog records the new title and requests audio processing."
+        },
+        {
+          "from": "Encoding service",
+          "label": "adds",
+          "to": "Encoding workers",
+          "caption": "The team increases audio-processing capacity without deploying another copy of billing."
+        },
+        {
+          "from": "Encoding service",
+          "label": "reports completion to",
+          "to": "Catalog service",
+          "caption": "Catalog marks the title playable only after it receives confirmation. It needs a way to recover if that message is delayed."
+        }
+      ],
+      "technology": "A catalog API can publish an encoding job to a queue and accept a completion event carrying the book's ID."
+    }
   },
   {
     "title": "Service Discovery",
@@ -1443,6 +2459,31 @@
         "url": "https://en.wikipedia.org/wiki/Service-oriented_architecture",
         "source": "roadmap.sh"
       }
-    ]
+    ],
+    "story": {
+      "intro": "A checkout service needs the price of a mug. The pricing containers get fresh network addresses after every release.",
+      "meaning": "Service discovery is how one service finds another when addresses can change. Checkout can keep asking for “pricing” even as the machines answering to that name come and go.",
+      "steps": [
+        {
+          "from": "New pricing instance",
+          "label": "registers with",
+          "to": "Service directory",
+          "caption": "The directory associates the pricing name with the instance's current address."
+        },
+        {
+          "from": "Checkout",
+          "label": "looks up",
+          "to": "Pricing service",
+          "caption": "Checkout uses the name from its configuration and gets an endpoint it can try."
+        },
+        {
+          "from": "Checkout",
+          "label": "calls",
+          "to": "Pricing instance",
+          "caption": "The request reaches the replacement without changing checkout's code. A failed connection may require another lookup and retry."
+        }
+      ],
+      "technology": "In Kubernetes, a Service provides a stable name and can route traffic to the ready pods selected for that service."
+    }
   }
 ]

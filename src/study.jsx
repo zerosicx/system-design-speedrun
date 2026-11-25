@@ -6,8 +6,6 @@ import {
   Layers3,
   CheckCircle2,
   Circle,
-  BookOpen,
-  Sprout,
   Zap,
   Shuffle,
   Check,
@@ -16,6 +14,7 @@ import {
 import { chapters, concepts, inChapter } from "./curriculum";
 import { href, go, Empty } from "./ui";
 import { Question } from "./quiz";
+import { StoryNotes } from "./LessonWalkthrough";
 import { ApiComparison, CloudExample } from "./LessonExamples";
 
 const chapterFor = (id) => chapters.find((c) => c.id === id);
@@ -151,7 +150,7 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
     next = concepts[globalIndex + 1],
     saved = p.saved.includes(c.id);
   return (
-    <>
+    <div className="lesson-view">
       <div className="page-intro">
         <a className="back-link" href={href("chapter/" + ch.id)}>
           <ChevronLeft size={15} />
@@ -174,32 +173,7 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
           </button>
         </div>
       </div>
-      <article className="panel reading">
-        <div className="eyebrow mono">
-          <BookOpen size={16} /> FIELD NOTE
-        </div>
-        <p className="lead">{c.lesson}</p>
-        <p className="lesson-detail">{c.detail}</p>
-        <div className="example">
-          <h3>
-            <Sprout size={18} /> In practice
-          </h3>
-          <p>{c.example}</p>
-        </div>
-        <section className="lesson-terms" aria-label="Key terms">
-          <h2>Key terms</h2>
-          <dl>
-            {c.terms.map(({ term, definition }) => (
-              <div key={term}>
-                <dt>{term}</dt>
-                <dd>{definition}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      </article>
-      {c.cloudExample && <CloudExample key={c.id} scenario={c.cloudExample} />}
-      {c.hasComparison && <ApiComparison />}
+      <StoryNotes lesson={c} />
       <section className="panel recall">
         <div className="eyebrow mono">
           <Zap size={16} /> QUICK CHECK
@@ -226,6 +200,8 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
               : "Mark studied & finish"}
         </button>
       </div>
+      {c.cloudExample && <CloudExample key={c.id} scenario={c.cloudExample} />}
+      {c.hasComparison && <ApiComparison />}
       <section className="lesson-references" aria-label="Free references">
         <h2>Free references</h2>
         <ul>
@@ -245,6 +221,6 @@ export function Lesson({ c, p, bookmark, mark, shuffle, onAnswer }) {
           ))}
         </ul>
       </section>
-    </>
+    </div>
   );
 }

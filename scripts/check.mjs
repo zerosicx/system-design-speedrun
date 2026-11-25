@@ -24,6 +24,31 @@ for (const group of ["core", "systems", "patterns"]) {
     for (const k of ["title", "lesson", "detail", "example", "question", "why"])
       assert.ok(c[k]?.trim(), group + " missing " + k);
     assert.ok(sections.has(c.section), c.section);
+    for (const field of ["intro", "meaning", "technology"])
+      assert.ok(c.story?.[field]?.trim(), c.title + " missing story " + field);
+    assert.ok(c.story.steps.length >= 2 && c.story.steps.length <= 5, c.title);
+    const frames = new Set();
+    for (const frame of c.story.steps) {
+      for (const field of ["from", "label", "to", "caption"])
+        assert.ok(
+          typeof frame[field] === "string" && frame[field].trim(),
+          c.title + " missing frame " + field,
+        );
+      assert.ok(!frames.has(frame.caption), c.title + " repeats a frame");
+      frames.add(frame.caption);
+    }
+    if (c.title === "Noisy Neighbor") assert.equal(c.story.steps.length, 2);
+    if (c.story.fork) {
+      const { entry, hub, branches } = c.story.fork;
+      assert.equal(branches.length, 2);
+      const links = [[entry, hub], ...branches.map((branch) => [hub, branch])];
+      assert.equal(new Set([entry, hub, ...branches]).size, 4, c.title);
+      for (const { from, to } of c.story.steps)
+        assert.ok(
+          links.some(([a, b]) => a === from && b === to),
+          c.title + " highlights a missing link",
+        );
+    }
     assert.ok(c.terms.length > 0, c.title + " needs terminology");
     for (const { term, definition } of c.terms) {
       assert.ok(term.trim() && definition.trim(), c.title);

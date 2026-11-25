@@ -1,6 +1,6 @@
 # Stack Garden
 
-A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.sh/system-design). The curriculum contains 144 short lessons across ten freely accessible chapters. Each lesson includes a worked explanation, an example, defined terminology, free references, and a visible scenario question with feedback after you answer. Lessons and key terms are searchable and work offline. External reading links require connectivity.
+A React PWA for studying the [roadmap.sh System Design Roadmap](https://roadmap.sh/system-design). The curriculum contains 144 short lessons across ten freely accessible chapters. Each lesson opens with a concrete story, a plain-language definition, an interactive diagram, and a related technology example. Technical notes, key terms, free references, and a visible scenario quiz support deeper study. Lessons and key terms are searchable and work offline. External reading links require connectivity.
 
 ## Study
 
@@ -8,7 +8,7 @@ Open **Speedrun plan** for a first pass tonight and a recall session tomorrow. *
 
 Fifteen worked scenarios cover AWS and Azure implementations across the stack. Each includes a component flow, a design trade-off, and official documentation. The communication lessons compare RPC, gRPC, REST, and GraphQL through an order lookup. Both the walkthroughs and tables are available offline.
 
-The core reading pass contains approximately 19,500 words of lessons, examples, and definitions. At 150–200 words per minute that is roughly 98–130 minutes of reading, plus time for questions, breaks and reflection.
+The core reading pass contains about 21,800 words of stories, illustrated steps, technology examples, and definitions. At 150–200 words per minute that is roughly 109–146 minutes of reading, plus time for questions, breaks and reflection.
 
 ## Install on a phone
 
